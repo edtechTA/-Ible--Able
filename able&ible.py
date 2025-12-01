@@ -6,7 +6,7 @@ import os
 
 # --- Configuration & Styles ---
 st.set_page_config(
-    page_title="Trident Academy Word Wizards",
+    page_title="Trident Word Wizards",
     page_icon="🧙‍♂️",
     layout="wide",
     initial_sidebar_state="collapsed"
@@ -364,7 +364,7 @@ def ask_gemini_explanation(word):
 # --- Activities ---
 
 def activity_menu():
-    st.markdown("<h1 class='main-header'>Trident Academy Word Wizards 🧙‍♂️</h1>", unsafe_allow_html=True)
+    st.markdown("<h1 class='main-header'>Trident Word Wizards 🧙‍♂️</h1>", unsafe_allow_html=True)
     st.markdown("<p class='sub-header'>Lesson 6: <span style='background:#FFCC00; padding:2px 5px; border-radius:4px'>-able</span> & <span style='background:#FFCC00; padding:2px 5px; border-radius:4px'>-ible</span></p>", unsafe_allow_html=True)
 
     col1, col2, col3 = st.columns(3)
@@ -768,7 +768,40 @@ def yes_no_activity():
     else:
         # Show Feedback and Next Button
         if st.session_state[f"yn_answered_{task['id']}"] == "correct":
-            st.success("Correct Answer!")
+            
+            # --- NEW FUN VISUAL FEEDBACK ---
+            fun_messages = [
+                "🎉 SPECTACULAR! 🎉",
+                "🌟 YOU GOT IT! 🌟",
+                "🚀 WAY TO GO! 🚀",
+                "🧙‍♂️ PURE MAGIC! 🧙‍♂️",
+                "✨ EXCELLENT! ✨"
+            ]
+            msg = random.choice(fun_messages)
+            
+            st.markdown(f"""
+            <div style="
+                background-color: #d4edda; 
+                padding: 3rem; 
+                border-radius: 20px; 
+                border: 5px solid #28a745; 
+                text-align: center; 
+                margin-bottom: 2rem;
+                animation: pulse 2s infinite;
+                box-shadow: 0 10px 20px rgba(0,0,0,0.1);">
+                <h1 style="color: #155724; font-size: 4rem; margin:0; font-family: 'Comic Sans MS', cursive;">{msg}</h1>
+                <p style="font-size: 2rem; color: #155724; margin-top: 1rem;">That answer was correct!</p>
+            </div>
+            <style>
+            @keyframes pulse {{
+                0% {{ transform: scale(1); box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.7); }}
+                70% {{ transform: scale(1.02); box-shadow: 0 0 0 15px rgba(40, 167, 69, 0); }}
+                100% {{ transform: scale(1); box-shadow: 0 0 0 0 rgba(40, 167, 69, 0); }}
+            }}
+            </style>
+            """, unsafe_allow_html=True)
+            # -------------------------------
+
         else:
             st.error("Oops! That was incorrect.")
             
