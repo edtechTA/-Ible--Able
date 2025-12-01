@@ -6,7 +6,7 @@ import os
 
 # --- Configuration & Styles ---
 st.set_page_config(
-    page_title="Trident Word Wizards",
+    page_title="Trident Academy Word Wizards",
     page_icon="🧙‍♂️",
     layout="wide",
     initial_sidebar_state="collapsed"
