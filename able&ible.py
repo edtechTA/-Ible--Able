@@ -658,13 +658,15 @@ def antonym_activity():
     st.markdown("<div style='text-align:center; font-size: 2.5rem; margin: 10px 0;'>⇄</div>", unsafe_allow_html=True)
     
     # 3. Answer/Placeholder Area (Bottom)
-    st.markdown("<div style='text-align:center; margin-bottom: 2rem;'>", unsafe_allow_html=True)
+    # Construct HTML first to ensure proper nesting for centering
+    answer_html = "<div style='text-align:center; margin-bottom: 2rem;'>"
     if current_state == "correct":
-         st.markdown(f"<div class='antonym-answer-box'>{task['answer']}</div>", unsafe_allow_html=True)
+         answer_html += f"<div class='antonym-answer-box'>{task['answer']}</div>"
     else:
-         st.markdown("<div class='antonym-placeholder'>?</div>", unsafe_allow_html=True)
-    st.markdown("</div>", unsafe_allow_html=True)
+         answer_html += "<div class='antonym-placeholder'>?</div>"
+    answer_html += "</div>"
     
+    st.markdown(answer_html, unsafe_allow_html=True)
     
     # -- LOGIC & BUTTONS --
     
