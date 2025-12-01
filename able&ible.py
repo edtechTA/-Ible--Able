@@ -272,6 +272,21 @@ READING_STORIES = [
             {"question": "Why did Tim use flexible plastic?", "options": ["So it was not breakable", "So it was edible", "So it was miserable", "So it was combustible"], "correctAnswer": "So it was not breakable"},
             {"question": "The judges thought the invention was:", "options": ["Terrible", "Remarkable", "Changeable", "Valueless"], "correctAnswer": "Remarkable"}
         ]
+    },
+    {
+        "id": 3,
+        "title": "The Enjoyable Picnic",
+        "paragraphs": [
+            "The Smith family planned an enjoyable picnic in the park. Mom made sure all the food was edible and tasty.",
+            "They brought a big, soft blanket that was very comfortable to sit on. Dad told some terrible jokes that made everyone groan, but they laughed anyway.",
+            "Suddenly, it started to rain! They had to be flexible and move the picnic into the car.",
+            "Even with the rain, it was a memorable day."
+        ],
+        "questions": [
+            {"question": "The blanket they brought was:", "options": ["Terrible", "Comfortable", "Breakable", "Invisible"], "correctAnswer": "Comfortable"},
+            {"question": "How did the family feel about the picnic?", "options": ["It was enjoyable", "It was miserable", "It was horrible", "It was impossible"], "correctAnswer": "It was enjoyable"},
+            {"question": "When it rained, the family had to be:", "options": ["Rigid", "Flexible", "Combustible", "Valuable"], "correctAnswer": "Flexible"}
+        ]
     }
 ]
 
@@ -762,7 +777,15 @@ def yes_no_activity():
             st.rerun()
 
 def reading_activity():
-    st.header("📖 Reading Comprehension")
+    c1, c2 = st.columns([3, 1])
+    with c1:
+        st.header("📖 Reading Comprehension")
+    with c2:
+        if st.button("🔄 New Story"):
+            st.session_state.reading_story_index = (st.session_state.reading_story_index + 1) % len(READING_STORIES)
+            st.session_state.reading_quiz_index = 0
+            st.session_state.story_is_read = False
+            st.rerun()
     
     story = READING_STORIES[st.session_state.reading_story_index]
     
