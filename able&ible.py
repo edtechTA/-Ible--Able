@@ -12,10 +12,10 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# Custom CSS for Trident Academy Branding
+# Custom CSS for Trident Academy Branding and Activity Specifics
 st.markdown("""
 <style>
-    /* Trident Colors: Blue #003366, Gold #FFCC00 */
+    /* Global Styles */
     .stApp {
         background-color: #f8f9fa;
     }
@@ -33,62 +33,112 @@ st.markdown("""
         font-size: 1.2rem;
         margin-bottom: 2rem;
     }
-    .activity-card {
-        background-color: white;
-        padding: 2rem;
-        border-radius: 15px;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        text-align: center;
-        border: 2px solid transparent;
-        transition: all 0.3s ease;
-        height: 100%;
-    }
-    .activity-card:hover {
-        border-color: #003366;
-        transform: translateY(-5px);
-    }
+    
+    /* Button Styling */
     .stButton button {
         background-color: #003366;
         color: white;
         border-radius: 20px;
         font-weight: bold;
         padding: 0.5rem 1rem;
-        border: none;
+        border: 2px solid #003366;
+        transition: transform 0.1s;
     }
     .stButton button:hover {
         background-color: #004080;
         color: #FFCC00;
+        transform: scale(1.05);
     }
-    .success-text {
-        color: #28a745;
+
+    /* Activity 1: Syllable Detective */
+    .syllable-box {
+        background-color: #e3f2fd;
+        border: 3px dashed #003366;
+        padding: 2rem;
+        border-radius: 15px;
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    /* Activity 2: Word Builder Zones */
+    .wb-workshop {
+        background-color: #003366; /* Trident Blue */
+        color: white;
+        padding: 2rem;
+        border-radius: 15px;
+        text-align: center;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+    }
+    .wb-parts-bin {
+        background-color: #FFF3CD; /* Light Gold */
+        border: 2px solid #FFCC00;
+        padding: 2rem;
+        border-radius: 15px;
+        margin-bottom: 2rem;
+    }
+    .wb-controls {
+        padding: 1rem;
+        border-top: 1px solid #ccc;
+        margin-top: 2rem;
+    }
+
+    /* Activity 3: Sentence Master */
+    .sentence-display {
+        font-size: 2.5rem !important;
         font-weight: bold;
-        font-size: 1.2rem;
+        color: #333;
+        line-height: 1.5;
+        padding: 20px;
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
-    .error-text {
-        color: #dc3545;
-        font-weight: bold;
+    .big-radio .stRadio > div {
+        gap: 20px;
     }
-    .word-display {
+    .big-radio label {
+        font-size: 2rem !important;
+        background-color: white;
+        padding: 10px 20px;
+        border-radius: 10px;
+        border: 2px solid #eee;
+    }
+
+    /* Activity 4: Antonym Bubbles */
+    .antonym-clue {
         font-size: 3rem;
         font-weight: bold;
         color: #003366;
         text-align: center;
-        margin: 1rem 0;
     }
+    
+    /* Activity 6: Reading */
+    .story-box {
+        background-color: #fff;
+        padding: 2rem;
+        border-radius: 10px;
+        border-left: 10px solid #003366;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .quiz-box {
+        background-color: #FFCC00;
+        padding: 2rem;
+        border-radius: 10px;
+        color: #003366;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+
 </style>
 """, unsafe_allow_html=True)
 
 # --- Gemini Setup ---
-# Tries to get API key from Streamlit secrets first, then environment variable
 api_key = st.secrets.get("API_KEY") or os.environ.get("API_KEY")
-
 if api_key:
     genai.configure(api_key=api_key)
     model = genai.GenerativeModel('gemini-2.5-flash')
 
 # --- Constants & Data ---
-# Ported directly from constants.ts
-
 SYLLABLE_DATA = [
     {"id": 1, "word": "presentable", "correctSyllables": ["pre", "sent", "able"]},
     {"id": 2, "word": "miserable", "correctSyllables": ["mis", "er", "able"]},
@@ -170,21 +220,6 @@ READING_STORIES = [
             {"question": "Why did Tim use flexible plastic?", "options": ["So it was not breakable", "So it was edible", "So it was miserable", "So it was combustible"], "correctAnswer": "So it was not breakable"},
             {"question": "The judges thought the invention was:", "options": ["Terrible", "Remarkable", "Changeable", "Valueless"], "correctAnswer": "Remarkable"}
         ]
-    },
-    {
-        "id": 3,
-        "title": "The Adorable Puppy",
-        "paragraphs": [
-            "Sarah wanted a dog for a long time. Her parents said she had to be responsible before she could get one. Finally, they agreed.",
-            "They visited the shelter and found a small, adorable puppy. He was very excitable and jumped all over Sarah.",
-            "At first, the puppy's behavior was terrible. He chewed shoes and barked all night. Sarah wondered if he would ever be manageable.",
-            "With patience and treats, the puppy learned to sit. He became a lovable member of the family."
-        ],
-        "questions": [
-            {"question": "What did Sarah need to be before getting a dog?", "options": ["Excitable", "Responsible", "Invisible", "Possible"], "correctAnswer": "Responsible"},
-            {"question": "The puppy was described as:", "options": ["Miserable", "Combustible", "Adorable", "Available"], "correctAnswer": "Adorable"},
-            {"question": "Eventually, the puppy became:", "options": ["Unmanageable", "Lovable", "Horrible", "Breakable"], "correctAnswer": "Lovable"}
-        ]
     }
 ]
 
@@ -195,10 +230,19 @@ if 'completed_syllables' not in st.session_state:
     st.session_state.completed_syllables = []
 if 'completed_words' not in st.session_state:
     st.session_state.completed_words = []
-if 'sentence_scores' not in st.session_state:
-    st.session_state.sentence_scores = set()
-if 'antonym_scores' not in st.session_state:
-    st.session_state.antonym_scores = set()
+# Index trackers for one-at-a-time activities
+if 'sent_index' not in st.session_state:
+    st.session_state.sent_index = 0
+if 'ant_index' not in st.session_state:
+    st.session_state.ant_index = 0
+if 'yn_index' not in st.session_state:
+    st.session_state.yn_index = 0
+if 'reading_story_index' not in st.session_state:
+    st.session_state.reading_story_index = 0
+if 'reading_quiz_index' not in st.session_state:
+    st.session_state.reading_quiz_index = 0
+if 'story_is_read' not in st.session_state:
+    st.session_state.story_is_read = False
 if 'wb_difficulty' not in st.session_state:
     st.session_state.wb_difficulty = 'normal'
 
@@ -206,18 +250,29 @@ if 'wb_difficulty' not in st.session_state:
 def go_home():
     st.session_state.current_activity = None
 
-def play_success():
-    st.toast("Awesome Job! 🎉", icon="⭐")
-    st.balloons()
+def celebrate_success():
+    """Randomized visual reward system"""
+    effect = random.choice(["balloons", "snow", "magic"])
+    if effect == "balloons":
+        st.balloons()
+    elif effect == "snow":
+        st.snow()
+    else:
+        st.toast("✨ Magical! Outstanding Work! ✨", icon="🧙‍♂️")
+        time.sleep(0.5)
+        st.toast("🌟 You are a Word Wizard! 🌟", icon="⭐")
 
 def play_error():
-    st.toast("Try Again!", icon="❌")
+    st.toast("Not quite! Try again.", icon="❌")
 
 def reset_progress():
     st.session_state.completed_syllables = []
     st.session_state.completed_words = []
-    st.session_state.sentence_scores = set()
-    st.session_state.antonym_scores = set()
+    st.session_state.sent_index = 0
+    st.session_state.ant_index = 0
+    st.session_state.yn_index = 0
+    st.session_state.reading_quiz_index = 0
+    st.session_state.story_is_read = False
     st.success("Progress Reset!")
     time.sleep(1)
     st.rerun()
@@ -232,29 +287,6 @@ def ask_gemini_explanation(word):
         return response.text
     except Exception as e:
         return None
-
-def generate_new_words():
-    if not api_key:
-        return []
-    try:
-        prompt = """Generate 3 new words ending in -able or -ible suitable for a Lesson 6 Orton-Gillingham reading exercise. 
-        Return them exactly in this format: word|part1-part2-part3
-        Example: incredible|in-cred-ible
-        Ensure they are distinct from: presentable, miserable, valuable, impossible."""
-        response = model.generate_content(prompt)
-        lines = response.text.split('\n')
-        new_tasks = []
-        for line in lines:
-            if '|' in line:
-                word, parts = line.split('|')
-                new_tasks.append({
-                    "id": random.randint(1000,9999),
-                    "word": word.strip(),
-                    "correctSyllables": parts.strip().split('-')
-                })
-        return new_tasks
-    except:
-        return []
 
 # --- Activities ---
 
@@ -295,13 +327,12 @@ def activity_menu():
 def syllable_splitter():
     st.header("✂️ Syllable Detective")
     
-    # Progress Bar
+    # Progress
     total = len(SYLLABLE_DATA)
     completed = len(st.session_state.completed_syllables)
     st.progress(completed / total if total > 0 else 0)
-    st.caption(f"Progress: {completed}/{total} words")
-
-    # Select Task (find first incomplete or random)
+    
+    # Get Task
     incomplete = [t for t in SYLLABLE_DATA if t['id'] not in st.session_state.completed_syllables]
     
     if not incomplete:
@@ -313,47 +344,55 @@ def syllable_splitter():
 
     task = incomplete[0]
     
-    st.markdown(f"<div class='word-display'>{task['word']}</div>", unsafe_allow_html=True)
-    st.info("Break the word into parts. Remember: keep the suffix (-able/-ible) together in the last box!")
-
-    # Dynamic Columns for Inputs
+    # Layout Separation: Word & Instructions vs Input Box
+    st.markdown(f"<div style='text-align:center; font-size:3rem; color:#003366; font-weight:bold; margin-bottom:1rem;'>{task['word']}</div>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align:center;'>Break the word into parts below. Keep the suffix (-able/-ible) together!</p>", unsafe_allow_html=True)
+    
+    # Distinct Input Container
+    st.markdown('<div class="syllable-box">', unsafe_allow_html=True)
+    
     cols = st.columns(len(task['correctSyllables']))
     user_inputs = []
     
     with st.form(key=f"syllable_form_{task['id']}"):
         for i, col in enumerate(cols):
-            val = col.text_input(f"Part {i+1}", key=f"syl_{task['id']}_{i}").strip().lower()
+            # Using label_visibility="collapsed" to make it cleaner, visual instructions above
+            val = col.text_input(f"Part {i+1}", key=f"syl_{task['id']}_{i}", label_visibility="visible").strip().lower()
             user_inputs.append(val)
         
+        st.markdown("<br>", unsafe_allow_html=True)
         submitted = st.form_submit_button("Check Answer")
         
-        if submitted:
-            if user_inputs == task['correctSyllables']:
-                play_success()
-                st.session_state.completed_syllables.append(task['id'])
-                
-                # AI Explanation
-                with st.spinner("Asking the AI Wizard for a tip..."):
-                    expl = ask_gemini_explanation(task['word'])
-                    if expl:
-                        st.markdown(f"> *Wizard says:* {expl}")
-                
-                time.sleep(2)
-                st.rerun()
-            else:
-                play_error()
-                st.error("Not quite! Check your splits. Is the suffix in one box?")
+    st.markdown('</div>', unsafe_allow_html=True)
+
+    if submitted:
+        if user_inputs == task['correctSyllables']:
+            celebrate_success()
+            st.session_state.completed_syllables.append(task['id'])
+            
+            # AI Explanation
+            with st.spinner("Asking the AI Wizard for a tip..."):
+                expl = ask_gemini_explanation(task['word'])
+                if expl:
+                    st.success(f"Wizard says: {expl}")
+            
+            time.sleep(3)
+            st.rerun()
+        else:
+            play_error()
+            st.error("Not quite! Check your splits. Is the suffix in one box?")
 
 def word_builder():
     st.header("🔨 Word Construction Site")
     
-    # Difficulty Toggle
-    diff = st.radio("Difficulty:", ["normal", "challenge"], index=0 if st.session_state.wb_difficulty == 'normal' else 1, horizontal=True)
+    # Difficulty
+    col_d1, col_d2 = st.columns([3,1])
+    with col_d2:
+        diff = st.radio("Mode:", ["normal", "challenge"], index=0 if st.session_state.wb_difficulty == 'normal' else 1, horizontal=True)
     if diff != st.session_state.wb_difficulty:
         st.session_state.wb_difficulty = diff
         st.rerun()
 
-    # Get Incomplete Task
     incomplete = [t for t in WORD_BUILDER_DATA if t['id'] not in st.session_state.completed_words]
     
     if not incomplete:
@@ -365,167 +404,267 @@ def word_builder():
 
     task = incomplete[0]
     
-    st.markdown(f"### Meaning: *{task['meaning']}*")
+    # ZONE 1: The Workshop (Target & Display)
+    st.markdown("### 1. The Workshop")
+    st.markdown(f"<div class='wb-workshop'><h3>Meaning: {task['meaning']}</h3></div>", unsafe_allow_html=True)
     
-    # Setup Parts
+    # Current Build State
+    if 'wb_current_build' not in st.session_state:
+        st.session_state.wb_current_build = []
+        
+    current_word = "".join(st.session_state.wb_current_build) if st.session_state.wb_current_build else "..."
+    st.markdown(f"<div style='font-size:3rem; font-family:monospace; text-align:center; letter-spacing: 5px; margin-bottom: 2rem; color:#003366;'>{current_word}</div>", unsafe_allow_html=True)
+
+    # ZONE 2: Parts Bin
+    st.markdown("### 2. Parts Bin (Click to Add)")
+    
     parts = task['parts'].copy()
     if st.session_state.wb_difficulty == 'challenge':
-        # Add distractors
         all_parts = [p for t in WORD_BUILDER_DATA for p in t['parts']]
         distractors = random.sample(all_parts, 3)
         parts.extend(distractors)
     
-    # Shuffle parts (seed by task id to keep stable during interaction)
     random.seed(task['id'] + len(parts)) 
     random.shuffle(parts)
 
-    # State for current building attempt
-    if 'wb_current_build' not in st.session_state:
-        st.session_state.wb_current_build = []
+    st.markdown('<div class="wb-parts-bin">', unsafe_allow_html=True)
     
-    # Display Built Word So Far
-    st.markdown(f"<div style='font-size:2rem; font-family:monospace; background:#e9ecef; padding:1rem; border-radius:10px; text-align:center; letter-spacing: 5px;'>{''.join(st.session_state.wb_current_build)}</div>", unsafe_allow_html=True)
-    
-    st.write("---")
-    st.write("Click parts to add them:")
-    
-    # Buttons for parts
-    # To avoid rerun issues wiping state instantly, we use callbacks or check click state
-    cols = st.columns(4)
+    # Using columns for buttons to space them out
+    b_cols = st.columns(len(parts))
     for i, part in enumerate(parts):
-        if cols[i % 4].button(part, key=f"btn_{task['id']}_{i}"):
+        # We can't style individual buttons easily in Streamlit python, but we placed them in a styled div
+        # Using a Unique key combined with len of current build ensures state updates correctly
+        if b_cols[i].button(part, key=f"btn_{task['id']}_{i}_{len(st.session_state.wb_current_build)}", use_container_width=True):
             st.session_state.wb_current_build.append(part)
             st.rerun()
+    st.markdown('</div>', unsafe_allow_html=True)
 
-    col_act1, col_act2 = st.columns(2)
-    if col_act1.button("Checking Answer..."):
-        # Dummy button, logic is below
-        pass
+    # ZONE 3: Control Panel
+    st.markdown('<div class="wb-controls">', unsafe_allow_html=True)
+    c1, c2, c3 = st.columns([1, 1, 1])
     
-    if col_act1.button("✅ Check Word"):
-        built_word = "".join(st.session_state.wb_current_build)
-        if built_word == task['targetWord']:
-            play_success()
-            st.session_state.completed_words.append(task['id'])
-            st.session_state.wb_current_build = [] # Reset for next
-            time.sleep(1)
-            st.rerun()
-        else:
-            play_error()
-            st.error(f"Try again! You built '{built_word}'")
-            time.sleep(1)
+    with c1:
+        if st.button("↺ Reset Word", use_container_width=True):
             st.session_state.wb_current_build = []
             st.rerun()
             
-    if col_act2.button("↺ Reset"):
-        st.session_state.wb_current_build = []
-        st.rerun()
+    with c3:
+        if st.button("✅ Check Answer", use_container_width=True):
+            built_word = "".join(st.session_state.wb_current_build)
+            if built_word == task['targetWord']:
+                celebrate_success()
+                st.session_state.completed_words.append(task['id'])
+                st.session_state.wb_current_build = []
+                time.sleep(2)
+                st.rerun()
+            else:
+                play_error()
+                st.error(f"Try again! You built '{built_word}'")
+                time.sleep(2)
+                st.session_state.wb_current_build = []
+                st.rerun()
+    st.markdown('</div>', unsafe_allow_html=True)
 
 def sentence_fill():
     st.header("✍️ Sentence Master")
     
-    score = len(st.session_state.sentence_scores)
-    st.caption(f"Score: {score}/{len(SENTENCE_DATA)}")
+    if st.session_state.sent_index >= len(SENTENCE_DATA):
+        st.success("You have completed all sentences! 🎓")
+        if st.button("Start Over"):
+            st.session_state.sent_index = 0
+            st.rerun()
+        return
+
+    # One sentence at a time
+    task = SENTENCE_DATA[st.session_state.sent_index]
     
-    for task in SENTENCE_DATA:
-        container = st.container()
-        container.markdown(f"**{task['sentencePart1']} _____ {task['sentencePart2']}**")
-        
-        # Unique key for each radio
-        choice = container.radio("Choose:", task['options'], key=f"sent_{task['id']}", horizontal=True)
-        
-        if container.button("Check", key=f"btn_sent_{task['id']}"):
-            if choice == task['correctOption']:
-                play_success()
-                st.session_state.sentence_scores.add(task['id'])
-                container.success(f"Correct! The sentence is: {task['sentencePart1']} {choice} {task['sentencePart2']}")
-            else:
-                play_error()
-                container.error("Try again.")
-        st.divider()
+    st.markdown(f"**Sentence {st.session_state.sent_index + 1} of {len(SENTENCE_DATA)}**")
+    
+    # Large Text Display
+    st.markdown(f"""
+    <div class="sentence-display">
+        {task['sentencePart1']} <span style="text-decoration: underline; color: #FFCC00;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> {task['sentencePart2']}
+    </div>
+    """, unsafe_allow_html=True)
+    
+    st.write("") # Spacer
+    st.write("") 
+    
+    # Large Radio Buttons
+    st.markdown('<div class="big-radio">', unsafe_allow_html=True)
+    choice = st.radio("Select the correct word:", task['options'], key=f"sent_q_{task['id']}", horizontal=True)
+    st.markdown('</div>', unsafe_allow_html=True)
+    
+    st.write("") 
+    
+    if st.button("Check Answer", key=f"btn_check_{task['id']}"):
+        if choice == task['correctOption']:
+            celebrate_success()
+            st.success(f"Correct! {task['sentencePart1']} **{choice}** {task['sentencePart2']}")
+            time.sleep(2)
+            st.session_state.sent_index += 1
+            st.rerun()
+        else:
+            play_error()
+            st.error("Not quite right. Try again.")
 
 def antonym_activity():
-    st.header("🔄 Opposites Attract")
+    st.header("🔄 Opposites (Tap to Fill)")
     
-    score = len(st.session_state.antonym_scores)
-    st.caption(f"Score: {score}/{len(ANTONYM_DATA)}")
+    if st.session_state.ant_index >= len(ANTONYM_DATA):
+        st.success("All opposites found! ☯️")
+        if st.button("Play Again"):
+            st.session_state.ant_index = 0
+            st.rerun()
+        return
+
+    task = ANTONYM_DATA[st.session_state.ant_index]
     
-    # Word Bank
-    st.info(f"Word Bank: {', '.join([t['answer'] for t in ANTONYM_DATA])}")
+    st.markdown(f"**Word {st.session_state.ant_index + 1} of {len(ANTONYM_DATA)}**")
     
-    for task in ANTONYM_DATA:
-        col1, col2 = st.columns([1, 2])
-        col1.markdown(f"**{task['clue']}**")
-        ans = col2.text_input("Opposite:", key=f"ant_{task['id']}").strip().lower()
-        
-        if ans:
-            if ans == task['answer']:
-                if task['id'] not in st.session_state.antonym_scores:
-                    play_success()
-                    st.session_state.antonym_scores.add(task['id'])
-                col2.success("Correct!")
+    # Large Clue
+    st.markdown(f"<div class='antonym-clue'>{task['clue']}</div>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align:center; font-size: 1.5rem;'>⬇️</p>", unsafe_allow_html=True)
+    st.markdown("<div style='text-align:center; font-size: 2rem; border-bottom: 3px solid #003366; width: 50%; margin: 0 auto 2rem auto; color: #999;'>?</div>", unsafe_allow_html=True)
+    
+    st.info("Tap the blue bubble that means the opposite!")
+
+    # Bubble Bank (All answers + distractors logic could go here, but using simple bank for now)
+    # We show all answers from the dataset that haven't been used yet? 
+    # Or just a set of random choices including the answer?
+    # Let's show the correct answer + 3 random others from the set
+    
+    options = [task['answer']]
+    others = [t['answer'] for t in ANTONYM_DATA if t['answer'] != task['answer']]
+    options.extend(random.sample(others, min(3, len(others))))
+    random.shuffle(options)
+    
+    cols = st.columns(len(options))
+    for i, opt in enumerate(options):
+        if cols[i].button(opt, key=f"ant_btn_{task['id']}_{i}", use_container_width=True):
+            if opt == task['answer']:
+                celebrate_success()
+                st.session_state.ant_index += 1
+                time.sleep(1.5)
+                st.rerun()
             else:
-                col2.warning("Keep trying...")
+                play_error()
 
 def yes_no_activity():
     st.header("👍 Yes or No?")
     
-    for task in YES_NO_DATA:
-        st.subheader(task['question'])
-        col1, col2 = st.columns(2)
-        
-        yes = col1.button("YES", key=f"yes_{task['id']}", use_container_width=True)
-        no = col2.button("NO", key=f"no_{task['id']}", use_container_width=True)
-        
-        if yes:
+    if st.session_state.yn_index >= len(YES_NO_DATA):
+        st.success("You finished the questions! ✅")
+        if st.button("Restart"):
+            st.session_state.yn_index = 0
+            st.rerun()
+        return
+
+    task = YES_NO_DATA[st.session_state.yn_index]
+    
+    # Card View
+    st.markdown(f"""
+    <div style="background:white; padding:3rem; border-radius:15px; text-align:center; box-shadow:0 4px 6px rgba(0,0,0,0.1); margin-bottom:2rem;">
+        <h2 style="color:#003366;">{task['question']}</h2>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # State to show result
+    if f"yn_answered_{task['id']}" not in st.session_state:
+        st.session_state[f"yn_answered_{task['id']}"] = None
+
+    if st.session_state[f"yn_answered_{task['id']}"] is None:
+        c1, c2 = st.columns(2)
+        if c1.button("YES 👍", use_container_width=True):
             if task['answer'] == True:
-                play_success()
-                st.success("Correct!")
+                celebrate_success()
+                st.session_state[f"yn_answered_{task['id']}"] = "correct"
             else:
                 play_error()
-                st.error("Incorrect.")
-        
-        if no:
+                st.session_state[f"yn_answered_{task['id']}"] = "wrong"
+            st.rerun()
+            
+        if c2.button("NO 👎", use_container_width=True):
             if task['answer'] == False:
-                play_success()
-                st.success("Correct!")
+                celebrate_success()
+                st.session_state[f"yn_answered_{task['id']}"] = "correct"
             else:
                 play_error()
-                st.error("Incorrect.")
-        st.divider()
+                st.session_state[f"yn_answered_{task['id']}"] = "wrong"
+            st.rerun()
+            
+    else:
+        # Show Feedback and Next Button
+        if st.session_state[f"yn_answered_{task['id']}"] == "correct":
+            st.success("Correct Answer!")
+        else:
+            st.error("Oops! That was incorrect.")
+            
+        if st.button("Next Question ➡"):
+            st.session_state.yn_index += 1
+            st.rerun()
 
 def reading_activity():
     st.header("📖 Reading Comprehension")
     
-    if 'current_story_idx' not in st.session_state:
-        st.session_state.current_story_idx = 0
-        
-    story = READING_STORIES[st.session_state.current_story_idx]
+    story = READING_STORIES[st.session_state.reading_story_index]
     
-    col_s1, col_s2 = st.columns([2, 1])
+    # Font Size Slider
+    font_size = st.slider("Adjust Text Size:", min_value=16, max_value=32, value=20)
     
-    with col_s1:
+    col_story, col_quiz = st.columns([2, 1])
+    
+    with col_story:
+        st.markdown(f"<div class='story-box' style='font-size:{font_size}px'>", unsafe_allow_html=True)
         st.subheader(story['title'])
         for p in story['paragraphs']:
             st.write(p)
-            st.write("") # spacing
+            st.write("")
+        st.markdown("</div>", unsafe_allow_html=True)
+        
+        # Read Confirmation
+        if not st.session_state.story_is_read:
+            st.write("---")
+            if st.button("✅ I have read the story"):
+                st.session_state.story_is_read = True
+                st.rerun()
+
+    with col_quiz:
+        if not st.session_state.story_is_read:
+            st.info("Please read the story and click the confirmation button to start the quiz.")
+        else:
+            st.markdown("<div class='quiz-box'>", unsafe_allow_html=True)
+            st.markdown("### Quiz Time!")
             
-    with col_s2:
-        if st.button("🔄 Read Another Story"):
-            # Cycle story
-            st.session_state.current_story_idx = (st.session_state.current_story_idx + 1) % len(READING_STORIES)
-            st.rerun()
+            q_idx = st.session_state.reading_quiz_index
             
-        st.markdown("### Quiz")
-        for i, q in enumerate(story['questions']):
-            st.write(f"**{i+1}. {q['question']}**")
-            ans = st.radio("Answer:", q['options'], key=f"read_q_{story['id']}_{i}")
-            
-            if st.button(f"Check Q{i+1}", key=f"chk_read_{story['id']}_{i}"):
-                if ans == q['correctAnswer']:
-                    play_success()
-                else:
-                    play_error()
+            if q_idx < len(story['questions']):
+                q = story['questions'][q_idx]
+                st.write(f"**Q{q_idx+1}: {q['question']}**")
+                
+                # Use a placeholder for the answer key to reset on new questions
+                ans_key = f"read_q_{story['id']}_{q_idx}"
+                ans = st.radio("Choose:", q['options'], key=ans_key)
+                
+                if st.button("Check Answer", key=f"chk_{ans_key}"):
+                    if ans == q['correctAnswer']:
+                        celebrate_success()
+                        st.success("Correct!")
+                        time.sleep(1.5)
+                        st.session_state.reading_quiz_index += 1
+                        st.rerun()
+                    else:
+                        play_error()
+            else:
+                st.balloons()
+                st.success("Story Completed! 📚")
+                if st.button("Read Next Story"):
+                    st.session_state.reading_story_index = (st.session_state.reading_story_index + 1) % len(READING_STORIES)
+                    st.session_state.reading_quiz_index = 0
+                    st.session_state.story_is_read = False
+                    st.rerun()
+                    
+            st.markdown("</div>", unsafe_allow_html=True)
 
 # --- Main App Logic ---
 
