@@ -529,10 +529,13 @@ def sentence_fill():
     st.header("✍️ Sentence Master")
     
     # Temporary styles to make THESE specific buttons huge and fill text
+    # Ensure font size matches the sentence-display class (2.5rem) and weight matches
     st.markdown("""
     <style>
     div.stButton > button {
         font-size: 2.5rem !important;
+        font-weight: bold !important;
+        line-height: 1.5 !important;
         padding: 1.5rem !important;
         min-height: 120px;
         width: 100%;
