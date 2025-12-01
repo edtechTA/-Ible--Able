@@ -714,9 +714,10 @@ def yes_no_activity():
     st.header("👍 Yes or No?")
 
     # Inject specific styles for MASSIVE buttons in this activity
+    # CSS Change: Target columns to affect Yes/No but not Back button
     st.markdown("""
     <style>
-    div.stButton > button {
+    div[data-testid="column"] .stButton button {
         font-size: 3rem !important;
         padding: 2rem !important;
         min-height: 150px;
@@ -734,40 +735,47 @@ def yes_no_activity():
 
     task = YES_NO_DATA[st.session_state.yn_index]
     
+    # Check state
+    answered_key = f"yn_answered_{task['id']}"
+    if answered_key not in st.session_state:
+        st.session_state[answered_key] = None
+        
+    # RENDER NEXT BUTTON AT TOP IF ANSWERED
+    if st.session_state[answered_key] is not None:
+        if st.button("Next Question ➡", key="next_q_top"):
+             st.session_state.yn_index += 1
+             st.rerun()
+    
     # Card View
     st.markdown(f"""
     <div style="background:white; padding:3rem; border-radius:15px; text-align:center; box-shadow:0 4px 6px rgba(0,0,0,0.1); margin-bottom:2rem;">
         <h2 style="color:#003366;">{task['question']}</h2>
     </div>
     """, unsafe_allow_html=True)
-    
-    # State to show result
-    if f"yn_answered_{task['id']}" not in st.session_state:
-        st.session_state[f"yn_answered_{task['id']}"] = None
 
-    if st.session_state[f"yn_answered_{task['id']}"] is None:
+    if st.session_state[answered_key] is None:
         c1, c2 = st.columns(2)
         if c1.button("YES 👍", use_container_width=True):
             if task['answer'] == True:
                 celebrate_success()
-                st.session_state[f"yn_answered_{task['id']}"] = "correct"
+                st.session_state[answered_key] = "correct"
             else:
                 play_error()
-                st.session_state[f"yn_answered_{task['id']}"] = "wrong"
+                st.session_state[answered_key] = "wrong"
             st.rerun()
             
         if c2.button("NO 👎", use_container_width=True):
             if task['answer'] == False:
                 celebrate_success()
-                st.session_state[f"yn_answered_{task['id']}"] = "correct"
+                st.session_state[answered_key] = "correct"
             else:
                 play_error()
-                st.session_state[f"yn_answered_{task['id']}"] = "wrong"
+                st.session_state[answered_key] = "wrong"
             st.rerun()
             
     else:
-        # Show Feedback and Next Button
-        if st.session_state[f"yn_answered_{task['id']}"] == "correct":
+        # Show Feedback
+        if st.session_state[answered_key] == "correct":
             
             # --- NEW FUN VISUAL FEEDBACK ---
             fun_messages = [
@@ -804,10 +812,6 @@ def yes_no_activity():
 
         else:
             st.error("Oops! That was incorrect.")
-            
-        if st.button("Next Question ➡"):
-            st.session_state.yn_index += 1
-            st.rerun()
 
 def reading_activity():
     c1, c2 = st.columns([3, 1])
