@@ -349,7 +349,7 @@ def ask_gemini_explanation(word):
 # --- Activities ---
 
 def activity_menu():
-    st.markdown("<h1 class='main-header'>Trident Word Wizards 🧙‍♂️</h1>", unsafe_allow_html=True)
+    st.markdown("<h1 class='main-header'>Trident Academy Word Wizards 🧙‍♂️</h1>", unsafe_allow_html=True)
     st.markdown("<p class='sub-header'>Lesson 6: <span style='background:#FFCC00; padding:2px 5px; border-radius:4px'>-able</span> & <span style='background:#FFCC00; padding:2px 5px; border-radius:4px'>-ible</span></p>", unsafe_allow_html=True)
 
     col1, col2, col3 = st.columns(3)
