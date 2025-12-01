@@ -212,13 +212,13 @@ WORD_BUILDER_DATA = [
 ]
 
 SENTENCE_DATA = [
-    {"id": 1, "sentencePart1": "The thief did not steal my", "sentencePart2": "ring because he thought it was cheap.", "options": ["valueless", "valuable"], "correctOption": "valueless"},
-    {"id": 2, "sentencePart1": "Dad favored going to the beach today, but the weather was", "sentencePart2": "for swimming.", "options": ["favored", "unfavorable"], "correctOption": "unfavorable"},
-    {"id": 3, "sentencePart1": "Gas and kerosene will burn easily. They are", "sentencePart2": "liquids.", "options": ["combust", "combustible"], "correctOption": "combustible"},
-    {"id": 4, "sentencePart1": "Janet is very dependable. You can always", "sentencePart2": "on her when you need her help.", "options": ["depend", "dependable"], "correctOption": "depend"},
-    {"id": 5, "sentencePart1": "My report looked neat and presentable. I", "sentencePart2": "it orally to the class yesterday.", "options": ["presented", "presentable"], "correctOption": "presented"},
-    {"id": 6, "sentencePart1": "You can divide twelve by six evenly. However, six is not evenly", "sentencePart2": "by twenty.", "options": ["divide", "divisible"], "correctOption": "divisible"},
-    {"id": 7, "sentencePart1": "Can you wash that shirt? I do not think that silk is", "sentencePart2": ".", "options": ["wash", "washable"], "correctOption": "washable"},
+    {"id": 1, "sentencePart1": "My grandmother's gold ring cost a lot of money. It is very", "sentencePart2": ".", "options": ["valueless", "valuable"], "correctOption": "valuable"},
+    {"id": 2, "sentencePart1": "The sunny weather was", "sentencePart2": "for our picnic, so we had a great time!", "options": ["favored", "favorable"], "correctOption": "favorable"},
+    {"id": 3, "sentencePart1": "Dry wood is highly", "sentencePart2": ", so keep it away from the campfire flames.", "options": ["combust", "combustible"], "correctOption": "combustible"},
+    {"id": 4, "sentencePart1": "My old car starts every single morning. It is very", "sentencePart2": ".", "options": ["depend", "dependable"], "correctOption": "dependable"},
+    {"id": 5, "sentencePart1": "Please comb your hair and tuck in your shirt so you look", "sentencePart2": "for the photo.", "options": ["presented", "presentable"], "correctOption": "presentable"},
+    {"id": 6, "sentencePart1": "The number ten is evenly", "sentencePart2": "by the number two.", "options": ["divide", "divisible"], "correctOption": "divisible"},
+    {"id": 7, "sentencePart1": "Don't worry about the mess! This marker is", "sentencePart2": "and comes off with soap.", "options": ["wash", "washable"], "correctOption": "washable"},
 ]
 
 ANTONYM_DATA = [
@@ -513,6 +513,7 @@ def word_builder():
             if built_word == task['targetWord']:
                 celebrate_success()
                 st.session_state.completed_words.append(task['id'])
+                st.session_state.completed_words.append(task['id'])
                 st.session_state.wb_current_build = []
                 time.sleep(2)
                 st.rerun()
@@ -527,13 +528,16 @@ def word_builder():
 def sentence_fill():
     st.header("✍️ Sentence Master")
     
-    # Temporary styles to make THESE specific buttons huge
+    # Temporary styles to make THESE specific buttons huge and fill text
     st.markdown("""
     <style>
     div.stButton > button {
-        font-size: 1.5rem !important;
+        font-size: 2.5rem !important;
         padding: 1.5rem !important;
-        min-height: 100px;
+        min-height: 120px;
+        width: 100%;
+        white-space: normal; /* Allow word wrap if needed */
+        word-wrap: break-word;
     }
     </style>
     """, unsafe_allow_html=True)
