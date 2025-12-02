@@ -22,62 +22,7 @@ if api_key:
     genai.configure(api_key=api_key)
     model = genai.GenerativeModel('gemini-2.5-flash')
 
-# --- HELPER: GENERATE DOOR SVG ---
-def get_door_svg_data_uri():
-    """Generates a base64 encoded SVG of a wooden door."""
-    svg = """
-    <svg width="300" height="400" viewBox="0 0 300 400" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <!-- Wood Grain Gradient -->
-        <linearGradient id="wood" x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%" style="stop-color:#5c3a21;stop-opacity:1" />
-          <stop offset="10%" style="stop-color:#8a5a32;stop-opacity:1" />
-          <stop offset="20%" style="stop-color:#5c3a21;stop-opacity:1" />
-          <stop offset="30%" style="stop-color:#8a5a32;stop-opacity:1" />
-          <stop offset="40%" style="stop-color:#5c3a21;stop-opacity:1" />
-          <stop offset="50%" style="stop-color:#8a5a32;stop-opacity:1" />
-          <stop offset="60%" style="stop-color:#5c3a21;stop-opacity:1" />
-          <stop offset="70%" style="stop-color:#8a5a32;stop-opacity:1" />
-          <stop offset="80%" style="stop-color:#5c3a21;stop-opacity:1" />
-          <stop offset="90%" style="stop-color:#8a5a32;stop-opacity:1" />
-          <stop offset="100%" style="stop-color:#5c3a21;stop-opacity:1" />
-        </linearGradient>
-        <!-- Inner Shadow for depth -->
-        <filter id="inset" x="-50%" y="-50%" width="200%" height="200%">
-          <feComponentTransfer in=SourceAlpha>
-            <feFuncA type="table" tableValues="1 0" />
-          </feComponentTransfer>
-          <feGaussianBlur stdDeviation="10"/>
-          <feOffset dx="0" dy="5" result="offsetblur"/>
-          <feFlood flood-color="rgb(0, 0, 0)" result="color"/>
-          <feComposite in2="offsetblur" operator="in"/>
-          <feComposite in2="SourceAlpha" operator="in" />
-          <feMerge>
-            <feMergeNode in="SourceGraphic" />
-            <feMergeNode />
-          </feMerge>
-        </filter>
-      </defs>
-      
-      <!-- Door Shape (Arched) -->
-      <path d="M20,400 V150 Q150,0 280,150 V400 H20 Z" fill="url(#wood)" stroke="#3e2716" stroke-width="8" filter="url(#inset)"/>
-      
-      <!-- Iron Hinges -->
-      <rect x="20" y="120" width="80" height="25" rx="5" fill="#444" stroke="#222" stroke-width="2"/>
-      <circle cx="30" cy="132" r="4" fill="#888" />
-      <rect x="20" y="300" width="80" height="25" rx="5" fill="#444" stroke="#222" stroke-width="2"/>
-      <circle cx="30" cy="312" r="4" fill="#888" />
-      
-      <!-- Golden Knob -->
-      <circle cx="250" cy="250" r="12" fill="#ffd700" stroke="#b8860b" stroke-width="3"/>
-      
-    </svg>
-    """
-    b64 = base64.b64encode(svg.encode('utf-8')).decode("utf-8")
-    return f"data:image/svg+xml;base64,{b64}"
-
 # --- MASTER DATA LISTS ---
-# (Lists remain unchanged)
 MASTER_SYLLABLE_DATA = [
     {"id": 1, "word": "presentable", "correctSyllables": ["pre", "sent", "able"]},
     {"id": 2, "word": "miserable", "correctSyllables": ["mis", "er", "able"]},
@@ -264,15 +209,15 @@ def init_random_data():
 init_random_data()
 
 # --- Background CSS Logic ---
-# Only use CSS pattern
+# Always use CSS pattern (Removed external image logic for reliability)
 background_style = """
     [data-testid="stAppViewContainer"] {
-        background-color: #5c5c5c;
+        background-color: #2a2a2a;
         background-image: 
-            linear-gradient(335deg, rgba(80,80,80,0.3) 23px, transparent 23px),
-            linear-gradient(155deg, rgba(80,80,80,0.3) 23px, transparent 23px),
-            linear-gradient(335deg, rgba(80,80,80,0.3) 23px, transparent 23px),
-            linear-gradient(155deg, rgba(80,80,80,0.3) 23px, transparent 23px);
+            linear-gradient(335deg, rgba(0,0,0,0.3) 23px, transparent 23px),
+            linear-gradient(155deg, rgba(0,0,0,0.3) 23px, transparent 23px),
+            linear-gradient(335deg, rgba(0,0,0,0.3) 23px, transparent 23px),
+            linear-gradient(155deg, rgba(0,0,0,0.3) 23px, transparent 23px);
         background-size: 58px 58px;
         background-position: 0px 2px, 4px 35px, 29px 31px, 34px 6px;
         color: #fff;
@@ -290,11 +235,12 @@ st.markdown(f"""
         z-index: 1;
         position: relative;
         /* White semi-transparent overlay for readability */
-        background-color: rgba(255, 255, 255, 0.9); 
+        background-color: rgba(255, 255, 255, 0.95); 
         padding: 3rem;
         border-radius: 20px;
         margin-top: 2rem;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        border: 5px solid #444;
     }}
     
     /* Default text color inside the container should now be dark */
@@ -447,114 +393,121 @@ def ask_gemini_explanation(word):
 # --- Activities ---
 
 def activity_menu():
-    # Get the Door SVG data URI
-    door_svg = get_door_svg_data_uri()
-    
-    # INJECT WOODEN DOOR STYLING & REMOVE GAP
-    st.markdown(f"""
+    # INJECT WOODEN DOOR STYLING - PURE CSS
+    st.markdown("""
     <style>
     /* Hide the default semi-transparent block container ONLY on the menu so we see the castle */
-    [data-testid="block-container"] {{
+    [data-testid="block-container"] {
         background-color: transparent !important;
         box-shadow: none !important;
         border: none !important;
-    }}
+    }
 
-    /* Styling for buttons inside columns on the menu page to look like WOODEN DOORS with SVG */
-    div[data-testid="column"] button {{
-        background-image: url("{door_svg}") !important;
-        background-size: contain !important;
-        background-repeat: no-repeat !important;
-        background-position: center !important;
-        background-color: transparent !important;
+    /* Styling for buttons inside columns on the menu page to look like WOODEN DOORS */
+    div[data-testid="column"] button {
+        /* Wooden Texture via CSS Gradients */
+        background-color: #8B4513 !important;
+        background-image: 
+            linear-gradient(90deg, transparent 0%, transparent 48%, rgba(0,0,0,0.2) 50%, transparent 52%, transparent 100%), /* Center split */
+            repeating-linear-gradient(90deg, #8B4513, #8B4513 10px, #5A2D0C 10px, #5A2D0C 12px) !important; /* Wood grain */
         
-        /* Reset standard button styles */
-        border: none !important;
-        box-shadow: none !important;
-        border-radius: 0 !important;
+        color: #FFD700 !important;
         
-        height: 300px !important; /* Adjusted height for SVG aspect ratio */
+        /* Shape & Border */
+        border: 6px solid #DAA520 !important; /* Gold Frame */
+        border-bottom: 10px solid #5A2D0C !important;
+        border-radius: 100px 100px 5px 5px !important; /* Arched Door Shape */
+        
+        /* Size */
+        height: 250px !important;
         width: 100% !important;
         
-        /* Text Styling for Label Over Door */
+        /* Text */
         font-size: 1.8rem !important;
         font-family: 'Comic Sans MS', cursive !important;
         text-shadow: 2px 2px 4px #000;
-        white-space: pre-wrap !important;
+        white-space: pre-wrap !important; /* Allow multiline text */
+        
+        /* Shadow & Layout */
+        box-shadow: 0 10px 20px rgba(0,0,0,0.5), inset 0 0 30px rgba(0,0,0,0.6) !important;
         margin-bottom: 20px !important;
+        transition: transform 0.2s !important;
         
         display: flex;
         flex-direction: column;
         justify-content: center;
         align-items: center;
-        
-        /* Ensure text color is bright/gold */
-        color: #FFD700 !important;
-        
-        /* Bring text up slightly to sit on the door planks */
-        padding-bottom: 20px !important;
-        transition: transform 0.2s !important;
-    }}
+        position: relative;
+    }
+    
+    /* Knobs for the doors (Pseudo-element hack via radial gradient on background if needed, but simple is better) */
     
     /* Hover Effect */
-    div[data-testid="column"] button:hover {{
+    div[data-testid="column"] button:hover {
         transform: scale(1.05) !important;
-        filter: brightness(1.2); /* Brighten the image on hover */
+        box-shadow: 0 0 30px #FFD700 !important; /* Glowing effect */
+        border-color: #FFF !important;
         cursor: pointer;
-    }}
+    }
     
     /* Ensure the text inside the button is visible */
-    div[data-testid="column"] button p {{
-        font-size: 1.5rem !important;
+    div[data-testid="column"] button p {
+        font-size: 1.8rem !important;
         color: #FFD700 !important;
         font-weight: bold !important;
-        background-color: rgba(0,0,0,0.7); /* Text background for readability */
+        background-color: rgba(0,0,0,0.6); /* Text background for readability */
         padding: 5px 10px;
         border-radius: 10px;
-    }}
+        border: 1px solid #FFD700;
+    }
     
     /* Revert headers to gold/white for the menu page only, make them BIGGER */
-    .main-header {{ color: #FFD700 !important; text-shadow: 3px 3px 5px #000 !important; font-size: 5rem !important; }}
-    .sub-header {{ color: #FFF !important; text-shadow: 2px 2px 4px #000 !important; font-size: 2rem !important; }}
+    .main-header { color: #FFD700 !important; text-shadow: 3px 3px 5px #000 !important; font-size: 5rem !important; }
+    .sub-header { color: #FFF !important; text-shadow: 2px 2px 4px #000 !important; font-size: 2rem !important; }
     </style>
     """, unsafe_allow_html=True)
 
     st.markdown(f"<h1 class='main-header'>Welcome, {st.session_state.student_name}! 🧙‍♂️</h1>", unsafe_allow_html=True)
     st.markdown("<p class='sub-header'>Choose a door to begin your adventure!</p>", unsafe_allow_html=True)
     
-    # NO SPACER HERE - Buttons will sit directly below header
-
-    # 2 Rows of 3 Columns
-    r1c1, r1c2, r1c3 = st.columns(3)
-    r2c1, r2c2, r2c3 = st.columns(3)
+    # CENTERED LAYOUT USING COLUMNS
+    # We use empty columns on sides to center the grid of 3x2
     
-    # Row 1
-    with r1c1:
-        if st.button("✂️\nSyllable\nDetective"):
-            st.session_state.current_activity = "SYLLABLES"
-            st.rerun()
-    with r1c2:
-        if st.button("🔨\nWord\nBuilder"):
-            st.session_state.current_activity = "WORD_BUILDER"
-            st.rerun()
-    with r1c3:
-        if st.button("✍️\nSentence\nMaster"):
-            st.session_state.current_activity = "SENTENCE_FILL"
-            st.rerun()
-
-    # Row 2
-    with r2c1:
-        if st.button("🔄\nOpposites"):
-            st.session_state.current_activity = "ANTONYMS"
-            st.rerun()
-    with r2c2:
-        if st.button("👍\nYes or No?"):
-            st.session_state.current_activity = "YES_NO"
-            st.rerun()
-    with r2c3:
-        if st.button("📖\nReading\nComp"):
-            st.session_state.current_activity = "READING"
-            st.rerun()
+    c_left, c_main, c_right = st.columns([1, 8, 1])
+    
+    with c_main:
+        # Row 1
+        r1c1, r1c2, r1c3 = st.columns(3)
+        with r1c1:
+            if st.button("✂️\nSyllable\nDetective"):
+                st.session_state.current_activity = "SYLLABLES"
+                st.rerun()
+        with r1c2:
+            if st.button("🔨\nWord\nBuilder"):
+                st.session_state.current_activity = "WORD_BUILDER"
+                st.rerun()
+        with r1c3:
+            if st.button("✍️\nSentence\nMaster"):
+                st.session_state.current_activity = "SENTENCE_FILL"
+                st.rerun()
+        
+        # Spacer row
+        st.markdown("<br>", unsafe_allow_html=True)
+        
+        # Row 2
+        r2c1, r2c2, r2c3 = st.columns(3)
+        with r2c1:
+            if st.button("🔄\nOpposites"):
+                st.session_state.current_activity = "ANTONYMS"
+                st.rerun()
+        with r2c2:
+            if st.button("👍\nYes or No?"):
+                st.session_state.current_activity = "YES_NO"
+                st.rerun()
+        with r2c3:
+            if st.button("📖\nReading\nComp"):
+                st.session_state.current_activity = "READING"
+                st.rerun()
     
     st.divider()
     if st.button("🗑️ Reset All Progress"):
@@ -574,7 +527,7 @@ def syllable_splitter():
         font-size: 1rem !important;
         box-shadow: none !important;
         border: 2px solid #003366 !important;
-        background-image: none !important; /* REMOVE DOOR IMAGE */
+        background-image: none !important;
     }
     /* Syllable Container */
     [data-testid="stForm"] {
