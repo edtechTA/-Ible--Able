@@ -12,13 +12,18 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
+# --- USER CUSTOMIZATION ---
+# Updated Castle Background Link
+CASTLE_BACKGROUND_URL = "https://i.ibb.co/JRRCkyZL/game-castle-background.png"
+
 # --- Gemini Setup ---
 api_key = st.secrets.get("API_KEY") or os.environ.get("API_KEY")
 if api_key:
     genai.configure(api_key=api_key)
     model = genai.GenerativeModel('gemini-2.5-flash')
 
-# --- MASTER DATA LISTS ---
+# --- MASTER DATA LISTS (Pool of ~15 words each) ---
+
 MASTER_SYLLABLE_DATA = [
     {"id": 1, "word": "presentable", "correctSyllables": ["pre", "sent", "able"]},
     {"id": 2, "word": "miserable", "correctSyllables": ["mis", "er", "able"]},
@@ -43,7 +48,7 @@ MASTER_WORD_BUILDER_DATA = [
     {"id": 3, "parts": ["in", "cred", "ible"], "meaning": "fantastic / hard to believe", "targetWord": "incredible"},
     {"id": 4, "parts": ["in", "vis", "ible"], "meaning": "not able to be seen", "targetWord": "invisible"},
     {"id": 5, "parts": ["re", "vers", "ible"], "meaning": "able to be turned inside out", "targetWord": "reversible"},
-    {"id": 6, "parts": ["re", "mark", "able"], "meaning": "astonishing", "targetWord": "remarkable"},
+    {"id": 6, "parts": ["re", "mark", "able"], "meaning": "astonishing / worthy of attention", "targetWord": "remarkable"},
     {"id": 7, "parts": ["div", "is", "ible"], "meaning": "able to be divided", "targetWord": "divisible"},
     {"id": 8, "parts": ["com", "fort", "able"], "meaning": "cozy and relaxed", "targetWord": "comfortable"},
     {"id": 9, "parts": ["flex", "ible"], "meaning": "able to bend easily", "targetWord": "flexible"},
@@ -204,62 +209,72 @@ def init_random_data():
 
 init_random_data()
 
+# --- Background CSS Logic ---
+if CASTLE_BACKGROUND_URL:
+    background_style = f"""
+        [data-testid="stAppViewContainer"] {{
+            background-image: url("{CASTLE_BACKGROUND_URL}");
+            background-size: 100% auto; /* Forces image to fit width, natural height */
+            background-repeat: no-repeat;
+            background-position: center bottom; /* Anchor to bottom of screen */
+            background-attachment: fixed;
+            color: #fff;
+        }}
+    """
+else:
+    background_style = """
+        [data-testid="stAppViewContainer"] {
+            background-color: #2c2c2c;
+            color: #fff;
+        }
+    """
+
 # --- GLOBAL STYLES (Castle Background & Defaults) ---
-st.markdown("""
+st.markdown(f"""
 <style>
-    /* GLOBAL: Castle Night Sky Background (CSS Gradient - No Image File Issues) */
-    [data-testid="stAppViewContainer"] {
-        background: linear-gradient(to bottom, #0b1026, #2b32b2); /* Deep night sky */
-        background-attachment: fixed;
-        color: #fff;
-    }
+    /* GLOBAL: Background */
+    {background_style}
     
-    /* Starry Background Overlay */
-    [data-testid="stAppViewContainer"]::before {
-        content: "";
-        position: fixed;
-        top: 0; left: 0; width: 100%; height: 100%;
-        background-image: 
-            radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 4px),
-            radial-gradient(white, rgba(255,255,255,.15) 1px, transparent 3px),
-            radial-gradient(white, rgba(255,255,255,.1) 2px, transparent 4px);
-        background-size: 550px 550px, 350px 350px, 250px 250px; 
-        background-position: 0 0, 40px 60px, 130px 270px;
-        z-index: 0;
-        opacity: 0.6;
-        pointer-events: none;
-    }
-    
-    /* Ensure content sits above stars */
-    [data-testid="block-container"] {
+    /* Ensure content sits above background - ADDING WHITE OVERLAY HERE */
+    [data-testid="block-container"] {{
         z-index: 1;
         position: relative;
-        /* Semi-transparent dark background for content readability inside activities */
-        background-color: rgba(0,0,0,0.7); 
+        /* Updated: White semi-transparent overlay for readability */
+        background-color: rgba(255, 255, 255, 0.9); 
         padding: 3rem;
         border-radius: 20px;
         margin-top: 2rem;
-    }
+        box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    }}
+    
+    /* Default text color inside the container should now be dark */
+    [data-testid="block-container"] p, 
+    [data-testid="block-container"] li, 
+    [data-testid="block-container"] h1, 
+    [data-testid="block-container"] h2, 
+    [data-testid="block-container"] h3 {{
+        color: #333;
+    }}
 
-    .main-header {
+    .main-header {{
         font-family: 'Comic Sans MS', 'Comic Sans', cursive;
-        color: #FFD700; /* Gold */
+        color: #003366; /* Changed to dark blue for contrast on white */
         text-align: center;
         font-size: 3.5rem;
         font-weight: bold;
         margin-bottom: 1rem;
-        text-shadow: 3px 3px 0 #000;
-    }
-    .sub-header {
-        color: #E0E0E0;
+        text-shadow: none; /* Removed shadow for cleaner look on white */
+    }}
+    .sub-header {{
+        color: #555; /* Dark grey for contrast */
         text-align: center;
         font-size: 1.3rem;
         margin-bottom: 2rem;
-        text-shadow: 1px 1px 2px #000;
-    }
+        text-shadow: none;
+    }}
     
     /* LOGIN SCROLL STYLING */
-    .scroll-container {
+    .scroll-container {{
         background-color: #fdfbf7;
         background-image: url("https://www.transparenttextures.com/patterns/aged-paper.png");
         border: 10px solid #d4af37;
@@ -271,15 +286,15 @@ st.markdown("""
         margin: 2rem auto;
         max-width: 600px;
         position: relative;
-    }
+    }}
     
     /* DEFAULT BUTTON (Reset for generic buttons) */
-    .stButton button {
+    .stButton button {{
         background-color: #003366;
         color: white;
         border-radius: 20px;
         border: 2px solid #003366;
-    }
+    }}
     
 </style>
 """, unsafe_allow_html=True)
@@ -375,73 +390,79 @@ def ask_gemini_explanation(word):
 # --- Activities ---
 
 def activity_menu():
-    # INJECT DOOR STYLING ONLY HERE - targeting specifically the buttons on this page
+    # Make container transparent to show castle, buttons act as "hit zones" over doors
     st.markdown("""
     <style>
-    /* Styling for buttons inside columns on the menu page to look like DOORS */
+    /* Hide the default semi-transparent block container ONLY on the menu so we see the castle */
+    [data-testid="block-container"] {
+        background-color: transparent !important;
+        box-shadow: none !important;
+        border: none !important;
+    }
+    
+    /* Transparent Door Buttons */
     div[data-testid="column"] button {
-        background: linear-gradient(to bottom, #8B4513 0%, #5A2D0C 100%) !important;
-        color: #FFD700 !important;
-        border: 4px solid #FFD700 !important;
+        background-color: rgba(255, 255, 255, 0.15) !important; /* Slight glass effect to see hit zone */
+        border: 2px solid rgba(255, 215, 0, 0.5) !important; /* Golden glowing border */
+        color: transparent !important; /* HIDE TEXT */
         border-radius: 100px 100px 5px 5px !important; /* Arched Door Shape */
-        height: 220px !important;
+        height: 250px !important; /* Increased height for bigger hit box */
         width: 100% !important;
-        font-size: 1.8rem !important;
-        font-family: 'Comic Sans MS', cursive !important;
-        text-shadow: 2px 2px 4px #000;
-        box-shadow: 0 10px 20px rgba(0,0,0,0.5), inset 0 0 40px rgba(0,0,0,0.6) !important;
-        white-space: pre-wrap !important; /* Allow multiline text */
+        box-shadow: 0 0 15px rgba(255, 215, 0, 0.3) !important;
         margin-bottom: 20px !important;
-        transition: transform 0.2s !important;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
+        transition: all 0.3s !important;
     }
     div[data-testid="column"] button:hover {
+        background-color: rgba(255, 255, 255, 0.3) !important;
+        box-shadow: 0 0 40px rgba(255, 215, 0, 0.8) !important;
         transform: scale(1.05) !important;
-        box-shadow: 0 0 40px #FFD700 !important; /* Glowing effect */
-        border-color: #FFF !important;
         cursor: pointer;
     }
-    /* Ensure the text inside the button is visible */
+    /* Hide the paragraph text inside the button too just in case */
     div[data-testid="column"] button p {
-        font-size: 1.5rem !important;
-        color: #FFD700 !important;
-        font-weight: bold !important;
+        display: none !important;
     }
+    
+    /* Revert headers to gold/white for the menu page only */
+    .main-header { color: #FFD700 !important; text-shadow: 3px 3px 5px #000 !important; }
+    .sub-header { color: #FFF !important; text-shadow: 2px 2px 4px #000 !important; }
     </style>
     """, unsafe_allow_html=True)
 
-    st.markdown(f"<h1 class='main-header'>Welcome, {st.session_state.student_name}! 🧙‍♂️</h1>", unsafe_allow_html=True)
-    st.markdown("<p class='sub-header'>Choose a door to begin your adventure!</p>", unsafe_allow_html=True)
+    # Simplified Header to not distract from image
+    st.markdown(f"<h1 class='main-header'>Welcome, {st.session_state.student_name}!</h1>", unsafe_allow_html=True)
+    st.markdown("<p class='sub-header'>Click a door to begin!</p>", unsafe_allow_html=True)
 
-    r1c1, r1c2, r1c3 = st.columns(3)
-    r2c1, r2c2, r2c3 = st.columns(3)
+    # PUSH BUTTONS DOWN TO BOTTOM 
+    # Use a large spacer. Adjust '45vh' if needed based on the image aspect ratio
+    st.markdown("<div style='height: 45vh;'></div>", unsafe_allow_html=True)
+
+    # SINGLE ROW OF 6 COLUMNS for the 6 doors
+    c1, c2, c3, c4, c5, c6 = st.columns(6, gap="small")
     
-    with r1c1:
-        if st.button("✂️\nSyllable\nDetective"):
+    # We pass text for accessibility/debugging, but CSS hides it visually
+    with c1:
+        if st.button("Syllable", key="btn_syl"):
             st.session_state.current_activity = "SYLLABLES"
             st.rerun()
-    with r1c2:
-        if st.button("🔨\nWord\nBuilder"):
+    with c2:
+        if st.button("Word", key="btn_wb"):
             st.session_state.current_activity = "WORD_BUILDER"
             st.rerun()
-    with r1c3:
-        if st.button("✍️\nSentence\nMaster"):
+    with c3:
+        if st.button("Sentence", key="btn_sent"):
             st.session_state.current_activity = "SENTENCE_FILL"
             st.rerun()
-
-    with r2c1:
-        if st.button("🔄\nOpposites"):
+    with c4:
+        if st.button("Opposites", key="btn_ant"):
             st.session_state.current_activity = "ANTONYMS"
             st.rerun()
-    with r2c2:
-        if st.button("👍\nYes or No?"):
+    with c5:
+        if st.button("YesNo", key="btn_yn"):
             st.session_state.current_activity = "YES_NO"
             st.rerun()
-    with r2c3:
-        if st.button("📖\nReading\nComp"):
+    with c6:
+        if st.button("Read", key="btn_read"):
             st.session_state.current_activity = "READING"
             st.rerun()
     
@@ -506,8 +527,8 @@ def syllable_splitter():
                 st.session_state.syl_correct_state = False
                 st.rerun()
     
-    st.markdown(f"<div style='text-align:center; font-size:3rem; color:#FFD700; font-weight:bold; margin-bottom:1rem; text-shadow:2px 2px #000;'>{task['word']}</div>", unsafe_allow_html=True)
-    st.markdown("<p style='text-align:center; color:#FFF;'>Break the word into parts below. Keep the suffix (-able/-ible) together!</p>", unsafe_allow_html=True)
+    st.markdown(f"<div style='text-align:center; font-size:3rem; color:#003366; font-weight:bold; margin-bottom:1rem;'>{task['word']}</div>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align:center; color:#333;'>Break the word into parts below. Keep the suffix (-able/-ible) together!</p>", unsafe_allow_html=True)
     
     cols = st.columns(len(task['correctSyllables']))
     user_inputs = []
@@ -587,7 +608,7 @@ def word_builder():
         border: 3px solid #5A2D0C !important; box-shadow: 0 4px 0 #5A2D0C !important; height: auto !important;
     }
     .back-btn-container button {
-        background-color: rgba(255,255,255,0.1) !important; color: #fff !important; border: 1px solid #fff !important;
+        background-color: rgba(0,0,0,0.1) !important; color: #333 !important; border: 1px solid #ccc !important;
     }
     div.stButton > button[kind="primary"] {
         background-color: #28a745 !important;
@@ -603,7 +624,7 @@ def word_builder():
             st.rerun()
         st.markdown('</div>', unsafe_allow_html=True)
     with c_title:
-        st.markdown("<h1 style='text-align:center; color:#FFD700; margin-top:0; text-shadow: 2px 2px #000;'>WORD CONSTRUCTION</h1>", unsafe_allow_html=True)
+        st.markdown("<h1 style='text-align:center; color:#003366; margin-top:0;'>WORD CONSTRUCTION</h1>", unsafe_allow_html=True)
     
     # USE SESSION DATA
     data = st.session_state.session_word_builder
@@ -705,6 +726,7 @@ def sentence_fill():
         background-color: white !important;
         color: #333 !important;
         border-radius: 10px !important;
+        border: 2px solid #ccc !important;
     }
     .sentence-display {
         font-size: 2.5rem !important; font-weight: bold; color: #333; line-height: 1.5; padding: 20px;
@@ -757,7 +779,7 @@ def sentence_fill():
     </div>
     """, unsafe_allow_html=True)
     
-    st.markdown("<h3 style='text-align:center; margin-top:2rem;'>Choose the missing word:</h3>", unsafe_allow_html=True)
+    st.markdown("<h3 style='text-align:center; margin-top:2rem; color:#333;'>Choose the missing word:</h3>", unsafe_allow_html=True)
     
     col1, col2 = st.columns(2)
     is_disabled = (st.session_state[answered_key] == "correct")
@@ -801,13 +823,13 @@ def antonym_activity():
         background-color: #28a745 !important;
         color: white !important;
     }
-    .antonym-clue { font-size: 3rem; font-weight: bold; color: #FFD700; text-align: center; text-shadow: 2px 2px 0 #000; }
+    .antonym-clue { font-size: 3rem; font-weight: bold; color: #003366; text-align: center; }
     .antonym-answer-box {
         font-size: 3rem; font-weight: bold; color: #28a745; text-align: center; border: 3px solid #28a745;
         border-radius: 15px; padding: 10px; background-color: white; display: inline-block; min-width: 300px;
     }
     .antonym-placeholder {
-        font-size: 3rem; color: #ccc; border-bottom: 3px solid #fff; display: inline-block; min-width: 150px; text-align: center;
+        font-size: 3rem; color: #ccc; border-bottom: 3px solid #333; display: inline-block; min-width: 150px; text-align: center;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -847,7 +869,7 @@ def antonym_activity():
 
     st.markdown(f"**Word {st.session_state.ant_index + 1} of {len(data)}**")
     st.markdown(f"<div class='antonym-clue'>{task['clue']}</div>", unsafe_allow_html=True)
-    st.markdown("<div style='text-align:center; font-size: 2.5rem; margin: 10px 0;'>⇄</div>", unsafe_allow_html=True)
+    st.markdown("<div style='text-align:center; font-size: 2.5rem; margin: 10px 0; color:#333;'>⇄</div>", unsafe_allow_html=True)
     
     answer_html = "<div style='text-align:center; margin-bottom: 2rem;'>"
     if current_state == "correct":
