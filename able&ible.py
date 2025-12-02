@@ -12,14 +12,19 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
+# --- USER CUSTOMIZATION ---
+# Using the provided Castle Background Link with text on doors
+CASTLE_BACKGROUND_URL = "https://i.ibb.co/ynnVsY2T/game-castle-background.png" 
+
 # --- Gemini Setup ---
 api_key = st.secrets.get("API_KEY") or os.environ.get("API_KEY")
 if api_key:
     genai.configure(api_key=api_key)
     model = genai.GenerativeModel('gemini-2.5-flash')
 
-# --- Constants & Data ---
-SYLLABLE_DATA = [
+# --- MASTER DATA LISTS (Pool of ~15 words each) ---
+
+MASTER_SYLLABLE_DATA = [
     {"id": 1, "word": "presentable", "correctSyllables": ["pre", "sent", "able"]},
     {"id": 2, "word": "miserable", "correctSyllables": ["mis", "er", "able"]},
     {"id": 3, "word": "valuable", "correctSyllables": ["val", "u", "able"]},
@@ -27,46 +32,86 @@ SYLLABLE_DATA = [
     {"id": 5, "word": "dependable", "correctSyllables": ["de", "pend", "able"]},
     {"id": 6, "word": "reversible", "correctSyllables": ["re", "vers", "ible"]},
     {"id": 7, "word": "favorable", "correctSyllables": ["fa", "vor", "able"]},
+    {"id": 8, "word": "comfortable", "correctSyllables": ["com", "fort", "able"]},
+    {"id": 9, "word": "incredible", "correctSyllables": ["in", "cred", "ible"]},
+    {"id": 10, "word": "visible", "correctSyllables": ["vis", "ible"]},
+    {"id": 11, "word": "flexible", "correctSyllables": ["flex", "ible"]},
+    {"id": 12, "word": "edible", "correctSyllables": ["ed", "ible"]},
+    {"id": 13, "word": "adorable", "correctSyllables": ["a", "dor", "able"]},
+    {"id": 14, "word": "responsible", "correctSyllables": ["re", "spons", "ible"]},
+    {"id": 15, "word": "breakable", "correctSyllables": ["break", "able"]},
 ]
 
-WORD_BUILDER_DATA = [
+MASTER_WORD_BUILDER_DATA = [
     {"id": 1, "parts": ["val", "u", "able"], "meaning": "worth a lot", "targetWord": "valuable"},
     {"id": 2, "parts": ["re", "li", "able"], "meaning": "dependable", "targetWord": "reliable"},
-    {"id": 3, "parts": ["in", "cred", "ible"], "meaning": "fantastic", "targetWord": "incredible"},
+    {"id": 3, "parts": ["in", "cred", "ible"], "meaning": "fantastic / hard to believe", "targetWord": "incredible"},
     {"id": 4, "parts": ["in", "vis", "ible"], "meaning": "not able to be seen", "targetWord": "invisible"},
     {"id": 5, "parts": ["re", "vers", "ible"], "meaning": "able to be turned inside out", "targetWord": "reversible"},
-    {"id": 6, "parts": ["re", "mark", "able"], "meaning": "astonishing", "targetWord": "remarkable"},
+    {"id": 6, "parts": ["re", "mark", "able"], "meaning": "astonishing / worthy of attention", "targetWord": "remarkable"},
     {"id": 7, "parts": ["div", "is", "ible"], "meaning": "able to be divided", "targetWord": "divisible"},
+    {"id": 8, "parts": ["com", "fort", "able"], "meaning": "cozy and relaxed", "targetWord": "comfortable"},
+    {"id": 9, "parts": ["flex", "ible"], "meaning": "able to bend easily", "targetWord": "flexible"},
+    {"id": 10, "parts": ["sens", "ible"], "meaning": "smart and practical", "targetWord": "sensible"},
+    {"id": 11, "parts": ["horr", "ible"], "meaning": "very unpleasant", "targetWord": "horrible"},
+    {"id": 12, "parts": ["a", "dor", "able"], "meaning": "very cute", "targetWord": "adorable"},
+    {"id": 13, "parts": ["vis", "ible"], "meaning": "able to be seen", "targetWord": "visible"},
+    {"id": 14, "parts": ["ed", "ible"], "meaning": "safe to eat", "targetWord": "edible"},
+    {"id": 15, "parts": ["us", "able"], "meaning": "fit to be used", "targetWord": "usable"},
 ]
 
-SENTENCE_DATA = [
-    {"id": 1, "sentencePart1": "My grandmother's gold ring cost a lot of money. It is very", "sentencePart2": ".", "options": ["valueless", "valuable"], "correctOption": "valuable"},
-    {"id": 2, "sentencePart1": "The sunny weather was", "sentencePart2": "for our picnic, so we had a great time!", "options": ["favored", "favorable"], "correctOption": "favorable"},
-    {"id": 3, "sentencePart1": "Dry wood is highly", "sentencePart2": ", so keep it away from the campfire flames.", "options": ["combust", "combustible"], "correctOption": "combustible"},
-    {"id": 4, "sentencePart1": "My old car starts every single morning. It is very", "sentencePart2": ".", "options": ["depend", "dependable"], "correctOption": "dependable"},
-    {"id": 5, "sentencePart1": "Please comb your hair and tuck in your shirt so you look", "sentencePart2": "for the photo.", "options": ["presented", "presentable"], "correctOption": "presentable"},
-    {"id": 6, "sentencePart1": "The number ten is evenly", "sentencePart2": "by the number two.", "options": ["divide", "divisible"], "correctOption": "divisible"},
-    {"id": 7, "sentencePart1": "Don't worry about the mess! This marker is", "sentencePart2": "and comes off with soap.", "options": ["wash", "washable"], "correctOption": "washable"},
+MASTER_SENTENCE_DATA = [
+    {"id": 1, "sentencePart1": "My grandmother's gold ring cost a lot. It is very", "sentencePart2": ".", "options": ["valueless", "valuable"], "correctOption": "valuable"},
+    {"id": 2, "sentencePart1": "The sunny weather was", "sentencePart2": "for our picnic.", "options": ["favored", "favorable"], "correctOption": "favorable"},
+    {"id": 3, "sentencePart1": "Dry wood is highly", "sentencePart2": ", so keep it away from fire.", "options": ["combust", "combustible"], "correctOption": "combustible"},
+    {"id": 4, "sentencePart1": "My old car starts every morning. It is very", "sentencePart2": ".", "options": ["depend", "dependable"], "correctOption": "dependable"},
+    {"id": 5, "sentencePart1": "Please tuck in your shirt so you look", "sentencePart2": ".", "options": ["presented", "presentable"], "correctOption": "presentable"},
+    {"id": 6, "sentencePart1": "The number ten is evenly", "sentencePart2": "by two.", "options": ["divide", "divisible"], "correctOption": "divisible"},
+    {"id": 7, "sentencePart1": "Don't worry! This marker is", "sentencePart2": "and comes off.", "options": ["wash", "washable"], "correctOption": "washable"},
+    {"id": 8, "sentencePart1": "The gymnast was very", "sentencePart2": "and could do the splits.", "options": ["rigid", "flexible"], "correctOption": "flexible"},
+    {"id": 9, "sentencePart1": "That mushroom is poisonous, it is not", "sentencePart2": ".", "options": ["eaten", "edible"], "correctOption": "edible"},
+    {"id": 10, "sentencePart1": "The stars are not", "sentencePart2": "during the day.", "options": ["vision", "visible"], "correctOption": "visible"},
+    {"id": 11, "sentencePart1": "The puppy was so", "sentencePart2": "that everyone wanted to pet it.", "options": ["adore", "adorable"], "correctOption": "adorable"},
+    {"id": 12, "sentencePart1": "It is", "sentencePart2": "for a human to fly without a plane.", "options": ["possible", "impossible"], "correctOption": "impossible"},
+    {"id": 13, "sentencePart1": "A good raincoat is", "sentencePart2": "so you can wear it two ways.", "options": ["reverse", "reversible"], "correctOption": "reversible"},
+    {"id": 14, "sentencePart1": "The loud music was barely", "sentencePart2": "through the thick walls.", "options": ["audio", "audible"], "correctOption": "audible"},
+    {"id": 15, "sentencePart1": "It was a", "sentencePart2": "movie; I hid my eyes the whole time!", "options": ["horror", "horrible"], "correctOption": "horrible"},
 ]
 
-ANTONYM_DATA = [
-    {"id": 1, "clue": "Calm and quiet", "answer": "excitable"},
+MASTER_ANTONYM_DATA = [
+    {"id": 1, "clue": "Calm", "answer": "excitable"},
     {"id": 2, "clue": "Crazy", "answer": "sensible"},
     {"id": 3, "clue": "Worthless", "answer": "valuable"},
     {"id": 4, "clue": "Happy", "answer": "miserable"},
     {"id": 5, "clue": "Impossible", "answer": "possible"},
     {"id": 6, "clue": "Cozy", "answer": "uncomfortable"},
     {"id": 7, "clue": "Useless", "answer": "usable"},
+    {"id": 8, "clue": "Hidden", "answer": "visible"},
+    {"id": 9, "clue": "Rigid / Stiff", "answer": "flexible"},
+    {"id": 10, "clue": "Poisonous", "answer": "edible"},
+    {"id": 11, "clue": "Silent", "answer": "audible"},
+    {"id": 12, "clue": "Hateful", "answer": "lovable"},
+    {"id": 13, "clue": "Permanent", "answer": "reversible"},
+    {"id": 14, "clue": "Careless", "answer": "responsible"},
+    {"id": 15, "clue": "Ordinary", "answer": "incredible"},
 ]
 
-YES_NO_DATA = [
+MASTER_YES_NO_DATA = [
     {"id": 1, "question": "Can a raincoat be reversible?", "answer": True},
     {"id": 2, "question": "Are most glasses nonbreakable?", "answer": False},
-    {"id": 3, "question": "Is fried liver horrible?", "answer": True},
+    {"id": 3, "question": "Is a monster usually horrible?", "answer": True},
     {"id": 4, "question": "Can a dry forest be combustible?", "answer": True},
     {"id": 5, "question": "Are your grades in school improvable?", "answer": True},
-    {"id": 6, "question": "Is your handsome face washable?", "answer": True},
-    {"id": 7, "question": "Is a fresh quart of milk returnable?", "answer": False},
+    {"id": 6, "question": "Is your face washable?", "answer": True},
+    {"id": 7, "question": "Is spilled milk returnable?", "answer": False},
+    {"id": 8, "question": "Is a brick edible?", "answer": False},
+    {"id": 9, "question": "Is an invisible man easy to see?", "answer": False},
+    {"id": 10, "question": "Is a soft bed comfortable?", "answer": True},
+    {"id": 11, "question": "Is a rubber band flexible?", "answer": True},
+    {"id": 12, "question": "Is a superhero incredible?", "answer": True},
+    {"id": 13, "question": "Is the sun visible at night?", "answer": False},
+    {"id": 14, "question": "Is a puppy adorable?", "answer": True},
+    {"id": 15, "question": "Is a whisper audible in a storm?", "answer": False},
 ]
 
 READING_STORIES = [
@@ -149,39 +194,60 @@ if 'syl_correct_state' not in st.session_state:
 if 'wb_correct_state' not in st.session_state:
     st.session_state.wb_correct_state = False
 
+# --- RANDOMIZED SESSION DATA INIT ---
+# We initialize specific sub-lists for this session (7 items per activity)
+def init_random_data():
+    if 'session_syllables' not in st.session_state:
+        st.session_state.session_syllables = random.sample(MASTER_SYLLABLE_DATA, min(len(MASTER_SYLLABLE_DATA), 7))
+    if 'session_word_builder' not in st.session_state:
+        st.session_state.session_word_builder = random.sample(MASTER_WORD_BUILDER_DATA, min(len(MASTER_WORD_BUILDER_DATA), 7))
+    if 'session_sentences' not in st.session_state:
+        st.session_state.session_sentences = random.sample(MASTER_SENTENCE_DATA, min(len(MASTER_SENTENCE_DATA), 7))
+    if 'session_antonyms' not in st.session_state:
+        st.session_state.session_antonyms = random.sample(MASTER_ANTONYM_DATA, min(len(MASTER_ANTONYM_DATA), 7))
+    if 'session_yes_no' not in st.session_state:
+        st.session_state.session_yes_no = random.sample(MASTER_YES_NO_DATA, min(len(MASTER_YES_NO_DATA), 7))
+
+init_random_data()
+
+# --- Background CSS Logic ---
+if CASTLE_BACKGROUND_URL:
+    background_style = f"""
+        [data-testid="stAppViewContainer"] {{
+            background-image: url("{CASTLE_BACKGROUND_URL}");
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            background-position: center;
+            color: #fff;
+        }}
+    """
+else:
+    background_style = """
+        [data-testid="stAppViewContainer"] {
+            background-color: #2c2c2c;
+            color: #fff;
+        }
+    """
+
 # --- GLOBAL STYLES (Castle Background & Defaults) ---
-st.markdown("""
+st.markdown(f"""
 <style>
-    /* GLOBAL: Castle Night Sky Background */
-    [data-testid="stAppViewContainer"] {
-        background: linear-gradient(to bottom, #0b1026, #2b32b2); /* Deep night sky */
-        background-attachment: fixed;
-        color: #fff;
-    }
+    /* GLOBAL: Background */
+    {background_style}
     
-    /* Starry Background Overlay */
-    [data-testid="stAppViewContainer"]::before {
-        content: "";
-        position: fixed;
-        top: 0; left: 0; width: 100%; height: 100%;
-        background-image: 
-            radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 4px),
-            radial-gradient(white, rgba(255,255,255,.15) 1px, transparent 3px),
-            radial-gradient(white, rgba(255,255,255,.1) 2px, transparent 4px);
-        background-size: 550px 550px, 350px 350px, 250px 250px; 
-        background-position: 0 0, 40px 60px, 130px 270px;
-        z-index: 0;
-        opacity: 0.6;
-        pointer-events: none;
-    }
-    
-    /* Ensure content sits above stars */
-    [data-testid="block-container"] {
+    /* Ensure content sits above background */
+    [data-testid="block-container"] {{
         z-index: 1;
         position: relative;
-    }
+        /* Semi-transparent dark background for content readability inside activities */
+        background-color: rgba(0,0,0,0.7); 
+        padding: 3rem;
+        border-radius: 20px;
+        margin-top: 2rem;
+    }}
 
-    .main-header {
+    .main-header {{
         font-family: 'Comic Sans MS', 'Comic Sans', cursive;
         color: #FFD700; /* Gold */
         text-align: center;
@@ -189,17 +255,17 @@ st.markdown("""
         font-weight: bold;
         margin-bottom: 1rem;
         text-shadow: 3px 3px 0 #000;
-    }
-    .sub-header {
+    }}
+    .sub-header {{
         color: #E0E0E0;
         text-align: center;
         font-size: 1.3rem;
         margin-bottom: 2rem;
         text-shadow: 1px 1px 2px #000;
-    }
+    }}
     
     /* LOGIN SCROLL STYLING */
-    .scroll-container {
+    .scroll-container {{
         background-color: #fdfbf7;
         background-image: url("https://www.transparenttextures.com/patterns/aged-paper.png");
         border: 10px solid #d4af37;
@@ -211,15 +277,15 @@ st.markdown("""
         margin: 2rem auto;
         max-width: 600px;
         position: relative;
-    }
+    }}
     
     /* DEFAULT BUTTON (Reset for generic buttons) */
-    .stButton button {
+    .stButton button {{
         background-color: #003366;
         color: white;
         border-radius: 20px;
         border: 2px solid #003366;
-    }
+    }}
     
 </style>
 """, unsafe_allow_html=True)
@@ -237,7 +303,6 @@ def login_screen():
     with col2:
         with st.form("login_form"):
             name_input = st.text_input("My name is:", placeholder="Type your name...")
-            # Use primary button for styling
             submit = st.form_submit_button("🏰 Enter the Castle 🏰", use_container_width=True, type="primary")
             
             if submit:
@@ -289,14 +354,17 @@ def reset_progress():
     st.session_state.reading_quiz_index = 0
     st.session_state.story_is_read = False
     
-    keys_to_remove = [k for k in st.session_state.keys() if k.startswith("antonym_") or k.startswith("yn_answered_") or k.startswith("sent_answered_") or k.startswith("read_answered_") or k.endswith("_correct_state")]
+    keys_to_remove = [k for k in st.session_state.keys() if k.startswith("antonym_") or k.startswith("yn_answered_") or k.startswith("sent_answered_") or k.startswith("read_answered_") or k.endswith("_correct_state") or k.startswith("session_")]
     for k in keys_to_remove:
         del st.session_state[k]
         
     st.session_state.syl_correct_state = False
     st.session_state.wb_correct_state = False
+    
+    # Re-init random data
+    init_random_data()
         
-    st.success("Progress Reset!")
+    st.success("Progress Reset! New words have been summoned!")
     time.sleep(1)
     st.rerun()
 
@@ -313,70 +381,72 @@ def ask_gemini_explanation(word):
 # --- Activities ---
 
 def activity_menu():
-    # INJECT DOOR STYLING ONLY HERE
+    # Make container transparent to show castle, buttons act as "hit zones" over doors
     st.markdown("""
     <style>
-    /* Styling for buttons inside columns on the menu page to look like DOORS */
+    /* Hide the default semi-transparent block container ONLY on the menu */
+    [data-testid="block-container"] {
+        background-color: transparent !important;
+        box-shadow: none !important;
+        border: none !important;
+    }
+    
+    /* Transparent Door Buttons */
     div[data-testid="column"] button {
-        background: linear-gradient(to bottom, #8B4513 0%, #5A2D0C 100%) !important;
-        color: #FFD700 !important;
-        border: 4px solid #FFD700 !important;
+        background-color: rgba(255, 255, 255, 0.15) !important; /* Slight glass effect to see hit zone */
+        border: 2px solid rgba(255, 215, 0, 0.5) !important; /* Golden glowing border */
+        color: transparent !important; /* HIDE TEXT */
         border-radius: 100px 100px 5px 5px !important; /* Arched Door Shape */
         height: 220px !important;
         width: 100% !important;
-        font-size: 1.8rem !important;
-        font-family: 'Comic Sans MS', cursive !important;
-        text-shadow: 2px 2px 4px #000;
-        box-shadow: 0 10px 20px rgba(0,0,0,0.5), inset 0 0 40px rgba(0,0,0,0.6) !important;
-        white-space: pre-wrap !important; /* Allow multiline text */
+        box-shadow: 0 0 15px rgba(255, 215, 0, 0.3) !important;
         margin-bottom: 20px !important;
-        transition: transform 0.2s !important;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
+        transition: all 0.3s !important;
     }
     div[data-testid="column"] button:hover {
+        background-color: rgba(255, 255, 255, 0.3) !important;
+        box-shadow: 0 0 40px rgba(255, 215, 0, 0.8) !important;
         transform: scale(1.05) !important;
-        box-shadow: 0 0 40px #FFD700 !important; /* Glowing effect */
-        border-color: #FFF !important;
         cursor: pointer;
     }
+    /* Hide the paragraph text inside the button too just in case */
     div[data-testid="column"] button p {
-        font-size: 1.5rem !important;
+        display: none !important;
     }
     </style>
     """, unsafe_allow_html=True)
 
-    st.markdown(f"<h1 class='main-header'>Welcome, {st.session_state.student_name}! 🧙‍♂️</h1>", unsafe_allow_html=True)
-    st.markdown("<p class='sub-header'>Choose a door to begin your adventure!</p>", unsafe_allow_html=True)
+    # Simplified Header to not distract from image
+    st.markdown(f"<h1 style='text-align:center; color:#FFD700; text-shadow: 3px 3px 5px #000; font-family: \"Comic Sans MS\", cursive;'>Welcome, {st.session_state.student_name}!</h1>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align:center; color:#FFF; text-shadow: 2px 2px 4px #000; font-size: 1.5rem;'>Click a door to begin!</p>", unsafe_allow_html=True)
 
     r1c1, r1c2, r1c3 = st.columns(3)
     r2c1, r2c2, r2c3 = st.columns(3)
     
+    # We pass text for accessibility/debugging, but CSS hides it visually
     with r1c1:
-        if st.button("✂️\nSyllable\nDetective"):
+        if st.button("Syllable Split"):
             st.session_state.current_activity = "SYLLABLES"
             st.rerun()
     with r1c2:
-        if st.button("🔨\nWord\nBuilder"):
+        if st.button("Word Builder"):
             st.session_state.current_activity = "WORD_BUILDER"
             st.rerun()
     with r1c3:
-        if st.button("✍️\nSentence\nMaster"):
+        if st.button("Sentence Master"):
             st.session_state.current_activity = "SENTENCE_FILL"
             st.rerun()
 
     with r2c1:
-        if st.button("🔄\nOpposites"):
+        if st.button("Opposites"):
             st.session_state.current_activity = "ANTONYMS"
             st.rerun()
     with r2c2:
-        if st.button("👍\nYes or No?"):
+        if st.button("Yes or No"):
             st.session_state.current_activity = "YES_NO"
             st.rerun()
     with r2c3:
-        if st.button("📖\nReading\nComp"):
+        if st.button("Reading Comp"):
             st.session_state.current_activity = "READING"
             st.rerun()
     
@@ -417,17 +487,19 @@ def syllable_splitter():
     with c_header:
         st.header("✂️ Syllable Detective")
     
-    total = len(SYLLABLE_DATA)
+    # USE SESSION DATA INSTEAD OF MASTER
+    data = st.session_state.session_syllables
+    
+    total = len(data)
     completed = len(st.session_state.completed_syllables)
     st.progress(completed / total if total > 0 else 0)
     
-    incomplete = [t for t in SYLLABLE_DATA if t['id'] not in st.session_state.completed_syllables]
+    incomplete = [t for t in data if t['id'] not in st.session_state.completed_syllables]
     
     if not incomplete:
-        st.success("You've mastered all words! 🎉")
-        if st.button("Start Over"):
-            st.session_state.completed_syllables = []
-            st.rerun()
+        st.success("You've mastered all words for this session! 🎉")
+        if st.button("Start Over (New Words)"):
+            reset_progress() # This reshuffles
         return
 
     task = incomplete[0]
@@ -538,12 +610,14 @@ def word_builder():
     with c_title:
         st.markdown("<h1 style='text-align:center; color:#FFD700; margin-top:0; text-shadow: 2px 2px #000;'>WORD CONSTRUCTION</h1>", unsafe_allow_html=True)
     
-    incomplete = [t for t in WORD_BUILDER_DATA if t['id'] not in st.session_state.completed_words]
+    # USE SESSION DATA
+    data = st.session_state.session_word_builder
+    
+    incomplete = [t for t in data if t['id'] not in st.session_state.completed_words]
     if not incomplete:
-        st.success("All words built! 🏗️")
-        if st.button("Reset Construction"):
-            st.session_state.completed_words = []
-            st.rerun()
+        st.success("All words built for this session! 🏗️")
+        if st.button("Start Over (New Words)"):
+            reset_progress()
         return
 
     task = incomplete[0]
@@ -570,7 +644,7 @@ def word_builder():
     
     parts = task['parts'].copy()
     if st.session_state.wb_difficulty == 'challenge':
-        all_parts = [p for t in WORD_BUILDER_DATA for p in t['parts']]
+        all_parts = [p for t in MASTER_WORD_BUILDER_DATA for p in t['parts']] # Use master for distractors
         distractors = random.sample(all_parts, 3)
         parts.extend(distractors)
     random.seed(task['id'] + len(parts)) 
@@ -653,15 +727,17 @@ def sentence_fill():
     </style>
     """, unsafe_allow_html=True)
     
-    if st.session_state.sent_index >= len(SENTENCE_DATA):
-        st.success("You have completed all sentences! 🎓")
-        if st.button("Start Over"):
-            st.session_state.sent_index = 0
-            st.rerun()
+    # USE SESSION DATA
+    data = st.session_state.session_sentences
+    
+    if st.session_state.sent_index >= len(data):
+        st.success("You have completed all sentences for this session! 🎓")
+        if st.button("Start Over (New Sentences)"):
+            reset_progress()
         return
 
-    task = SENTENCE_DATA[st.session_state.sent_index]
-    st.markdown(f"**Sentence {st.session_state.sent_index + 1} of {len(SENTENCE_DATA)}**")
+    task = data[st.session_state.sent_index]
+    st.markdown(f"**Sentence {st.session_state.sent_index + 1} of {len(data)}**")
     
     answered_key = f"sent_answered_{task['id']}"
     if answered_key not in st.session_state:
@@ -741,20 +817,23 @@ def antonym_activity():
     </style>
     """, unsafe_allow_html=True)
     
-    if st.session_state.ant_index >= len(ANTONYM_DATA):
-        st.success("All opposites found! ☯️")
-        if st.button("Play Again"):
-            st.session_state.ant_index = 0
-            st.rerun()
+    # USE SESSION DATA
+    data = st.session_state.session_antonyms
+    
+    if st.session_state.ant_index >= len(data):
+        st.success("All opposites found for this session! ☯️")
+        if st.button("Play Again (New Words)"):
+            reset_progress()
         return
 
-    task = ANTONYM_DATA[st.session_state.ant_index]
+    task = data[st.session_state.ant_index]
     options_key = f"antonym_options_{task['id']}"
     state_key = f"antonym_state_{task['id']}"
     
     if options_key not in st.session_state:
         options = [task['answer']]
-        others = [t['answer'] for t in ANTONYM_DATA if t['answer'] != task['answer']]
+        # Use Master list for distractors
+        others = [t['answer'] for t in MASTER_ANTONYM_DATA if t['answer'] != task['answer']]
         options.extend(random.sample(others, min(3, len(others))))
         random.shuffle(options)
         st.session_state[options_key] = options
@@ -771,7 +850,7 @@ def antonym_activity():
                 st.session_state.ant_index += 1
                 st.rerun()
 
-    st.markdown(f"**Word {st.session_state.ant_index + 1} of {len(ANTONYM_DATA)}**")
+    st.markdown(f"**Word {st.session_state.ant_index + 1} of {len(data)}**")
     st.markdown(f"<div class='antonym-clue'>{task['clue']}</div>", unsafe_allow_html=True)
     st.markdown("<div style='text-align:center; font-size: 2.5rem; margin: 10px 0;'>⇄</div>", unsafe_allow_html=True)
     
@@ -803,14 +882,16 @@ def yes_no_activity():
     with c_header:
         st.header("👍 Yes or No?")
     
-    if st.session_state.yn_index >= len(YES_NO_DATA):
-        st.success("You finished the questions! ✅")
-        if st.button("Restart"):
-            st.session_state.yn_index = 0
-            st.rerun()
+    # USE SESSION DATA
+    data = st.session_state.session_yes_no
+    
+    if st.session_state.yn_index >= len(data):
+        st.success("You finished the questions for this session! ✅")
+        if st.button("Restart (New Questions)"):
+            reset_progress()
         return
 
-    task = YES_NO_DATA[st.session_state.yn_index]
+    task = data[st.session_state.yn_index]
     answered_key = f"yn_answered_{task['id']}"
     if answered_key not in st.session_state:
         st.session_state[answered_key] = None
