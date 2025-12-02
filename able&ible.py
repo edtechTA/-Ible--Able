@@ -212,7 +212,7 @@ init_random_data()
 # Always use CSS pattern (Removed external image logic for reliability)
 background_style = """
     [data-testid="stAppViewContainer"] {
-        background-color: #2a2a2a;
+        background-color: #444; /* Lighter dark gray base */
         background-image: 
             linear-gradient(335deg, rgba(0,0,0,0.3) 23px, transparent 23px),
             linear-gradient(155deg, rgba(0,0,0,0.3) 23px, transparent 23px),
@@ -402,6 +402,11 @@ def activity_menu():
         box-shadow: none !important;
         border: none !important;
     }
+    
+    /* Ensure generic text on this page is light */
+    p, h1, h2, h3, h4, span, div {
+        color: #FFF !important;
+    }
 
     /* Styling for buttons inside columns on the menu page to look like WOODEN DOORS */
     div[data-testid="column"] button {
@@ -440,8 +445,6 @@ def activity_menu():
         position: relative;
     }
     
-    /* Knobs for the doors (Pseudo-element hack via radial gradient on background if needed, but simple is better) */
-    
     /* Hover Effect */
     div[data-testid="column"] button:hover {
         transform: scale(1.05) !important;
@@ -450,7 +453,7 @@ def activity_menu():
         cursor: pointer;
     }
     
-    /* Ensure the text inside the button is visible */
+    /* Ensure the text inside the button is visible and overrode the white rule */
     div[data-testid="column"] button p {
         font-size: 1.8rem !important;
         color: #FFD700 !important;
