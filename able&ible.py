@@ -50,7 +50,7 @@ st.markdown("""
         transform: scale(1.05);
     }
 
-    /* Primary Button Styling (Check Answer) - Green & Big */
+    /* Primary Button Styling (Check Answer / Next) - Green & Big */
     div.stButton > button[kind="primary"] {
         background-color: #28a745;
         border-color: #28a745;
@@ -315,6 +315,12 @@ if 'story_is_read' not in st.session_state:
 if 'wb_difficulty' not in st.session_state:
     st.session_state.wb_difficulty = 'normal'
 
+# New Activity "Done" States for manual next button
+if 'syl_correct_state' not in st.session_state:
+    st.session_state.syl_correct_state = False
+if 'wb_correct_state' not in st.session_state:
+    st.session_state.wb_correct_state = False
+
 # --- WELCOME SCREEN LOGIC ---
 def login_screen():
     st.markdown("<div style='text-align: center; margin-top: 50px;'>", unsafe_allow_html=True)
@@ -384,9 +390,12 @@ def reset_progress():
     st.session_state.story_is_read = False
     
     # Reset activity specific session states
-    keys_to_remove = [k for k in st.session_state.keys() if k.startswith("antonym_") or k.startswith("yn_answered_")]
+    keys_to_remove = [k for k in st.session_state.keys() if k.startswith("antonym_") or k.startswith("yn_answered_") or k.startswith("sent_answered_") or k.startswith("read_answered_") or k.endswith("_correct_state")]
     for k in keys_to_remove:
         del st.session_state[k]
+        
+    st.session_state.syl_correct_state = False
+    st.session_state.wb_correct_state = False
         
     st.success("Progress Reset!")
     time.sleep(1)
@@ -441,7 +450,11 @@ def activity_menu():
         reset_progress()
 
 def syllable_splitter():
-    st.header("✂️ Syllable Detective")
+    # Split header into two columns: Title (Left), Next Button (Right)
+    c_header, c_next = st.columns([3, 1])
+    
+    with c_header:
+        st.header("✂️ Syllable Detective")
     
     # Progress
     total = len(SYLLABLE_DATA)
@@ -460,6 +473,14 @@ def syllable_splitter():
 
     task = incomplete[0]
     
+    # If already correctly answered, show Next button at top
+    if st.session_state.syl_correct_state:
+        with c_next:
+            if st.button("Next Word ➡", type="primary"):
+                st.session_state.completed_syllables.append(task['id'])
+                st.session_state.syl_correct_state = False
+                st.rerun()
+    
     # Layout Separation: Word & Instructions vs Input Box
     st.markdown(f"<div style='text-align:center; font-size:3rem; color:#003366; font-weight:bold; margin-bottom:1rem;'>{task['word']}</div>", unsafe_allow_html=True)
     st.markdown("<p style='text-align:center;'>Break the word into parts below. Keep the suffix (-able/-ible) together!</p>", unsafe_allow_html=True)
@@ -476,12 +497,16 @@ def syllable_splitter():
             user_inputs.append(val)
         
         st.markdown("<br>", unsafe_allow_html=True)
+        # Only enable submit if not already correct state? Or let them re-submit?
+        # Better to let them re-submit or just hide the button if correct?
+        # We'll leave it but maybe show success message persistently
         submitted = st.form_submit_button("Check Answer")
 
     if submitted:
         if user_inputs == task['correctSyllables']:
             celebrate_success()
-            st.session_state.completed_syllables.append(task['id'])
+            # Set state to true, do NOT append to completed yet
+            st.session_state.syl_correct_state = True
             
             # AI Explanation
             with st.spinner("Asking the AI Wizard for a tip..."):
@@ -489,14 +514,22 @@ def syllable_splitter():
                 if expl:
                     st.success(f"Wizard says: {expl}")
             
-            time.sleep(3)
+            # Rerun to show the Next button
             st.rerun()
         else:
             play_error()
             st.error("Not quite! Check your splits. Is the suffix in one box?")
+            
+    # Persist success message if in correct state
+    if st.session_state.syl_correct_state:
+        st.success("Correct! Great job!")
 
 def word_builder():
-    st.header("🔨 Word Construction Site")
+    # Split header into two columns: Title (Left), Next Button (Right)
+    c_header, c_next = st.columns([3, 1])
+    
+    with c_header:
+        st.header("🔨 Word Construction Site")
     
     # Difficulty
     col_d1, col_d2 = st.columns([3,1])
@@ -516,6 +549,15 @@ def word_builder():
         return
 
     task = incomplete[0]
+    
+    # If already correctly answered, show Next button at top
+    if st.session_state.wb_correct_state:
+        with c_next:
+            if st.button("Next Word ➡", type="primary"):
+                st.session_state.completed_words.append(task['id'])
+                st.session_state.wb_correct_state = False
+                st.session_state.wb_current_build = []
+                st.rerun()
     
     # ZONE 1: The Workshop (Meaning only)
     st.markdown("### 1. The Blueprint")
@@ -549,7 +591,8 @@ def word_builder():
     # Buttons
     b_cols = st.columns(len(parts))
     for i, part in enumerate(parts):
-        if b_cols[i].button(part, key=f"btn_{task['id']}_{i}_{len(st.session_state.wb_current_build)}", use_container_width=True):
+        # Disable buttons if correct
+        if b_cols[i].button(part, key=f"btn_{task['id']}_{i}_{len(st.session_state.wb_current_build)}", use_container_width=True, disabled=st.session_state.wb_correct_state):
             st.session_state.wb_current_build.append(part)
             st.rerun()
             
@@ -560,20 +603,18 @@ def word_builder():
     c1, c2, c3 = st.columns([1, 1, 1])
     
     with c1:
-        if st.button("↺ Reset Word", use_container_width=True):
+        if st.button("↺ Reset Word", use_container_width=True, disabled=st.session_state.wb_correct_state):
             st.session_state.wb_current_build = []
             st.rerun()
             
     with c3:
         # Green Primary Button for Check Answer
-        if st.button("✅ Check Answer", key="wb_check_btn", type="primary", use_container_width=True):
+        # Hide or disable if already correct? Disable is better.
+        if st.button("✅ Check Answer", key="wb_check_btn", type="primary", use_container_width=True, disabled=st.session_state.wb_correct_state):
             built_word = "".join(st.session_state.wb_current_build)
             if built_word == task['targetWord']:
                 celebrate_success()
-                st.session_state.completed_words.append(task['id'])
-                st.session_state.completed_words.append(task['id'])
-                st.session_state.wb_current_build = []
-                time.sleep(2)
+                st.session_state.wb_correct_state = True
                 st.rerun()
             else:
                 play_error()
@@ -581,10 +622,18 @@ def word_builder():
                 time.sleep(2)
                 st.session_state.wb_current_build = []
                 st.rerun()
+    
+    if st.session_state.wb_correct_state:
+        st.success(f"Correct! The word is {task['targetWord']}.")
+    
     st.markdown('</div>', unsafe_allow_html=True)
 
 def sentence_fill():
-    st.header("✍️ Sentence Master")
+    # Split header into two columns: Title (Left), Next Button (Right)
+    c_header, c_next = st.columns([3, 1])
+    
+    with c_header:
+        st.header("✍️ Sentence Master")
     
     # Temporary styles to make THESE specific buttons huge and fill text
     # Ensure font size matches the sentence-display class (2.5rem) and weight matches
@@ -615,19 +664,30 @@ def sentence_fill():
     
     st.markdown(f"**Sentence {st.session_state.sent_index + 1} of {len(SENTENCE_DATA)}**")
     
-    # Check if a choice was just made (stored in session state for this frame)
-    # We use a unique key for the activity state logic
+    # Check state
+    answered_key = f"sent_answered_{task['id']}"
+    if answered_key not in st.session_state:
+        st.session_state[answered_key] = None
+        
+    # RENDER NEXT BUTTON AT TOP RIGHT IF ANSWERED
+    if st.session_state[answered_key] == "correct":
+        with c_next:
+            if st.button("Next Sentence ➡", key="next_sent_top", type="primary"):
+                 st.session_state.sent_index += 1
+                 st.rerun()
     
-    # Display logic: 
-    # If correct choice was made: Show filled sentence GREEN
-    # If default: Show blank sentence
+    # Determine what to display in blank
+    blank_content = f"<span class='blank-space'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>"
+    display_style = ""
     
-    # Placeholder for the blank
-    blank_visual = f"<span class='blank-space'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>"
+    if st.session_state[answered_key] == "correct":
+        # If correct, show the answer
+        blank_content = f"<span class='filled-word'>{task['correctOption']}</span>"
+        display_style = "border: 3px solid #28a745;"
     
     st.markdown(f"""
-    <div class="sentence-display">
-        {task['sentencePart1']} {blank_visual} {task['sentencePart2']}
+    <div class="sentence-display" style="{display_style}">
+        {task['sentencePart1']} {blank_content} {task['sentencePart2']}
     </div>
     """, unsafe_allow_html=True)
     
@@ -635,19 +695,16 @@ def sentence_fill():
     
     col1, col2 = st.columns(2)
     
+    # Only enable buttons if not yet answered correctly
+    is_disabled = (st.session_state[answered_key] == "correct")
+    
     # Left Option
     with col1:
         opt1 = task['options'][0]
-        if st.button(opt1, key=f"btn_opt1_{task['id']}", use_container_width=True):
+        if st.button(opt1, key=f"btn_opt1_{task['id']}", use_container_width=True, disabled=is_disabled):
             if opt1 == task['correctOption']:
                 celebrate_success()
-                st.markdown(f"""
-                <div class="sentence-display" style="border: 3px solid #28a745;">
-                    {task['sentencePart1']} <span class='filled-word'>{opt1}</span> {task['sentencePart2']}
-                </div>
-                """, unsafe_allow_html=True)
-                time.sleep(2)
-                st.session_state.sent_index += 1
+                st.session_state[answered_key] = "correct"
                 st.rerun()
             else:
                 play_error()
@@ -656,23 +713,21 @@ def sentence_fill():
     # Right Option
     with col2:
         opt2 = task['options'][1]
-        if st.button(opt2, key=f"btn_opt2_{task['id']}", use_container_width=True):
+        if st.button(opt2, key=f"btn_opt2_{task['id']}", use_container_width=True, disabled=is_disabled):
             if opt2 == task['correctOption']:
                 celebrate_success()
-                st.markdown(f"""
-                <div class="sentence-display" style="border: 3px solid #28a745;">
-                    {task['sentencePart1']} <span class='filled-word'>{opt2}</span> {task['sentencePart2']}
-                </div>
-                """, unsafe_allow_html=True)
-                time.sleep(2)
-                st.session_state.sent_index += 1
+                st.session_state[answered_key] = "correct"
                 st.rerun()
             else:
                 play_error()
                 st.toast(f"'{opt2}' is not correct. Try the other one!", icon="❌")
 
 def antonym_activity():
-    st.header("🔄 Opposites (Tap to Fill)")
+    # Split header into two columns: Title (Left), Next Button (Right)
+    c_header, c_next = st.columns([3, 1])
+    
+    with c_header:
+        st.header("🔄 Opposites (Tap to Fill)")
     
     # CSS for larger buttons specific to this activity
     st.markdown("""
@@ -711,6 +766,13 @@ def antonym_activity():
 
     options = st.session_state[options_key]
     current_state = st.session_state[state_key]
+    
+    # RENDER NEXT BUTTON AT TOP RIGHT IF ANSWERED
+    if current_state == "correct":
+        with c_next:
+            if st.button("Next Word ➡", type="primary", key="ant_next_top"):
+                st.session_state.ant_index += 1
+                st.rerun()
 
     st.markdown(f"**Word {st.session_state.ant_index + 1} of {len(ANTONYM_DATA)}**")
     
@@ -748,10 +810,8 @@ def antonym_activity():
                 else:
                     play_error()
     else:
-        # Correct State - Show Next Button
-        if st.button("Next Word ➡", type="primary"):
-            st.session_state.ant_index += 1
-            st.rerun()
+        # State is correct, buttons hidden, message shown
+        st.success("Correct!")
 
 def yes_no_activity():
     # Split header into two columns: Title (Left), Next Button (Right)
@@ -777,7 +837,7 @@ def yes_no_activity():
     # RENDER NEXT BUTTON AT TOP RIGHT IF ANSWERED
     if st.session_state[answered_key] is not None:
         with c_next:
-            if st.button("Next Question ➡", key="next_q_top"):
+            if st.button("Next Question ➡", key="next_q_top", type="primary"):
                  st.session_state.yn_index += 1
                  st.rerun()
     
@@ -912,21 +972,35 @@ def reading_activity():
             
             if q_idx < len(story['questions']):
                 q = story['questions'][q_idx]
+                
+                # Check answered state
+                read_answered_key = f"read_answered_{story['id']}_{q_idx}"
+                if read_answered_key not in st.session_state:
+                    st.session_state[read_answered_key] = False
+                
+                # Show Next Question button if answered correctly
+                if st.session_state[read_answered_key]:
+                    if st.button("Next Question ➡", key="read_next_q", type="primary"):
+                        st.session_state.reading_quiz_index += 1
+                        st.rerun()
+                
                 st.write(f"**Q{q_idx+1}: {q['question']}**")
                 
                 # Use a placeholder for the answer key to reset on new questions
                 ans_key = f"read_q_{story['id']}_{q_idx}"
-                ans = st.radio("Choose:", q['options'], key=ans_key)
+                ans = st.radio("Choose:", q['options'], key=ans_key, disabled=st.session_state[read_answered_key])
                 
-                if st.button("Check Answer", key=f"chk_{ans_key}"):
+                if st.button("Check Answer", key=f"chk_{ans_key}", disabled=st.session_state[read_answered_key]):
                     if ans == q['correctAnswer']:
                         celebrate_success()
                         st.success("Correct!")
-                        time.sleep(1.5)
-                        st.session_state.reading_quiz_index += 1
+                        st.session_state[read_answered_key] = True
                         st.rerun()
                     else:
                         play_error()
+                        
+                if st.session_state[read_answered_key]:
+                    st.success("Correct Answer!")
             else:
                 st.balloons()
                 st.success("Story Completed! 📚")
