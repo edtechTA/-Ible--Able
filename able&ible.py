@@ -13,7 +13,7 @@ st.set_page_config(
 )
 
 # --- USER CUSTOMIZATION ---
-# Using the provided Castle Background Link
+# Set to None to use the CSS Stone Wall pattern (as shown in your screenshot)
 CASTLE_BACKGROUND_URL = None
 
 # --- Gemini Setup ---
@@ -22,8 +22,7 @@ if api_key:
     genai.configure(api_key=api_key)
     model = genai.GenerativeModel('gemini-2.5-flash')
 
-# --- MASTER DATA LISTS (Pool of ~15 words each) ---
-
+# --- MASTER DATA LISTS ---
 MASTER_SYLLABLE_DATA = [
     {"id": 1, "word": "presentable", "correctSyllables": ["pre", "sent", "able"]},
     {"id": 2, "word": "miserable", "correctSyllables": ["mis", "er", "able"]},
@@ -48,7 +47,7 @@ MASTER_WORD_BUILDER_DATA = [
     {"id": 3, "parts": ["in", "cred", "ible"], "meaning": "fantastic / hard to believe", "targetWord": "incredible"},
     {"id": 4, "parts": ["in", "vis", "ible"], "meaning": "not able to be seen", "targetWord": "invisible"},
     {"id": 5, "parts": ["re", "vers", "ible"], "meaning": "able to be turned inside out", "targetWord": "reversible"},
-    {"id": 6, "parts": ["re", "mark", "able"], "meaning": "astonishing / worthy of attention", "targetWord": "remarkable"},
+    {"id": 6, "parts": ["re", "mark", "able"], "meaning": "astonishing", "targetWord": "remarkable"},
     {"id": 7, "parts": ["div", "is", "ible"], "meaning": "able to be divided", "targetWord": "divisible"},
     {"id": 8, "parts": ["com", "fort", "able"], "meaning": "cozy and relaxed", "targetWord": "comfortable"},
     {"id": 9, "parts": ["flex", "ible"], "meaning": "able to bend easily", "targetWord": "flexible"},
@@ -210,7 +209,6 @@ def init_random_data():
 init_random_data()
 
 # --- Background CSS Logic ---
-# CRITICAL FIX: Use '100% auto' and 'center bottom' to prevent stretching
 if CASTLE_BACKGROUND_URL:
     background_style = f"""
         [data-testid="stAppViewContainer"] {{
@@ -268,15 +266,15 @@ st.markdown(f"""
         font-family: 'Comic Sans MS', 'Comic Sans', cursive;
         color: #003366; /* Changed to dark blue for contrast on white */
         text-align: center;
-        font-size: 3.5rem;
+        font-size: 4rem; /* Bigger Header */
         font-weight: bold;
-        margin-bottom: 1rem;
+        margin-bottom: 0.5rem;
         text-shadow: none; 
     }}
     .sub-header {{
         color: #555; /* Dark grey for contrast */
         text-align: center;
-        font-size: 1.3rem;
+        font-size: 1.5rem; /* Bigger sub-header */
         margin-bottom: 2rem;
         text-shadow: none;
     }}
@@ -318,8 +316,15 @@ def login_screen():
     
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
+        # Custom styled label to make "My name is" visible
+        st.markdown("""
+        <div style='background-color: #d4af37; padding: 10px; border-radius: 10px; text-align: center; margin-bottom: 10px; border: 2px solid #8B4513; color: #fff; font-weight: bold; font-size: 1.5rem; text-shadow: 1px 1px 2px #000;'>
+            My Name Is:
+        </div>
+        """, unsafe_allow_html=True)
+
         with st.form("login_form"):
-            name_input = st.text_input("My name is:", placeholder="Type your name...")
+            name_input = st.text_input("My name is:", label_visibility="collapsed", placeholder="Type your name...")
             submit = st.form_submit_button("🏰 Enter the Castle 🏰", use_container_width=True, type="primary")
             
             if submit:
@@ -398,7 +403,7 @@ def ask_gemini_explanation(word):
 # --- Activities ---
 
 def activity_menu():
-    # Make container transparent to show castle, buttons act as "hit zones" over doors
+    # INJECT WOODEN DOOR STYLING & REMOVE GAP
     st.markdown("""
     <style>
     /* Hide the default semi-transparent block container ONLY on the menu so we see the castle */
@@ -407,70 +412,88 @@ def activity_menu():
         box-shadow: none !important;
         border: none !important;
     }
-    
-    /* Transparent Door Buttons */
+
+    /* Styling for buttons inside columns on the menu page to look like WOODEN DOORS */
     div[data-testid="column"] button {
-        background-color: rgba(255, 255, 255, 0.01) !important; /* Near invisible */
-        border: 2px solid transparent !important; 
-        color: transparent !important; /* HIDE TEXT */
+        /* Wooden texture gradient */
+        background: repeating-linear-gradient(90deg, #8B4513, #8B4513 10px, #5A2D0C 10px, #5A2D0C 12px) !important;
+        color: #FFD700 !important;
+        border: 4px solid #DAA520 !important; /* Gold Frame */
         border-radius: 100px 100px 5px 5px !important; /* Arched Door Shape */
-        height: 250px !important; /* Taller to match door height */
+        height: 220px !important;
         width: 100% !important;
-        box-shadow: none !important;
-        margin-bottom: 0px !important;
-        transition: all 0.2s !important;
+        font-size: 1.8rem !important;
+        font-family: 'Comic Sans MS', cursive !important;
+        text-shadow: 2px 2px 4px #000;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.5), inset 0 0 30px rgba(0,0,0,0.6) !important;
+        white-space: pre-wrap !important; /* Allow multiline text */
+        margin-bottom: 20px !important;
+        transition: transform 0.2s !important;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        position: relative;
     }
+    
+    /* Hover Effect */
     div[data-testid="column"] button:hover {
-        background-color: rgba(255, 215, 0, 0.3) !important; /* Gold glow on hover */
-        border: 2px solid rgba(255, 215, 0, 0.8) !important;
         transform: scale(1.05) !important;
+        box-shadow: 0 0 30px #FFD700 !important; /* Glowing effect */
+        border-color: #FFF !important;
         cursor: pointer;
     }
-    /* Ensure no text shadow or other artifacts */
-    div[data-testid="column"] button * {
-        display: none !important;
+    
+    /* Ensure the text inside the button is visible */
+    div[data-testid="column"] button p {
+        font-size: 1.5rem !important;
+        color: #FFD700 !important;
+        font-weight: bold !important;
+        background-color: rgba(0,0,0,0.6); /* Text background for readability */
+        padding: 5px 10px;
+        border-radius: 10px;
     }
     
-    /* Revert headers to gold/white for the menu page only */
-    .main-header { color: #FFD700 !important; text-shadow: 3px 3px 5px #000 !important; }
-    .sub-header { color: #FFF !important; text-shadow: 2px 2px 4px #000 !important; }
+    /* Revert headers to gold/white for the menu page only, make them BIGGER */
+    .main-header { color: #FFD700 !important; text-shadow: 3px 3px 5px #000 !important; font-size: 5rem !important; }
+    .sub-header { color: #FFF !important; text-shadow: 2px 2px 4px #000 !important; font-size: 2rem !important; }
     </style>
     """, unsafe_allow_html=True)
 
-    # Simplified Header to not distract from image
-    st.markdown(f"<h1 class='main-header'>Welcome, {st.session_state.student_name}!</h1>", unsafe_allow_html=True)
-    st.markdown("<p class='sub-header'>Click a door to begin!</p>", unsafe_allow_html=True)
-
-    # PUSH BUTTONS DOWN TO BOTTOM - ADJUSTED SPACER
-    # Use a large spacer. Adjust '45vh' if needed based on the image aspect ratio
-    st.markdown("<div style='height: 45vh;'></div>", unsafe_allow_html=True)
-
-    # SINGLE ROW OF 6 COLUMNS for the 6 doors
-    c1, c2, c3, c4, c5, c6 = st.columns(6, gap="small")
+    st.markdown(f"<h1 class='main-header'>Welcome, {st.session_state.student_name}! 🧙‍♂️</h1>", unsafe_allow_html=True)
+    st.markdown("<p class='sub-header'>Choose a door to begin your adventure!</p>", unsafe_allow_html=True)
     
-    # Pass empty text to button, handled by CSS
-    with c1:
-        if st.button("Syllable", key="btn_syl"):
+    # NO SPACER HERE - Buttons will sit directly below header
+
+    # 2 Rows of 3 Columns
+    r1c1, r1c2, r1c3 = st.columns(3)
+    r2c1, r2c2, r2c3 = st.columns(3)
+    
+    # Row 1
+    with r1c1:
+        if st.button("✂️\nSyllable\nDetective"):
             st.session_state.current_activity = "SYLLABLES"
             st.rerun()
-    with c2:
-        if st.button("Word", key="btn_wb"):
+    with r1c2:
+        if st.button("🔨\nWord\nBuilder"):
             st.session_state.current_activity = "WORD_BUILDER"
             st.rerun()
-    with c3:
-        if st.button("Sentence", key="btn_sent"):
+    with r1c3:
+        if st.button("✍️\nSentence\nMaster"):
             st.session_state.current_activity = "SENTENCE_FILL"
             st.rerun()
-    with c4:
-        if st.button("Opposites", key="btn_ant"):
+
+    # Row 2
+    with r2c1:
+        if st.button("🔄\nOpposites"):
             st.session_state.current_activity = "ANTONYMS"
             st.rerun()
-    with c5:
-        if st.button("YesNo", key="btn_yn"):
+    with r2c2:
+        if st.button("👍\nYes or No?"):
             st.session_state.current_activity = "YES_NO"
             st.rerun()
-    with c6:
-        if st.button("Read", key="btn_read"):
+    with r2c3:
+        if st.button("📖\nReading\nComp"):
             st.session_state.current_activity = "READING"
             st.rerun()
     
@@ -478,6 +501,7 @@ def activity_menu():
     if st.button("🗑️ Reset All Progress"):
         reset_progress()
 
+# ... (rest of the activities code remains exactly the same)
 def syllable_splitter():
     # Inject specific styles for this activity to override defaults/doors
     st.markdown("""
