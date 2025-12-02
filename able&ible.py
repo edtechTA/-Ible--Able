@@ -13,7 +13,7 @@ st.set_page_config(
 )
 
 # --- USER CUSTOMIZATION ---
-# Updated Castle Background Link
+# Using the provided Castle Background Link
 CASTLE_BACKGROUND_URL = "https://i.ibb.co/JRRCkyZL/game-castle-background.png"
 
 # --- Gemini Setup ---
@@ -210,14 +210,15 @@ def init_random_data():
 init_random_data()
 
 # --- Background CSS Logic ---
+# CRITICAL FIX: Use '100% auto' and 'center bottom' to prevent stretching
 if CASTLE_BACKGROUND_URL:
     background_style = f"""
         [data-testid="stAppViewContainer"] {{
             background-image: url("{CASTLE_BACKGROUND_URL}");
-            background-size: 100% auto; /* Forces image to fit width, natural height */
+            background-size: 100% auto; 
             background-repeat: no-repeat;
-            background-position: center bottom; /* Anchor to bottom of screen */
             background-attachment: fixed;
+            background-position: center bottom;
             color: #fff;
         }}
     """
@@ -235,11 +236,11 @@ st.markdown(f"""
     /* GLOBAL: Background */
     {background_style}
     
-    /* Ensure content sits above background - ADDING WHITE OVERLAY HERE */
+    /* Ensure content sits above background - WITH WHITE OVERLAY */
     [data-testid="block-container"] {{
         z-index: 1;
         position: relative;
-        /* Updated: White semi-transparent overlay for readability */
+        /* White semi-transparent overlay for readability */
         background-color: rgba(255, 255, 255, 0.9); 
         padding: 3rem;
         border-radius: 20px;
@@ -263,7 +264,7 @@ st.markdown(f"""
         font-size: 3.5rem;
         font-weight: bold;
         margin-bottom: 1rem;
-        text-shadow: none; /* Removed shadow for cleaner look on white */
+        text-shadow: none; 
     }}
     .sub-header {{
         color: #555; /* Dark grey for contrast */
@@ -402,24 +403,24 @@ def activity_menu():
     
     /* Transparent Door Buttons */
     div[data-testid="column"] button {
-        background-color: rgba(255, 255, 255, 0.15) !important; /* Slight glass effect to see hit zone */
-        border: 2px solid rgba(255, 215, 0, 0.5) !important; /* Golden glowing border */
+        background-color: rgba(255, 255, 255, 0.01) !important; /* Near invisible */
+        border: 2px solid transparent !important; 
         color: transparent !important; /* HIDE TEXT */
         border-radius: 100px 100px 5px 5px !important; /* Arched Door Shape */
-        height: 250px !important; /* Increased height for bigger hit box */
+        height: 250px !important; /* Taller to match door height */
         width: 100% !important;
-        box-shadow: 0 0 15px rgba(255, 215, 0, 0.3) !important;
-        margin-bottom: 20px !important;
-        transition: all 0.3s !important;
+        box-shadow: none !important;
+        margin-bottom: 0px !important;
+        transition: all 0.2s !important;
     }
     div[data-testid="column"] button:hover {
-        background-color: rgba(255, 255, 255, 0.3) !important;
-        box-shadow: 0 0 40px rgba(255, 215, 0, 0.8) !important;
+        background-color: rgba(255, 215, 0, 0.3) !important; /* Gold glow on hover */
+        border: 2px solid rgba(255, 215, 0, 0.8) !important;
         transform: scale(1.05) !important;
         cursor: pointer;
     }
-    /* Hide the paragraph text inside the button too just in case */
-    div[data-testid="column"] button p {
+    /* Ensure no text shadow or other artifacts */
+    div[data-testid="column"] button * {
         display: none !important;
     }
     
@@ -433,14 +434,14 @@ def activity_menu():
     st.markdown(f"<h1 class='main-header'>Welcome, {st.session_state.student_name}!</h1>", unsafe_allow_html=True)
     st.markdown("<p class='sub-header'>Click a door to begin!</p>", unsafe_allow_html=True)
 
-    # PUSH BUTTONS DOWN TO BOTTOM 
+    # PUSH BUTTONS DOWN TO BOTTOM - ADJUSTED SPACER
     # Use a large spacer. Adjust '45vh' if needed based on the image aspect ratio
     st.markdown("<div style='height: 45vh;'></div>", unsafe_allow_html=True)
 
     # SINGLE ROW OF 6 COLUMNS for the 6 doors
     c1, c2, c3, c4, c5, c6 = st.columns(6, gap="small")
     
-    # We pass text for accessibility/debugging, but CSS hides it visually
+    # Pass empty text to button, handled by CSS
     with c1:
         if st.button("Syllable", key="btn_syl"):
             st.session_state.current_activity = "SYLLABLES"
