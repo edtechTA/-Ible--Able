@@ -13,8 +13,8 @@ st.set_page_config(
 )
 
 # --- USER CUSTOMIZATION ---
-# Using the provided Castle Background Link with text on doors
-CASTLE_BACKGROUND_URL = "https://i.ibb.co/ynnVsY2T/game-castle-background.png" 
+# Updated Castle Background Link
+CASTLE_BACKGROUND_URL = "https://i.ibb.co/JRRCkyZL/game-castle-background.png"
 
 # --- Gemini Setup ---
 api_key = st.secrets.get("API_KEY") or os.environ.get("API_KEY")
@@ -195,7 +195,6 @@ if 'wb_correct_state' not in st.session_state:
     st.session_state.wb_correct_state = False
 
 # --- RANDOMIZED SESSION DATA INIT ---
-# We initialize specific sub-lists for this session (7 items per activity)
 def init_random_data():
     if 'session_syllables' not in st.session_state:
         st.session_state.session_syllables = random.sample(MASTER_SYLLABLE_DATA, min(len(MASTER_SYLLABLE_DATA), 7))
@@ -397,7 +396,7 @@ def activity_menu():
         border: 2px solid rgba(255, 215, 0, 0.5) !important; /* Golden glowing border */
         color: transparent !important; /* HIDE TEXT */
         border-radius: 100px 100px 5px 5px !important; /* Arched Door Shape */
-        height: 220px !important;
+        height: 250px !important; /* Increased height for bigger hit box */
         width: 100% !important;
         box-shadow: 0 0 15px rgba(255, 215, 0, 0.3) !important;
         margin-bottom: 20px !important;
@@ -420,36 +419,40 @@ def activity_menu():
     st.markdown(f"<h1 style='text-align:center; color:#FFD700; text-shadow: 3px 3px 5px #000; font-family: \"Comic Sans MS\", cursive;'>Welcome, {st.session_state.student_name}!</h1>", unsafe_allow_html=True)
     st.markdown("<p style='text-align:center; color:#FFF; text-shadow: 2px 2px 4px #000; font-size: 1.5rem;'>Click a door to begin!</p>", unsafe_allow_html=True)
 
-    r1c1, r1c2, r1c3 = st.columns(3)
-    r2c1, r2c2, r2c3 = st.columns(3)
+    # PUSH BUTTONS DOWN TO ALIGN WITH DOORS IN IMAGE
+    # The image has doors at the bottom. We need a spacer.
+    st.markdown("<div style='height: 40vh;'></div>", unsafe_allow_html=True)
+
+    # SINGLE ROW OF 6 COLUMNS
+    c1, c2, c3, c4, c5, c6 = st.columns(6, gap="small")
     
     # We pass text for accessibility/debugging, but CSS hides it visually
-    with r1c1:
+    with c1:
         if st.button("Syllable Split"):
             st.session_state.current_activity = "SYLLABLES"
             st.rerun()
-    with r1c2:
+    with c2:
         if st.button("Word Builder"):
             st.session_state.current_activity = "WORD_BUILDER"
             st.rerun()
-    with r1c3:
+    with c3:
         if st.button("Sentence Master"):
             st.session_state.current_activity = "SENTENCE_FILL"
             st.rerun()
-
-    with r2c1:
+    with c4:
         if st.button("Opposites"):
             st.session_state.current_activity = "ANTONYMS"
             st.rerun()
-    with r2c2:
+    with c5:
         if st.button("Yes or No"):
             st.session_state.current_activity = "YES_NO"
             st.rerun()
-    with r2c3:
+    with c6:
         if st.button("Reading Comp"):
             st.session_state.current_activity = "READING"
             st.rerun()
     
+    # Reset button at very bottom
     st.divider()
     if st.button("🗑️ Reset All Progress"):
         reset_progress()
