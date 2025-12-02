@@ -3,7 +3,6 @@ import google.generativeai as genai
 import random
 import time
 import os
-import base64
 
 # --- Configuration & Styles ---
 st.set_page_config(
@@ -13,8 +12,177 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# --- USER CUSTOMIZATION ---
-CASTLE_BACKGROUND_URL = None
+# Custom CSS for Trident Academy Branding and Activity Specifics
+st.markdown("""
+<style>
+    /* Global Styles */
+    .stApp {
+        background-color: #f8f9fa;
+    }
+    .main-header {
+        font-family: 'Comic Sans MS', 'Comic Sans', cursive;
+        color: #003366;
+        text-align: center;
+        font-size: 3rem;
+        font-weight: bold;
+        margin-bottom: 1rem;
+    }
+    .sub-header {
+        color: #555;
+        text-align: center;
+        font-size: 1.2rem;
+        margin-bottom: 2rem;
+    }
+    
+    /* Button Styling - Default Blue */
+    .stButton button {
+        background-color: #003366;
+        color: white;
+        border-radius: 20px;
+        font-weight: bold;
+        padding: 0.5rem 1rem;
+        border: 2px solid #003366;
+        transition: transform 0.1s;
+    }
+    .stButton button:hover {
+        background-color: #004080;
+        color: #FFCC00;
+        transform: scale(1.05);
+    }
+
+    /* Primary Button Styling (Check Answer) - Green & Big */
+    div.stButton > button[kind="primary"] {
+        background-color: #28a745;
+        border-color: #28a745;
+        color: white;
+        font-size: 1.3rem;
+        padding: 0.75rem 2rem;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+    }
+    div.stButton > button[kind="primary"]:hover {
+        background-color: #218838;
+        border-color: #1e7e34;
+        color: white;
+        transform: scale(1.05);
+        box-shadow: 0 0 15px rgba(40, 167, 69, 0.6);
+    }
+
+    /* Activity 1: Syllable Detective */
+    [data-testid="stForm"] {
+        background-color: #e3f2fd;
+        border: 3px dashed #003366;
+        padding: 2rem;
+        border-radius: 15px;
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    /* Activity 2: Word Builder Zones */
+    .wb-workshop {
+        background-color: #003366; /* Trident Blue */
+        color: white;
+        padding: 2rem;
+        border-radius: 15px;
+        text-align: center;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+    }
+    .wb-parts-bin {
+        background-color: #FFF3CD; /* Light Gold */
+        border: 2px solid #FFCC00;
+        padding: 2rem;
+        border-radius: 15px;
+        margin-bottom: 2rem;
+        text-align: center;
+    }
+    .built-word-display {
+        background-color: white;
+        border: 2px solid #003366;
+        border-radius: 10px;
+        padding: 1rem;
+        font-size: 2.5rem;
+        font-family: monospace;
+        letter-spacing: 5px;
+        color: #003366;
+        margin-bottom: 2rem;
+        display: inline-block;
+        min-width: 300px;
+    }
+    .wb-controls {
+        padding: 1rem;
+        border-top: 1px solid #ccc;
+        margin-top: 2rem;
+    }
+
+    /* Activity 3: Sentence Master */
+    .sentence-display {
+        font-size: 2.5rem !important;
+        font-weight: bold;
+        color: #333;
+        line-height: 1.5;
+        padding: 20px;
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        text-align: center;
+    }
+    .filled-word {
+        color: #28a745;
+        text-decoration: underline;
+        font-weight: 800;
+    }
+    .blank-space {
+        color: #FFCC00;
+        text-decoration: underline;
+        font-weight: 800;
+    }
+    
+    /* Activity 4: Antonym Bubbles */
+    .antonym-clue {
+        font-size: 3rem;
+        font-weight: bold;
+        color: #003366;
+        text-align: center;
+    }
+    .antonym-answer-box {
+        font-size: 3rem; 
+        font-weight: bold; 
+        color: #28a745; /* Green for correct */
+        text-align: center;
+        border: 3px solid #28a745;
+        border-radius: 15px;
+        padding: 10px;
+        background-color: white;
+        display: inline-block;
+        min-width: 300px;
+    }
+    .antonym-placeholder {
+        font-size: 3rem;
+        color: #ccc;
+        border-bottom: 3px solid #003366;
+        display: inline-block;
+        min-width: 150px;
+        text-align: center;
+    }
+    
+    /* Activity 6: Reading */
+    .story-box {
+        background-color: #fff;
+        padding: 2rem;
+        border-radius: 10px;
+        border-left: 10px solid #003366;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .quiz-box {
+        background-color: #FFCC00;
+        padding: 2rem;
+        border-radius: 10px;
+        color: #003366;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+
+</style>
+""", unsafe_allow_html=True)
 
 # --- Gemini Setup ---
 api_key = st.secrets.get("API_KEY") or os.environ.get("API_KEY")
@@ -22,8 +190,8 @@ if api_key:
     genai.configure(api_key=api_key)
     model = genai.GenerativeModel('gemini-2.5-flash')
 
-# --- MASTER DATA LISTS ---
-MASTER_SYLLABLE_DATA = [
+# --- Constants & Data ---
+SYLLABLE_DATA = [
     {"id": 1, "word": "presentable", "correctSyllables": ["pre", "sent", "able"]},
     {"id": 2, "word": "miserable", "correctSyllables": ["mis", "er", "able"]},
     {"id": 3, "word": "valuable", "correctSyllables": ["val", "u", "able"]},
@@ -31,86 +199,46 @@ MASTER_SYLLABLE_DATA = [
     {"id": 5, "word": "dependable", "correctSyllables": ["de", "pend", "able"]},
     {"id": 6, "word": "reversible", "correctSyllables": ["re", "vers", "ible"]},
     {"id": 7, "word": "favorable", "correctSyllables": ["fa", "vor", "able"]},
-    {"id": 8, "word": "comfortable", "correctSyllables": ["com", "fort", "able"]},
-    {"id": 9, "word": "incredible", "correctSyllables": ["in", "cred", "ible"]},
-    {"id": 10, "word": "visible", "correctSyllables": ["vis", "ible"]},
-    {"id": 11, "word": "flexible", "correctSyllables": ["flex", "ible"]},
-    {"id": 12, "word": "edible", "correctSyllables": ["ed", "ible"]},
-    {"id": 13, "word": "adorable", "correctSyllables": ["a", "dor", "able"]},
-    {"id": 14, "word": "responsible", "correctSyllables": ["re", "spons", "ible"]},
-    {"id": 15, "word": "breakable", "correctSyllables": ["break", "able"]},
 ]
 
-MASTER_WORD_BUILDER_DATA = [
+WORD_BUILDER_DATA = [
     {"id": 1, "parts": ["val", "u", "able"], "meaning": "worth a lot", "targetWord": "valuable"},
     {"id": 2, "parts": ["re", "li", "able"], "meaning": "dependable", "targetWord": "reliable"},
-    {"id": 3, "parts": ["in", "cred", "ible"], "meaning": "fantastic / hard to believe", "targetWord": "incredible"},
+    {"id": 3, "parts": ["in", "cred", "ible"], "meaning": "fantastic", "targetWord": "incredible"},
     {"id": 4, "parts": ["in", "vis", "ible"], "meaning": "not able to be seen", "targetWord": "invisible"},
     {"id": 5, "parts": ["re", "vers", "ible"], "meaning": "able to be turned inside out", "targetWord": "reversible"},
     {"id": 6, "parts": ["re", "mark", "able"], "meaning": "astonishing", "targetWord": "remarkable"},
     {"id": 7, "parts": ["div", "is", "ible"], "meaning": "able to be divided", "targetWord": "divisible"},
-    {"id": 8, "parts": ["com", "fort", "able"], "meaning": "cozy and relaxed", "targetWord": "comfortable"},
-    {"id": 9, "parts": ["flex", "ible"], "meaning": "able to bend easily", "targetWord": "flexible"},
-    {"id": 10, "parts": ["sens", "ible"], "meaning": "smart and practical", "targetWord": "sensible"},
-    {"id": 11, "parts": ["horr", "ible"], "meaning": "very unpleasant", "targetWord": "horrible"},
-    {"id": 12, "parts": ["a", "dor", "able"], "meaning": "very cute", "targetWord": "adorable"},
-    {"id": 13, "parts": ["vis", "ible"], "meaning": "able to be seen", "targetWord": "visible"},
-    {"id": 14, "parts": ["ed", "ible"], "meaning": "safe to eat", "targetWord": "edible"},
-    {"id": 15, "parts": ["us", "able"], "meaning": "fit to be used", "targetWord": "usable"},
 ]
 
-MASTER_SENTENCE_DATA = [
-    {"id": 1, "sentencePart1": "My grandmother's gold ring cost a lot. It is very", "sentencePart2": ".", "options": ["valueless", "valuable"], "correctOption": "valuable"},
-    {"id": 2, "sentencePart1": "The sunny weather was", "sentencePart2": "for our picnic.", "options": ["favored", "favorable"], "correctOption": "favorable"},
-    {"id": 3, "sentencePart1": "Dry wood is highly", "sentencePart2": ", so keep it away from fire.", "options": ["combust", "combustible"], "correctOption": "combustible"},
-    {"id": 4, "sentencePart1": "My old car starts every morning. It is very", "sentencePart2": ".", "options": ["depend", "dependable"], "correctOption": "dependable"},
-    {"id": 5, "sentencePart1": "Please tuck in your shirt so you look", "sentencePart2": ".", "options": ["presented", "presentable"], "correctOption": "presentable"},
-    {"id": 6, "sentencePart1": "The number ten is evenly", "sentencePart2": "by two.", "options": ["divide", "divisible"], "correctOption": "divisible"},
-    {"id": 7, "sentencePart1": "Don't worry! This marker is", "sentencePart2": "and comes off.", "options": ["wash", "washable"], "correctOption": "washable"},
-    {"id": 8, "sentencePart1": "The gymnast was very", "sentencePart2": "and could do the splits.", "options": ["rigid", "flexible"], "correctOption": "flexible"},
-    {"id": 9, "sentencePart1": "That mushroom is poisonous, it is not", "sentencePart2": ".", "options": ["eaten", "edible"], "correctOption": "edible"},
-    {"id": 10, "sentencePart1": "The stars are not", "sentencePart2": "during the day.", "options": ["vision", "visible"], "correctOption": "visible"},
-    {"id": 11, "sentencePart1": "The puppy was so", "sentencePart2": "that everyone wanted to pet it.", "options": ["adore", "adorable"], "correctOption": "adorable"},
-    {"id": 12, "sentencePart1": "It is", "sentencePart2": "for a human to fly without a plane.", "options": ["possible", "impossible"], "correctOption": "impossible"},
-    {"id": 13, "sentencePart1": "A good raincoat is", "sentencePart2": "so you can wear it two ways.", "options": ["reverse", "reversible"], "correctOption": "reversible"},
-    {"id": 14, "sentencePart1": "The loud music was barely", "sentencePart2": "through the thick walls.", "options": ["audio", "audible"], "correctOption": "audible"},
-    {"id": 15, "sentencePart1": "It was a", "sentencePart2": "movie; I hid my eyes the whole time!", "options": ["horror", "horrible"], "correctOption": "horrible"},
+SENTENCE_DATA = [
+    {"id": 1, "sentencePart1": "My grandmother's gold ring cost a lot of money. It is very", "sentencePart2": ".", "options": ["valueless", "valuable"], "correctOption": "valuable"},
+    {"id": 2, "sentencePart1": "The sunny weather was", "sentencePart2": "for our picnic, so we had a great time!", "options": ["favored", "favorable"], "correctOption": "favorable"},
+    {"id": 3, "sentencePart1": "Dry wood is highly", "sentencePart2": ", so keep it away from the campfire flames.", "options": ["combust", "combustible"], "correctOption": "combustible"},
+    {"id": 4, "sentencePart1": "My old car starts every single morning. It is very", "sentencePart2": ".", "options": ["depend", "dependable"], "correctOption": "dependable"},
+    {"id": 5, "sentencePart1": "Please comb your hair and tuck in your shirt so you look", "sentencePart2": "for the photo.", "options": ["presented", "presentable"], "correctOption": "presentable"},
+    {"id": 6, "sentencePart1": "The number ten is evenly", "sentencePart2": "by the number two.", "options": ["divide", "divisible"], "correctOption": "divisible"},
+    {"id": 7, "sentencePart1": "Don't worry about the mess! This marker is", "sentencePart2": "and comes off with soap.", "options": ["wash", "washable"], "correctOption": "washable"},
 ]
 
-MASTER_ANTONYM_DATA = [
-    {"id": 1, "clue": "Calm", "answer": "excitable"},
+ANTONYM_DATA = [
+    {"id": 1, "clue": "Calm and quiet", "answer": "excitable"},
     {"id": 2, "clue": "Crazy", "answer": "sensible"},
     {"id": 3, "clue": "Worthless", "answer": "valuable"},
     {"id": 4, "clue": "Happy", "answer": "miserable"},
     {"id": 5, "clue": "Impossible", "answer": "possible"},
     {"id": 6, "clue": "Cozy", "answer": "uncomfortable"},
     {"id": 7, "clue": "Useless", "answer": "usable"},
-    {"id": 8, "clue": "Hidden", "answer": "visible"},
-    {"id": 9, "clue": "Rigid / Stiff", "answer": "flexible"},
-    {"id": 10, "clue": "Poisonous", "answer": "edible"},
-    {"id": 11, "clue": "Silent", "answer": "audible"},
-    {"id": 12, "clue": "Hateful", "answer": "lovable"},
-    {"id": 13, "clue": "Permanent", "answer": "reversible"},
-    {"id": 14, "clue": "Careless", "answer": "responsible"},
-    {"id": 15, "clue": "Ordinary", "answer": "incredible"},
 ]
 
-MASTER_YES_NO_DATA = [
+YES_NO_DATA = [
     {"id": 1, "question": "Can a raincoat be reversible?", "answer": True},
     {"id": 2, "question": "Are most glasses nonbreakable?", "answer": False},
-    {"id": 3, "question": "Is a monster usually horrible?", "answer": True},
+    {"id": 3, "question": "Is fried liver horrible?", "answer": True},
     {"id": 4, "question": "Can a dry forest be combustible?", "answer": True},
     {"id": 5, "question": "Are your grades in school improvable?", "answer": True},
-    {"id": 6, "question": "Is your face washable?", "answer": True},
-    {"id": 7, "question": "Is spilled milk returnable?", "answer": False},
-    {"id": 8, "question": "Is a brick edible?", "answer": False},
-    {"id": 9, "question": "Is an invisible man easy to see?", "answer": False},
-    {"id": 10, "question": "Is a soft bed comfortable?", "answer": True},
-    {"id": 11, "question": "Is a rubber band flexible?", "answer": True},
-    {"id": 12, "question": "Is a superhero incredible?", "answer": True},
-    {"id": 13, "question": "Is the sun visible at night?", "answer": False},
-    {"id": 14, "question": "Is a puppy adorable?", "answer": True},
-    {"id": 15, "question": "Is a whisper audible in a storm?", "answer": False},
+    {"id": 6, "question": "Is your handsome face washable?", "answer": True},
+    {"id": 7, "question": "Is a fresh quart of milk returnable?", "answer": False},
 ]
 
 READING_STORIES = [
@@ -144,34 +272,17 @@ READING_STORIES = [
             {"question": "Why did Tim use flexible plastic?", "options": ["So it was not breakable", "So it was edible", "So it was miserable", "So it was combustible"], "correctAnswer": "So it was not breakable"},
             {"question": "The judges thought the invention was:", "options": ["Terrible", "Remarkable", "Changeable", "Valueless"], "correctAnswer": "Remarkable"}
         ]
-    },
-    {
-        "id": 3,
-        "title": "The Enjoyable Picnic",
-        "paragraphs": [
-            "The Smith family planned an enjoyable picnic in the park. Mom made sure all the food was edible and tasty.",
-            "They brought a big, soft blanket that was very comfortable to sit on. Dad told some terrible jokes that made everyone groan, but they laughed anyway.",
-            "Suddenly, it started to rain! They had to be flexible and move the picnic into the car.",
-            "Even with the rain, it was a memorable day."
-        ],
-        "questions": [
-            {"question": "The blanket they brought was:", "options": ["Terrible", "Comfortable", "Breakable", "Invisible"], "correctAnswer": "Comfortable"},
-            {"question": "How did the family feel about the picnic?", "options": ["It was enjoyable", "It was miserable", "It was horrible", "It was impossible"], "correctAnswer": "It was enjoyable"},
-            {"question": "When it rained, the family had to be:", "options": ["Rigid", "Flexible", "Combustible", "Valuable"], "correctAnswer": "Flexible"}
-        ]
     }
 ]
 
 # --- State Management ---
-if 'student_name' not in st.session_state:
-    st.session_state.student_name = ""
 if 'current_activity' not in st.session_state:
     st.session_state.current_activity = None
 if 'completed_syllables' not in st.session_state:
     st.session_state.completed_syllables = []
 if 'completed_words' not in st.session_state:
     st.session_state.completed_words = []
-# Index trackers
+# Index trackers for one-at-a-time activities
 if 'sent_index' not in st.session_state:
     st.session_state.sent_index = 0
 if 'ant_index' not in st.session_state:
@@ -187,182 +298,21 @@ if 'story_is_read' not in st.session_state:
 if 'wb_difficulty' not in st.session_state:
     st.session_state.wb_difficulty = 'normal'
 
-# New Activity "Done" States
-if 'syl_correct_state' not in st.session_state:
-    st.session_state.syl_correct_state = False
-if 'wb_correct_state' not in st.session_state:
-    st.session_state.wb_correct_state = False
-
-# --- RANDOMIZED SESSION DATA INIT ---
-def init_random_data():
-    if 'session_syllables' not in st.session_state:
-        st.session_state.session_syllables = random.sample(MASTER_SYLLABLE_DATA, min(len(MASTER_SYLLABLE_DATA), 7))
-    if 'session_word_builder' not in st.session_state:
-        st.session_state.session_word_builder = random.sample(MASTER_WORD_BUILDER_DATA, min(len(MASTER_WORD_BUILDER_DATA), 7))
-    if 'session_sentences' not in st.session_state:
-        st.session_state.session_sentences = random.sample(MASTER_SENTENCE_DATA, min(len(MASTER_SENTENCE_DATA), 7))
-    if 'session_antonyms' not in st.session_state:
-        st.session_state.session_antonyms = random.sample(MASTER_ANTONYM_DATA, min(len(MASTER_ANTONYM_DATA), 7))
-    if 'session_yes_no' not in st.session_state:
-        st.session_state.session_yes_no = random.sample(MASTER_YES_NO_DATA, min(len(MASTER_YES_NO_DATA), 7))
-
-init_random_data()
-
-# --- Background CSS Logic ---
-background_style = """
-    [data-testid="stAppViewContainer"] {
-        background-color: #2a2a2a;
-        background-image: 
-            linear-gradient(335deg, rgba(0,0,0,0.3) 23px, transparent 23px),
-            linear-gradient(155deg, rgba(0,0,0,0.3) 23px, transparent 23px),
-            linear-gradient(335deg, rgba(0,0,0,0.3) 23px, transparent 23px),
-            linear-gradient(155deg, rgba(0,0,0,0.3) 23px, transparent 23px);
-        background-size: 58px 58px;
-        background-position: 0px 2px, 4px 35px, 29px 31px, 34px 6px;
-        color: #fff;
-    }
-"""
-
-# --- GLOBAL STYLES (Castle Background & Defaults) ---
-st.markdown(f"""
-<style>
-    /* GLOBAL: Background */
-    {background_style}
-    
-    /* Main Container - Dark Transparent Overlay */
-    [data-testid="block-container"] {{
-        z-index: 1;
-        position: relative;
-        background-color: rgba(255, 255, 255, 0.95); /* White paper look */
-        padding: 3rem;
-        border-radius: 20px;
-        margin-top: 2rem;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.8);
-        border: 3px solid #555;
-    }}
-    
-    /* GLOBAL TEXT COLOR OVERRIDE - DARK TEXT ON WHITE BACKGROUND */
-    h1 {{ color: #003366 !important; text-shadow: none !important; }} 
-    h2 {{ color: #28a745 !important; text-shadow: none !important; }} 
-    h3 {{ color: #333 !important; }}
-    
-    /* Ensure all standard text is dark for readability */
-    p, li, span, div, label {{
-        color: #333333 !important; 
-        font-size: 1.1rem;
-    }}
-    
-    /* Input Fields - Make them white on inside */
-    .stTextInput input {{
-        background-color: #FFF !important;
-        color: #000 !important;
-    }}
-
-    .main-header {{
-        font-family: 'Comic Sans MS', 'Comic Sans', cursive;
-        color: #003366 !important; 
-        text-align: center;
-        font-size: 4rem; 
-        font-weight: bold;
-        margin-bottom: 0.5rem;
-        text-shadow: none !important; 
-    }}
-    .sub-header {{
-        color: #555 !important;
-        text-align: center;
-        font-size: 1.5rem; 
-        margin-bottom: 2rem;
-        text-shadow: none !important;
-    }}
-    
-    /* LOGIN SCROLL STYLING */
-    .scroll-container {{
-        background-color: #fdfbf7;
-        background-image: url("https://www.transparenttextures.com/patterns/aged-paper.png");
-        border: 10px solid #d4af37;
-        border-radius: 10px 10px 50px 50px;
-        padding: 3rem;
-        text-align: center;
-        color: #333 !important; 
-        box-shadow: 0 0 50px rgba(255, 215, 0, 0.5);
-        margin: 2rem auto;
-        max-width: 600px;
-        position: relative;
-    }}
-    .scroll-container h1, .scroll-container p {{
-        color: #5c3a21 !important; 
-        text-shadow: none;
-    }}
-    
-    /* DEFAULT BUTTON (Reset for generic buttons) */
-    .stButton button {{
-        background-color: #003366;
-        color: white !important;
-        border-radius: 20px;
-        border: 2px solid #003366;
-    }}
-    
-</style>
-""", unsafe_allow_html=True)
-
-# --- WELCOME SCREEN LOGIC ---
-def login_screen():
-    st.markdown("""
-    <div class="scroll-container">
-        <h1>📜 Welcome, Young Wizard!</h1>
-        <p>I am the Guardian of the Words.<br>Please declare your name to enter the castle.</p>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    col1, col2, col3 = st.columns([1, 2, 1])
-    with col2:
-        # Custom styled label to make "My name is" visible
-        st.markdown("""
-        <div style='background-color: #d4af37; padding: 10px; border-radius: 10px; text-align: center; margin-bottom: 10px; border: 2px solid #8B4513; color: #fff !important; font-weight: bold; font-size: 1.5rem; text-shadow: 1px 1px 2px #000;'>
-            My Name Is:
-        </div>
-        """, unsafe_allow_html=True)
-
-        with st.form("login_form"):
-            name_input = st.text_input("My name is:", label_visibility="collapsed", placeholder="Type your name...")
-            submit = st.form_submit_button("🏰 Enter the Castle 🏰", use_container_width=True, type="primary")
-            
-            if submit:
-                if name_input.strip():
-                    st.session_state.student_name = name_input.strip()
-                    st.rerun()
-                else:
-                    st.warning("The castle gates remain closed. Please tell me your name!")
-
-if not st.session_state.student_name:
-    login_screen()
-    st.stop()
-
 # --- Helper Functions ---
 def go_home():
     st.session_state.current_activity = None
 
 def celebrate_success():
-    name = st.session_state.student_name
-    messages = [
-        "Awesome Job! 🎉",
-        f"Way to go, {name}! 🌟",
-        "You are a Word Wizard! 🧙‍♂️",
-        f"Spectacular work, {name}! ✨",
-        "Brilliant! 💡",
-        f"{name}, you are on fire! 🔥",
-        "Correct! 🎯"
-    ]
-    msg = random.choice(messages)
+    """Randomized visual reward system"""
     effect = random.choice(["balloons", "snow", "magic"])
-    
     if effect == "balloons":
         st.balloons()
     elif effect == "snow":
         st.snow()
     else:
-        pass  
-    st.toast(msg, icon="⭐")
+        st.toast("✨ Magical! Outstanding Work! ✨", icon="🧙‍♂️")
+        time.sleep(0.5)
+        st.toast("🌟 You are a Word Wizard! 🌟", icon="⭐")
 
 def play_error():
     st.toast("Not quite! Try again.", icon="❌")
@@ -376,20 +326,16 @@ def reset_progress():
     st.session_state.reading_quiz_index = 0
     st.session_state.story_is_read = False
     
-    keys_to_remove = [k for k in st.session_state.keys() if k.startswith("antonym_") or k.startswith("yn_answered_") or k.startswith("sent_answered_") or k.startswith("read_answered_") or k.endswith("_correct_state") or k.startswith("session_")]
+    # Reset activity specific session states
+    keys_to_remove = [k for k in st.session_state.keys() if k.startswith("antonym_") or k.startswith("yn_answered_")]
     for k in keys_to_remove:
         del st.session_state[k]
         
-    st.session_state.syl_correct_state = False
-    st.session_state.wb_correct_state = False
-    
-    # Re-init random data
-    init_random_data()
-        
-    st.success("Progress Reset! New words have been summoned!")
+    st.success("Progress Reset!")
     time.sleep(1)
     st.rerun()
 
+# --- Gemini Functions ---
 def ask_gemini_explanation(word):
     if not api_key:
         return None
@@ -403,196 +349,71 @@ def ask_gemini_explanation(word):
 # --- Activities ---
 
 def activity_menu():
-    # INJECT WOODEN DOOR STYLING & MENU OVERRIDES
-    st.markdown("""
-    <style>
-    /* Hide the default semi-transparent block container ONLY on the menu so we see the castle */
-    [data-testid="block-container"] {
-        background-color: transparent !important;
-        box-shadow: none !important;
-        border: none !important;
-    }
-    
-    /* Force MENU text to be Light/Gold for visibility against Dark Castle */
-    h1, p, div, span {
-        color: #FFF !important;
-    }
+    st.markdown("<h1 class='main-header'>Trident Word Wizards 🧙‍♂️</h1>", unsafe_allow_html=True)
+    st.markdown("<p class='sub-header'>Lesson 6: <span style='background:#FFCC00; padding:2px 5px; border-radius:4px'>-able</span> & <span style='background:#FFCC00; padding:2px 5px; border-radius:4px'>-ible</span></p>", unsafe_allow_html=True)
 
-    /* Styling for buttons inside columns on the menu page to look like WOODEN DOORS */
-    div[data-testid="column"] button {
-        /* Wooden Texture via CSS Gradients */
-        background-color: #8B4513 !important;
-        background-image: 
-            linear-gradient(90deg, transparent 0%, transparent 48%, rgba(0,0,0,0.2) 50%, transparent 52%, transparent 100%), /* Center split */
-            repeating-linear-gradient(90deg, #8B4513, #8B4513 10px, #5A2D0C 10px, #5A2D0C 12px) !important; /* Wood grain */
-        
-        color: #FFD700 !important;
-        
-        /* Shape & Border */
-        border: 6px solid #DAA520 !important; /* Gold Frame */
-        border-bottom: 10px solid #5A2D0C !important;
-        border-radius: 100px 100px 5px 5px !important; /* Arched Door Shape */
-        
-        /* Size */
-        height: 250px !important;
-        width: 100% !important;
-        
-        /* Text */
-        font-size: 1.8rem !important;
-        font-family: 'Comic Sans MS', cursive !important;
-        text-shadow: 2px 2px 4px #000;
-        white-space: pre-wrap !important; /* Allow multiline text */
-        
-        /* Shadow & Layout */
-        box-shadow: 0 10px 20px rgba(0,0,0,0.5), inset 0 0 30px rgba(0,0,0,0.6) !important;
-        margin-bottom: 20px !important;
-        transition: transform 0.2s !important;
-        
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        position: relative;
-    }
+    col1, col2, col3 = st.columns(3)
     
-    /* Hover Effect */
-    div[data-testid="column"] button:hover {
-        transform: scale(1.05) !important;
-        box-shadow: 0 0 30px #FFD700 !important; /* Glowing effect */
-        border-color: #FFF !important;
-        cursor: pointer;
-    }
-    
-    /* Ensure the text inside the button is visible and overrides the white rule */
-    div[data-testid="column"] button p {
-        font-size: 1.8rem !important;
-        color: #FFD700 !important;
-        font-weight: bold !important;
-        background-color: rgba(0,0,0,0.6); /* Text background for readability */
-        padding: 5px 10px;
-        border-radius: 10px;
-        border: 1px solid #FFD700;
-    }
-    
-    /* Revert headers to gold/white for the menu page only */
-    .main-header { color: #FFD700 !important; text-shadow: 3px 3px 5px #000 !important; font-size: 5rem !important; }
-    .sub-header { color: #FFF !important; text-shadow: 2px 2px 4px #000 !important; font-size: 2rem !important; }
-    </style>
-    """, unsafe_allow_html=True)
+    with col1:
+        if st.button("✂️ Syllable Split", use_container_width=True):
+            st.session_state.current_activity = "SYLLABLES"
+            st.rerun()
+        if st.button("🔄 Opposites", use_container_width=True):
+            st.session_state.current_activity = "ANTONYMS"
+            st.rerun()
 
-    st.markdown(f"<h1 class='main-header'>Welcome, {st.session_state.student_name}! 🧙‍♂️</h1>", unsafe_allow_html=True)
-    st.markdown("<p class='sub-header'>Choose a door to begin your adventure!</p>", unsafe_allow_html=True)
-    
-    # CENTERED LAYOUT USING COLUMNS
-    # We use empty columns on sides to center the grid of 3x2
-    
-    c_left, c_main, c_right = st.columns([1, 8, 1])
-    
-    with c_main:
-        # Row 1
-        r1c1, r1c2, r1c3 = st.columns(3)
-        with r1c1:
-            if st.button("✂️\nSyllable\nDetective"):
-                st.session_state.current_activity = "SYLLABLES"
-                st.rerun()
-        with r1c2:
-            if st.button("🔨\nWord\nBuilder"):
-                st.session_state.current_activity = "WORD_BUILDER"
-                st.rerun()
-        with r1c3:
-            if st.button("✍️\nSentence\nMaster"):
-                st.session_state.current_activity = "SENTENCE_FILL"
-                st.rerun()
-        
-        # Spacer row
-        st.markdown("<br>", unsafe_allow_html=True)
-        
-        # Row 2
-        r2c1, r2c2, r2c3 = st.columns(3)
-        with r2c1:
-            if st.button("🔄\nOpposites"):
-                st.session_state.current_activity = "ANTONYMS"
-                st.rerun()
-        with r2c2:
-            if st.button("👍\nYes or No?"):
-                st.session_state.current_activity = "YES_NO"
-                st.rerun()
-        with r2c3:
-            if st.button("📖\nReading\nComp"):
-                st.session_state.current_activity = "READING"
-                st.rerun()
+    with col2:
+        if st.button("🔨 Word Builder", use_container_width=True):
+            st.session_state.current_activity = "WORD_BUILDER"
+            st.rerun()
+        if st.button("👍 Yes or No?", use_container_width=True):
+            st.session_state.current_activity = "YES_NO"
+            st.rerun()
+
+    with col3:
+        if st.button("✍️ Sentence Master", use_container_width=True):
+            st.session_state.current_activity = "SENTENCE_FILL"
+            st.rerun()
+        if st.button("📖 Reading Comp", use_container_width=True):
+            st.session_state.current_activity = "READING"
+            st.rerun()
     
     st.divider()
     if st.button("🗑️ Reset All Progress"):
         reset_progress()
 
-# ... (rest of the activities code remains exactly the same)
 def syllable_splitter():
-    # Inject specific styles for this activity to override defaults/doors
-    st.markdown("""
-    <style>
-    /* Reset Button Style for inner activity */
-    div.stButton > button {
-        background-color: #003366 !important;
-        color: white !important;
-        border-radius: 20px !important;
-        height: auto !important;
-        font-size: 1rem !important;
-        box-shadow: none !important;
-        border: 2px solid #003366 !important;
-        background-image: none !important;
-    }
-    /* Syllable Container */
-    [data-testid="stForm"] {
-        background-color: #e3f2fd;
-        border: 3px dashed #003366;
-        padding: 2rem;
-        border-radius: 15px;
-        color: #333 !important;
-    }
-    div.stButton > button[kind="primary"] {
-        background-color: #28a745 !important;
-        border-color: #28a745 !important;
-    }
-    </style>
-    """, unsafe_allow_html=True)
-
-    c_header, c_next = st.columns([3, 1])
-    with c_header:
-        st.header("✂️ Syllable Detective")
+    st.header("✂️ Syllable Detective")
     
-    # USE SESSION DATA INSTEAD OF MASTER
-    data = st.session_state.session_syllables
-    
-    total = len(data)
+    # Progress
+    total = len(SYLLABLE_DATA)
     completed = len(st.session_state.completed_syllables)
     st.progress(completed / total if total > 0 else 0)
     
-    incomplete = [t for t in data if t['id'] not in st.session_state.completed_syllables]
+    # Get Task
+    incomplete = [t for t in SYLLABLE_DATA if t['id'] not in st.session_state.completed_syllables]
     
     if not incomplete:
-        st.success("You've mastered all words for this session! 🎉")
-        if st.button("Start Over (New Words)"):
-            reset_progress() # This reshuffles
+        st.success("You've mastered all words! 🎉")
+        if st.button("Start Over"):
+            st.session_state.completed_syllables = []
+            st.rerun()
         return
 
     task = incomplete[0]
     
-    if st.session_state.syl_correct_state:
-        with c_next:
-            if st.button("Next Word ➡", type="primary"):
-                st.session_state.completed_syllables.append(task['id'])
-                st.session_state.syl_correct_state = False
-                st.rerun()
-    
+    # Layout Separation: Word & Instructions vs Input Box
     st.markdown(f"<div style='text-align:center; font-size:3rem; color:#003366; font-weight:bold; margin-bottom:1rem;'>{task['word']}</div>", unsafe_allow_html=True)
-    st.markdown("<p style='text-align:center; color:#333 !important;'>Break the word into parts below. Keep the suffix (-able/-ible) together!</p>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align:center;'>Break the word into parts below. Keep the suffix (-able/-ible) together!</p>", unsafe_allow_html=True)
+    
+    # Distinct Input Container
     
     cols = st.columns(len(task['correctSyllables']))
     user_inputs = []
     
     with st.form(key=f"syllable_form_{task['id']}"):
         for i, col in enumerate(cols):
+            # Using label_visibility="collapsed" to make it cleaner, visual instructions above
             val = col.text_input(f"Syllable {i+1}", key=f"syl_{task['id']}_{i}", label_visibility="visible").strip().lower()
             user_inputs.append(val)
         
@@ -602,175 +423,113 @@ def syllable_splitter():
     if submitted:
         if user_inputs == task['correctSyllables']:
             celebrate_success()
-            st.session_state.syl_correct_state = True
+            st.session_state.completed_syllables.append(task['id'])
+            
+            # AI Explanation
             with st.spinner("Asking the AI Wizard for a tip..."):
                 expl = ask_gemini_explanation(task['word'])
                 if expl:
                     st.success(f"Wizard says: {expl}")
+            
+            time.sleep(3)
             st.rerun()
         else:
             play_error()
             st.error("Not quite! Check your splits. Is the suffix in one box?")
-            
-    if st.session_state.syl_correct_state:
-        st.success("Correct! Great job!")
 
 def word_builder():
-    # Inject WB Specific CSS
-    st.markdown("""
-    <style>
-    /* Reset Button Style */
-    div.stButton > button {
-        height: auto !important; box-shadow: none !important; border-radius: 5px !important; background-image: none !important;
-    }
+    st.header("🔨 Word Construction Site")
     
-    /* Blueprint Section */
-    .blueprint-container {
-        border: 3px solid #FFD700; background-color: #333; border-radius: 15px; padding: 1rem;
-        text-align: center; position: relative; margin-bottom: 2rem; box-shadow: 0 4px 0 rgba(0,0,0,0.5); color: #FFF;
-    }
-    .blueprint-label {
-        background-color: #003366; color: #FFCC00; padding: 5px 15px; border-radius: 10px;
-        font-weight: bold; text-transform: uppercase; margin-bottom: 10px; display: inline-block;
-    }
-    .thought-bubble {
-        background-color: #eee; border-radius: 30px; padding: 15px 30px; border: 2px solid #333;
-        display: inline-block; font-family: 'Comic Sans MS', cursive; font-size: 1.5rem; position: relative;
-        margin-left: 20px; color: #333 !important; /* Keep this dark for reading bubble */
-    }
-    .thought-bubble:before {
-        content: ""; position: absolute; top: 50%; left: -12px; margin-top: -6px;
-        border-width: 6px 12px 6px 0; border-style: solid; border-color: transparent #eee transparent transparent;
-    }
-    
-    /* Bricks */
-    .brick-btn-style button {
-        background-color: #D2691E !important; color: white !important;
-        border: 2px solid #8B4513 !important; border-radius: 5px !important;
-        font-family: monospace; font-size: 1.5rem !important;
-        box-shadow: 0px 6px 0px #8B4513 !important; margin-bottom: 10px; transition: all 0.1s;
-    }
-    .brick-btn-style button:active {
-        box-shadow: 0px 2px 0px #8B4513 !important; transform: translateY(4px) !important;
-    }
-    
-    .assembling-zone {
-        border: 4px dashed #FFD700; background-color: rgba(0,0,0,0.5); border-radius: 10px; padding: 2rem;
-        text-align: center; margin-top: 2rem; min-height: 120px; color: #fff;
-    }
-    .zone-label { color: #CCC; font-weight: bold; text-transform: uppercase; margin-bottom: 10px; display: block; letter-spacing: 2px; }
-    .built-text { font-family: monospace; font-size: 3rem; color: #FFD700; letter-spacing: 5px; }
-    
-    .construct-btn-container button {
-        background-color: #8B4513 !important; color: #FFCC00 !important; font-size: 1.5rem !important;
-        border: 3px solid #5A2D0C !important; box-shadow: 0 4px 0 #5A2D0C !important; height: auto !important;
-    }
-    .back-btn-container button {
-        background-color: rgba(0,0,0,0.1) !important; color: #333 !important; border: 1px solid #ccc !important;
-    }
-    div.stButton > button[kind="primary"] {
-        background-color: #28a745 !important;
-    }
-    </style>
-    """, unsafe_allow_html=True)
+    # Difficulty
+    col_d1, col_d2 = st.columns([3,1])
+    with col_d2:
+        diff = st.radio("Mode:", ["normal", "challenge"], index=0 if st.session_state.wb_difficulty == 'normal' else 1, horizontal=True)
+    if diff != st.session_state.wb_difficulty:
+        st.session_state.wb_difficulty = diff
+        st.rerun()
 
-    c_back, c_title = st.columns([1, 4])
-    with c_back:
-        st.markdown('<div class="back-btn-container">', unsafe_allow_html=True)
-        if st.button("⬅ Back", key="wb_back_btn"):
-            st.session_state.current_activity = None
-            st.rerun()
-        st.markdown('</div>', unsafe_allow_html=True)
-    with c_title:
-        st.markdown("<h1 style='text-align:center; color:#FFD700; margin-top:0;'>WORD CONSTRUCTION</h1>", unsafe_allow_html=True)
+    incomplete = [t for t in WORD_BUILDER_DATA if t['id'] not in st.session_state.completed_words]
     
-    # USE SESSION DATA
-    data = st.session_state.session_word_builder
-    
-    incomplete = [t for t in data if t['id'] not in st.session_state.completed_words]
     if not incomplete:
-        st.success("All words built for this session! 🏗️")
-        if st.button("Start Over (New Words)"):
-            reset_progress()
+        st.success("All words built! 🏗️")
+        if st.button("Reset Construction"):
+            st.session_state.completed_words = []
+            st.rerun()
         return
 
     task = incomplete[0]
     
-    if st.session_state.wb_correct_state:
-        if st.button("Next Word ➡", type="primary", key="wb_next_top"):
-            st.session_state.completed_words.append(task['id'])
-            st.session_state.wb_correct_state = False
-            st.session_state.wb_current_build = []
-            st.rerun()
+    # ZONE 1: The Workshop (Meaning only)
+    st.markdown("### 1. The Blueprint")
+    st.markdown(f"<div class='wb-workshop'><h3>Meaning: {task['meaning']}</h3></div>", unsafe_allow_html=True)
     
+    # ZONE 2: Parts Bin AND Build Display
+    st.markdown("### 2. Construction Zone")
+    
+    # State Build
     if 'wb_current_build' not in st.session_state:
         st.session_state.wb_current_build = []
     
-    current_word = "".join(st.session_state.wb_current_build)
+    current_word = "".join(st.session_state.wb_current_build) if st.session_state.wb_current_build else "?"
     
-    st.markdown(f"""
-    <div class="blueprint-container">
-        <div class="blueprint-label">BLUEPRINT</div><br>
-        <span style='font-size: 3rem;'>📜</span>
-        <div class="thought-bubble">{task['meaning']}</div>
-    </div>
-    """, unsafe_allow_html=True)
-    
+    # Shuffle parts
     parts = task['parts'].copy()
     if st.session_state.wb_difficulty == 'challenge':
-        all_parts = [p for t in MASTER_WORD_BUILDER_DATA for p in t['parts']] # Use master for distractors
+        all_parts = [p for t in WORD_BUILDER_DATA for p in t['parts']]
         distractors = random.sample(all_parts, 3)
         parts.extend(distractors)
     random.seed(task['id'] + len(parts)) 
     random.shuffle(parts)
 
-    st.markdown('<div class="brick-btn-style">', unsafe_allow_html=True)
+    # Start Yellow Box
+    st.markdown('<div class="wb-parts-bin">', unsafe_allow_html=True)
+    
+    # The Word Being Built (Inside Yellow Box)
+    st.markdown(f"<div class='built-word-display'>{current_word}</div>", unsafe_allow_html=True)
+    st.markdown("<p><b>Click parts to add them:</b></p>", unsafe_allow_html=True)
+    
+    # Buttons
     b_cols = st.columns(len(parts))
     for i, part in enumerate(parts):
-        if b_cols[i].button(part, key=f"btn_{task['id']}_{i}_{len(st.session_state.wb_current_build)}", use_container_width=True, disabled=st.session_state.wb_correct_state):
+        if b_cols[i].button(part, key=f"btn_{task['id']}_{i}_{len(st.session_state.wb_current_build)}", use_container_width=True):
             st.session_state.wb_current_build.append(part)
             st.rerun()
+            
     st.markdown('</div>', unsafe_allow_html=True)
 
-    st.markdown(f"""
-    <div class="assembling-zone">
-        <span class="zone-label">ASSEMBLING ZONE</span>
-        <div class="built-text">{current_word}</div>
-    </div>
-    """, unsafe_allow_html=True)
-
-    st.markdown("<br>", unsafe_allow_html=True)
-    c_reset, c_spacer, c_construct = st.columns([1, 2, 1])
+    # ZONE 3: Control Panel
+    st.markdown('<div class="wb-controls">', unsafe_allow_html=True)
+    c1, c2, c3 = st.columns([1, 1, 1])
     
-    with c_reset:
-        if st.button("↺ Reset", use_container_width=True, disabled=st.session_state.wb_correct_state):
+    with c1:
+        if st.button("↺ Reset Word", use_container_width=True):
             st.session_state.wb_current_build = []
             st.rerun()
             
-    with c_construct:
-        st.markdown('<div class="construct-btn-container">', unsafe_allow_html=True)
-        if st.button("CONSTRUCT!", key="wb_construct_btn", use_container_width=True, disabled=st.session_state.wb_correct_state):
+    with c3:
+        # Green Primary Button for Check Answer
+        if st.button("✅ Check Answer", key="wb_check_btn", type="primary", use_container_width=True):
             built_word = "".join(st.session_state.wb_current_build)
             if built_word == task['targetWord']:
                 celebrate_success()
-                st.session_state.wb_correct_state = True
+                st.session_state.completed_words.append(task['id'])
+                st.session_state.completed_words.append(task['id'])
+                st.session_state.wb_current_build = []
+                time.sleep(2)
                 st.rerun()
             else:
                 play_error()
                 st.error(f"Try again! You built '{built_word}'")
-                time.sleep(1)
+                time.sleep(2)
                 st.session_state.wb_current_build = []
                 st.rerun()
-        st.markdown('</div>', unsafe_allow_html=True)
-    
-    if st.session_state.wb_correct_state:
-        st.success(f"Correct! The word is {task['targetWord']}.")
+    st.markdown('</div>', unsafe_allow_html=True)
 
 def sentence_fill():
-    c_header, c_next = st.columns([3, 1])
-    with c_header:
-        st.header("✍️ Sentence Master")
+    st.header("✍️ Sentence Master")
     
+    # Temporary styles to make THESE specific buttons huge and fill text
+    # Ensure font size matches the sentence-display class (2.5rem) and weight matches
     st.markdown("""
     <style>
     div.stButton > button {
@@ -780,137 +539,111 @@ def sentence_fill():
         padding: 1.5rem !important;
         min-height: 120px;
         width: 100%;
-        white-space: normal; word-wrap: break-word;
-        background-color: white !important;
-        color: #333 !important;
-        border-radius: 10px !important;
-        border: 2px solid #ccc !important;
-        background-image: none !important;
-    }
-    .sentence-display {
-        font-size: 2.5rem !important; font-weight: bold; color: #333 !important; line-height: 1.5; padding: 20px;
-        background: white; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); text-align: center;
-    }
-    .sentence-display span { color: #333 !important; } /* Force dark text inside box */
-    .filled-word { color: #28a745 !important; text-decoration: underline; font-weight: 800; }
-    .blank-space { color: #FFCC00 !important; text-decoration: underline; font-weight: 800; }
-    div.stButton > button[kind="primary"] {
-        background-color: #28a745 !important;
-        color: white !important;
-        min-height: auto !important;
-        padding: 0.5rem !important;
-        font-size: 1.2rem !important;
+        white-space: normal; /* Allow word wrap if needed */
+        word-wrap: break-word;
     }
     </style>
     """, unsafe_allow_html=True)
     
-    # USE SESSION DATA
-    data = st.session_state.session_sentences
-    
-    if st.session_state.sent_index >= len(data):
-        st.success("You have completed all sentences for this session! 🎓")
-        if st.button("Start Over (New Sentences)"):
-            reset_progress()
+    if st.session_state.sent_index >= len(SENTENCE_DATA):
+        st.success("You have completed all sentences! 🎓")
+        if st.button("Start Over"):
+            st.session_state.sent_index = 0
+            st.rerun()
         return
 
-    task = data[st.session_state.sent_index]
-    st.markdown(f"**Sentence {st.session_state.sent_index + 1} of {len(data)}**")
+    # One sentence at a time
+    task = SENTENCE_DATA[st.session_state.sent_index]
     
-    answered_key = f"sent_answered_{task['id']}"
-    if answered_key not in st.session_state:
-        st.session_state[answered_key] = None
-        
-    if st.session_state[answered_key] == "correct":
-        with c_next:
-            if st.button("Next Sentence ➡", key="next_sent_top", type="primary"):
-                 st.session_state.sent_index += 1
-                 st.rerun()
+    st.markdown(f"**Sentence {st.session_state.sent_index + 1} of {len(SENTENCE_DATA)}**")
     
-    blank_content = f"<span class='blank-space'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>"
-    display_style = ""
+    # Check if a choice was just made (stored in session state for this frame)
+    # We use a unique key for the activity state logic
     
-    if st.session_state[answered_key] == "correct":
-        blank_content = f"<span class='filled-word'>{task['correctOption']}</span>"
-        display_style = "border: 3px solid #28a745;"
+    # Display logic: 
+    # If correct choice was made: Show filled sentence GREEN
+    # If default: Show blank sentence
+    
+    # Placeholder for the blank
+    blank_visual = f"<span class='blank-space'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>"
     
     st.markdown(f"""
-    <div class="sentence-display" style="{display_style}">
-        <span>{task['sentencePart1']}</span> {blank_content} <span>{task['sentencePart2']}</span>
+    <div class="sentence-display">
+        {task['sentencePart1']} {blank_visual} {task['sentencePart2']}
     </div>
     """, unsafe_allow_html=True)
     
-    st.markdown("<h3 style='text-align:center; margin-top:2rem; color:#333 !important;'>Choose the missing word:</h3>", unsafe_allow_html=True)
+    st.markdown("<h3 style='text-align:center; margin-top:2rem;'>Choose the missing word:</h3>", unsafe_allow_html=True)
     
     col1, col2 = st.columns(2)
-    is_disabled = (st.session_state[answered_key] == "correct")
     
+    # Left Option
     with col1:
         opt1 = task['options'][0]
-        if st.button(opt1, key=f"btn_opt1_{task['id']}", use_container_width=True, disabled=is_disabled):
+        if st.button(opt1, key=f"btn_opt1_{task['id']}", use_container_width=True):
             if opt1 == task['correctOption']:
                 celebrate_success()
-                st.session_state[answered_key] = "correct"
+                st.markdown(f"""
+                <div class="sentence-display" style="border: 3px solid #28a745;">
+                    {task['sentencePart1']} <span class='filled-word'>{opt1}</span> {task['sentencePart2']}
+                </div>
+                """, unsafe_allow_html=True)
+                time.sleep(2)
+                st.session_state.sent_index += 1
                 st.rerun()
             else:
                 play_error()
                 st.toast(f"'{opt1}' is not correct. Try the other one!", icon="❌")
 
+    # Right Option
     with col2:
         opt2 = task['options'][1]
-        if st.button(opt2, key=f"btn_opt2_{task['id']}", use_container_width=True, disabled=is_disabled):
+        if st.button(opt2, key=f"btn_opt2_{task['id']}", use_container_width=True):
             if opt2 == task['correctOption']:
                 celebrate_success()
-                st.session_state[answered_key] = "correct"
+                st.markdown(f"""
+                <div class="sentence-display" style="border: 3px solid #28a745;">
+                    {task['sentencePart1']} <span class='filled-word'>{opt2}</span> {task['sentencePart2']}
+                </div>
+                """, unsafe_allow_html=True)
+                time.sleep(2)
+                st.session_state.sent_index += 1
                 st.rerun()
             else:
                 play_error()
                 st.toast(f"'{opt2}' is not correct. Try the other one!", icon="❌")
 
 def antonym_activity():
-    c_header, c_next = st.columns([3, 1])
-    with c_header:
-        st.header("🔄 Opposites (Tap to Fill)")
+    st.header("🔄 Opposites (Tap to Fill)")
     
-    # Activity Specific CSS
+    # CSS for larger buttons specific to this activity
     st.markdown("""
     <style>
     div[data-testid="column"] button {
-        font-size: 1.5rem !important; padding: 1rem 2rem !important;
-        background-color: white !important; color: #333 !important; border-radius: 30px !important;
-        border: 2px solid #003366 !important; height: auto !important; background-image: none !important;
-    }
-    div.stButton > button[kind="primary"] {
-        background-color: #28a745 !important;
-        color: white !important;
-    }
-    .antonym-clue { font-size: 3rem; font-weight: bold; color: #003366; text-align: center; }
-    .antonym-answer-box {
-        font-size: 3rem; font-weight: bold; color: #28a745; text-align: center; border: 3px solid #28a745;
-        border-radius: 15px; padding: 10px; background-color: white; display: inline-block; min-width: 300px;
-    }
-    .antonym-placeholder {
-        font-size: 3rem; color: #ccc; border-bottom: 3px solid #333; display: inline-block; min-width: 150px; text-align: center;
+        font-size: 1.5rem !important; 
+        padding: 1rem 2rem !important;
     }
     </style>
     """, unsafe_allow_html=True)
     
-    # USE SESSION DATA
-    data = st.session_state.session_antonyms
-    
-    if st.session_state.ant_index >= len(data):
-        st.success("All opposites found for this session! ☯️")
-        if st.button("Play Again (New Words)"):
-            reset_progress()
+    if st.session_state.ant_index >= len(ANTONYM_DATA):
+        st.success("All opposites found! ☯️")
+        if st.button("Play Again"):
+            st.session_state.ant_index = 0
+            st.rerun()
         return
 
-    task = data[st.session_state.ant_index]
-    options_key = f"antonym_options_{task['id']}"
-    state_key = f"antonym_state_{task['id']}"
+    task = ANTONYM_DATA[st.session_state.ant_index]
     
+    # State Key for randomness stability
+    options_key = f"antonym_options_{task['id']}"
+    state_key = f"antonym_state_{task['id']}" # 'unanswered', 'correct'
+    
+    # Initialize State
     if options_key not in st.session_state:
+        # Bubble Bank Generation (Stable per question)
         options = [task['answer']]
-        # Use Master list for distractors
-        others = [t['answer'] for t in MASTER_ANTONYM_DATA if t['answer'] != task['answer']]
+        others = [t['answer'] for t in ANTONYM_DATA if t['answer'] != task['answer']]
         options.extend(random.sample(others, min(3, len(others))))
         random.shuffle(options)
         st.session_state[options_key] = options
@@ -920,17 +653,19 @@ def antonym_activity():
 
     options = st.session_state[options_key]
     current_state = st.session_state[state_key]
-    
-    if current_state == "correct":
-        with c_next:
-            if st.button("Next Word ➡", type="primary", key="ant_next_top"):
-                st.session_state.ant_index += 1
-                st.rerun()
 
-    st.markdown(f"**Word {st.session_state.ant_index + 1} of {len(data)}**")
-    st.markdown(f"<div class='antonym-clue'>{task['clue']}</div>", unsafe_allow_html=True)
-    st.markdown("<div style='text-align:center; font-size: 2.5rem; margin: 10px 0; color:#333;'>⇄</div>", unsafe_allow_html=True)
+    st.markdown(f"**Word {st.session_state.ant_index + 1} of {len(ANTONYM_DATA)}**")
     
+    # -- UI LAYOUT --
+    
+    # 1. Clue Word (Top)
+    st.markdown(f"<div class='antonym-clue'>{task['clue']}</div>", unsafe_allow_html=True)
+    
+    # 2. Swap Icon (Middle)
+    st.markdown("<div style='text-align:center; font-size: 2.5rem; margin: 10px 0;'>⇄</div>", unsafe_allow_html=True)
+    
+    # 3. Answer/Placeholder Area (Bottom)
+    # Construct HTML first to ensure proper nesting for centering
     answer_html = "<div style='text-align:center; margin-bottom: 2rem;'>"
     if current_state == "correct":
          answer_html += f"<div class='antonym-answer-box'>{task['answer']}</div>"
@@ -940,10 +675,13 @@ def antonym_activity():
     
     st.markdown(answer_html, unsafe_allow_html=True)
     
+    # -- LOGIC & BUTTONS --
+    
     if current_state == "unanswered":
         st.info("Tap the bubble that means the opposite!")
         cols = st.columns(len(options))
         for i, opt in enumerate(options):
+            # Key uses index 'i' but options list is now STABLE in session state
             if cols[i].button(opt, key=f"ant_btn_{task['id']}_{i}", use_container_width=True):
                 if opt == task['answer']:
                     celebrate_success()
@@ -952,142 +690,102 @@ def antonym_activity():
                 else:
                     play_error()
     else:
-        st.success("Correct!")
+        # Correct State - Show Next Button
+        if st.button("Next Word ➡", type="primary"):
+            st.session_state.ant_index += 1
+            st.rerun()
 
 def yes_no_activity():
-    c_header, c_next = st.columns([3, 1])
-    with c_header:
-        st.header("👍 Yes or No?")
+    st.header("👍 Yes or No?")
+
+    # Inject specific styles for MASSIVE buttons in this activity
+    st.markdown("""
+    <style>
+    div.stButton > button {
+        font-size: 3rem !important;
+        padding: 2rem !important;
+        min-height: 150px;
+        margin-top: 20px;
+    }
+    </style>
+    """, unsafe_allow_html=True)
     
-    # USE SESSION DATA
-    data = st.session_state.session_yes_no
-    
-    if st.session_state.yn_index >= len(data):
-        st.success("You finished the questions for this session! ✅")
-        if st.button("Restart (New Questions)"):
-            reset_progress()
+    if st.session_state.yn_index >= len(YES_NO_DATA):
+        st.success("You finished the questions! ✅")
+        if st.button("Restart"):
+            st.session_state.yn_index = 0
+            st.rerun()
         return
 
-    task = data[st.session_state.yn_index]
-    answered_key = f"yn_answered_{task['id']}"
-    if answered_key not in st.session_state:
-        st.session_state[answered_key] = None
-        
-    if st.session_state[answered_key] is not None:
-        with c_next:
-            if st.button("Next Question ➡", key="next_q_top", type="primary"):
-                 st.session_state.yn_index += 1
-                 st.rerun()
+    task = YES_NO_DATA[st.session_state.yn_index]
     
+    # Card View
     st.markdown(f"""
-    <div style="background:white; padding:3rem; border-radius:15px; text-align:center; box-shadow:0 4px 6px rgba(0,0,0,0.1); margin-bottom:2rem; color: #333;">
+    <div style="background:white; padding:3rem; border-radius:15px; text-align:center; box-shadow:0 4px 6px rgba(0,0,0,0.1); margin-bottom:2rem;">
         <h2 style="color:#003366;">{task['question']}</h2>
     </div>
     """, unsafe_allow_html=True)
+    
+    # State to show result
+    if f"yn_answered_{task['id']}" not in st.session_state:
+        st.session_state[f"yn_answered_{task['id']}"] = None
 
-    if st.session_state[answered_key] is None:
-        st.markdown("""
-        <style>
-        div[data-testid="column"] .stButton button {
-            font-size: 3rem !important;
-            padding: 2rem !important;
-            min-height: 150px;
-            margin-top: 20px;
-            background-color: white !important;
-            color: #333 !important;
-            border-radius: 15px !important;
-            background-image: none !important;
-        }
-        div.stButton > button[kind="primary"] {
-            background-color: #28a745 !important;
-            color: white !important;
-            min-height: auto !important;
-            font-size: 1.2rem !important;
-        }
-        </style>
-        """, unsafe_allow_html=True)
-
+    if st.session_state[f"yn_answered_{task['id']}"] is None:
         c1, c2 = st.columns(2)
         if c1.button("YES 👍", use_container_width=True):
             if task['answer'] == True:
                 celebrate_success()
-                st.session_state[answered_key] = "correct"
+                st.session_state[f"yn_answered_{task['id']}"] = "correct"
             else:
                 play_error()
-                st.session_state[answered_key] = "wrong"
+                st.session_state[f"yn_answered_{task['id']}"] = "wrong"
             st.rerun()
             
         if c2.button("NO 👎", use_container_width=True):
             if task['answer'] == False:
                 celebrate_success()
-                st.session_state[answered_key] = "correct"
+                st.session_state[f"yn_answered_{task['id']}"] = "correct"
             else:
                 play_error()
-                st.session_state[answered_key] = "wrong"
+                st.session_state[f"yn_answered_{task['id']}"] = "wrong"
             st.rerun()
+            
     else:
-        if st.session_state[answered_key] == "correct":
-            name = st.session_state.student_name
-            fun_messages = [
-                "🎉 SPECTACULAR! 🎉",
-                f"🌟 YOU GOT IT, {name.upper()}! 🌟",
-                "🚀 WAY TO GO! 🚀",
-                "🧙‍♂️ PURE MAGIC! 🧙‍♂️",
-                f"✨ EXCELLENT WORK, {name.upper()}! ✨"
-            ]
-            msg = random.choice(fun_messages)
-            st.markdown(f"""
-            <div style="
-                background-color: #d4edda; padding: 3rem; border-radius: 20px; border: 5px solid #28a745; 
-                text-align: center; margin-bottom: 2rem; animation: pulse 2s infinite; box-shadow: 0 10px 20px rgba(0,0,0,0.1);">
-                <h1 style="color: #155724; font-size: 4rem; margin:0; font-family: 'Comic Sans MS', cursive;">{msg}</h1>
-                <p style="font-size: 2rem; color: #155724; margin-top: 1rem;">That answer was correct!</p>
-            </div>
-            <style>
-            @keyframes pulse {{
-                0% {{ transform: scale(1); box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.7); }}
-                70% {{ transform: scale(1.02); box-shadow: 0 0 0 15px rgba(40, 167, 69, 0); }}
-                100% {{ transform: scale(1); box-shadow: 0 0 0 0 rgba(40, 167, 69, 0); }}
-            }}
-            </style>
-            """, unsafe_allow_html=True)
+        # Show Feedback and Next Button
+        if st.session_state[f"yn_answered_{task['id']}"] == "correct":
+            st.success("Correct Answer!")
         else:
             st.error("Oops! That was incorrect.")
+            
+        if st.button("Next Question ➡"):
+            st.session_state.yn_index += 1
+            st.rerun()
 
 def reading_activity():
-    st.markdown("""
-    <style>
-    .story-box { background-color: #fff; padding: 2rem; border-radius: 10px; border-left: 10px solid #003366; box-shadow: 0 2px 5px rgba(0,0,0,0.1); color: #333; }
-    .quiz-box { background-color: #FFCC00; padding: 2rem; border-radius: 10px; color: #003366; box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
-    div.stButton > button { background-color: #003366; color: white; border-radius: 5px; height: auto !important; font-size: 1rem !important; background-image: none !important; }
-    div.stButton > button[kind="primary"] { background-color: #28a745 !important; }
-    </style>
-    """, unsafe_allow_html=True)
-
-    c1, c2 = st.columns([3, 1])
-    with c1:
-        st.header("📖 Reading Comprehension")
-    with c2:
-        if st.button("🔄 New Story"):
-            st.session_state.reading_story_index = (st.session_state.reading_story_index + 1) % len(READING_STORIES)
-            st.session_state.reading_quiz_index = 0
-            st.session_state.story_is_read = False
-            st.rerun()
+    st.header("📖 Reading Comprehension")
     
     story = READING_STORIES[st.session_state.reading_story_index]
+    
+    # Font Size Slider
     font_size = st.slider("Adjust Text Size:", min_value=16, max_value=32, value=20)
+    
     col_story, col_quiz = st.columns([2, 1])
     
     with col_story:
+        # Construct the HTML content manually so the style wrapper applies to all text
         story_html = f"""
         <div class='story-box' style='font-size:{font_size}px; line-height: 1.6;'>
             <h3 style='color:#003366; margin-bottom:1rem;'>{story['title']}</h3>
         """
+        
         for p in story['paragraphs']:
-            story_html += f"<p style='margin-bottom:1rem; color: #333 !important;'>{p}</p>"
+            story_html += f"<p style='margin-bottom:1rem;'>{p}</p>"
+            
         story_html += "</div>"
         
         st.markdown(story_html, unsafe_allow_html=True)
+        
+        # Read Confirmation
         if not st.session_state.story_is_read:
             st.write("---")
             if st.button("✅ I have read the story"):
@@ -1100,34 +798,26 @@ def reading_activity():
         else:
             st.markdown("<div class='quiz-box'>", unsafe_allow_html=True)
             st.markdown("### Quiz Time!")
+            
             q_idx = st.session_state.reading_quiz_index
             
             if q_idx < len(story['questions']):
                 q = story['questions'][q_idx]
-                read_answered_key = f"read_answered_{story['id']}_{q_idx}"
-                if read_answered_key not in st.session_state:
-                    st.session_state[read_answered_key] = False
-                
-                if st.session_state[read_answered_key]:
-                    if st.button("Next Question ➡", key="read_next_q", type="primary"):
-                        st.session_state.reading_quiz_index += 1
-                        st.rerun()
-                
                 st.write(f"**Q{q_idx+1}: {q['question']}**")
-                ans_key = f"read_q_{story['id']}_{q_idx}"
-                ans = st.radio("Choose:", q['options'], key=ans_key, disabled=st.session_state[read_answered_key])
                 
-                if st.button("Check Answer", key=f"chk_{ans_key}", disabled=st.session_state[read_answered_key]):
+                # Use a placeholder for the answer key to reset on new questions
+                ans_key = f"read_q_{story['id']}_{q_idx}"
+                ans = st.radio("Choose:", q['options'], key=ans_key)
+                
+                if st.button("Check Answer", key=f"chk_{ans_key}"):
                     if ans == q['correctAnswer']:
                         celebrate_success()
                         st.success("Correct!")
-                        st.session_state[read_answered_key] = True
+                        time.sleep(1.5)
+                        st.session_state.reading_quiz_index += 1
                         st.rerun()
                     else:
                         play_error()
-                        
-                if st.session_state[read_answered_key]:
-                    st.success("Correct Answer!")
             else:
                 st.balloons()
                 st.success("Story Completed! 📚")
@@ -1136,15 +826,15 @@ def reading_activity():
                     st.session_state.reading_quiz_index = 0
                     st.session_state.story_is_read = False
                     st.rerun()
+                    
             st.markdown("</div>", unsafe_allow_html=True)
 
 # --- Main App Logic ---
 
 if st.session_state.current_activity:
-    if st.session_state.current_activity != "WORD_BUILDER":
-        if st.button("← Back to Menu"):
-            go_home()
-            st.rerun()
+    if st.button("← Back to Menu"):
+        go_home()
+        st.rerun()
 
 if st.session_state.current_activity == "SYLLABLES":
     syllable_splitter()
