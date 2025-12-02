@@ -229,11 +229,11 @@ st.markdown(f"""
     /* GLOBAL: Background */
     {background_style}
     
-    /* Main Container - Dark Transparent Overlay for Readability */
+    /* Main Container - Dark Transparent Overlay */
     [data-testid="block-container"] {{
         z-index: 1;
         position: relative;
-        background-color: rgba(0, 0, 0, 0.8); /* Dark background */
+        background-color: rgba(0, 0, 0, 0.8); 
         padding: 3rem;
         border-radius: 20px;
         margin-top: 2rem;
@@ -518,6 +518,7 @@ def activity_menu():
     if st.button("🗑️ Reset All Progress"):
         reset_progress()
 
+# ... (rest of the activities code remains exactly the same)
 def syllable_splitter():
     # Inject specific styles for this activity to override defaults/doors
     st.markdown("""
