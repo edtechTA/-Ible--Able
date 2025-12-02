@@ -14,7 +14,7 @@ st.set_page_config(
 
 # --- USER CUSTOMIZATION ---
 # Using the provided Castle Background Link
-CASTLE_BACKGROUND_URL = "https://i.ibb.co/JRRCkyZL/game-castle-background.png"
+CASTLE_BACKGROUND_URL = None
 
 # --- Gemini Setup ---
 api_key = st.secrets.get("API_KEY") or os.environ.get("API_KEY")
@@ -225,7 +225,14 @@ if CASTLE_BACKGROUND_URL:
 else:
     background_style = """
         [data-testid="stAppViewContainer"] {
-            background-color: #2c2c2c;
+            background-color: #5c5c5c;
+            background-image: 
+                linear-gradient(335deg, rgba(80,80,80,0.3) 23px, transparent 23px),
+                linear-gradient(155deg, rgba(80,80,80,0.3) 23px, transparent 23px),
+                linear-gradient(335deg, rgba(80,80,80,0.3) 23px, transparent 23px),
+                linear-gradient(155deg, rgba(80,80,80,0.3) 23px, transparent 23px);
+            background-size: 58px 58px;
+            background-position: 0px 2px, 4px 35px, 29px 31px, 34px 6px;
             color: #fff;
         }
     """
