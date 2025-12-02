@@ -12,226 +12,6 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# Custom CSS for Trident Academy Branding and Activity Specifics
-st.markdown("""
-<style>
-    /* Global Styles & Castle Background */
-    .stApp {
-        background: linear-gradient(to bottom, #0b1026, #2b32b2); /* Night Sky */
-        background-attachment: fixed;
-        color: #fff; /* Default text white for contrast */
-    }
-    
-    /* Starry Background Animation (Simple) */
-    .stApp:before {
-        content: "";
-        position: fixed;
-        top: 0; left: 0; width: 100%; height: 100%;
-        background-image: 
-            radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 4px),
-            radial-gradient(white, rgba(255,255,255,.15) 1px, transparent 3px),
-            radial-gradient(white, rgba(255,255,255,.1) 2px, transparent 4px);
-        background-size: 550px 550px, 350px 350px, 250px 250px; 
-        background-position: 0 0, 40px 60px, 130px 270px;
-        z-index: -1;
-        opacity: 0.6;
-    }
-
-    .main-header {
-        font-family: 'Comic Sans MS', 'Comic Sans', cursive;
-        color: #FFD700; /* Gold */
-        text-align: center;
-        font-size: 3.5rem;
-        font-weight: bold;
-        margin-bottom: 1rem;
-        text-shadow: 3px 3px 0 #000;
-    }
-    .sub-header {
-        color: #E0E0E0;
-        text-align: center;
-        font-size: 1.3rem;
-        margin-bottom: 2rem;
-        text-shadow: 1px 1px 2px #000;
-    }
-    
-    /* Default Button Styling (Reset for inner activities) */
-    .stButton button {
-        background-color: #003366;
-        color: white;
-        border-radius: 20px;
-        font-weight: bold;
-        padding: 0.5rem 1rem;
-        border: 2px solid #003366;
-        transition: transform 0.1s;
-    }
-    .stButton button:hover {
-        background-color: #004080;
-        color: #FFCC00;
-        transform: scale(1.05);
-    }
-
-    /* Primary Button Styling (Check Answer / Next) - Green & Big */
-    div.stButton > button[kind="primary"] {
-        background-color: #28a745;
-        border-color: #28a745;
-        color: white;
-        font-size: 1.3rem;
-        padding: 0.75rem 2rem;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.2);
-    }
-    div.stButton > button[kind="primary"]:hover {
-        background-color: #218838;
-        border-color: #1e7e34;
-        color: white;
-        transform: scale(1.05);
-        box-shadow: 0 0 15px rgba(40, 167, 69, 0.6);
-    }
-
-    /* --- LOGIN SCROLL STYLING --- */
-    .scroll-container {
-        background-color: #fdfbf7;
-        background-image: url("https://www.transparenttextures.com/patterns/aged-paper.png");
-        border: 10px solid #d4af37;
-        border-radius: 10px 10px 50px 50px; /* Scroll shape approx */
-        padding: 3rem;
-        text-align: center;
-        color: #333;
-        box-shadow: 0 0 50px rgba(255, 215, 0, 0.3);
-        margin: 2rem auto;
-        max-width: 600px;
-        position: relative;
-    }
-    .scroll-container:before, .scroll-container:after {
-        content: "";
-        position: absolute;
-        top: -20px; height: 20px; width: 110%; left: -5%;
-        background: #d4af37;
-        border-radius: 10px;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-    }
-    .scroll-container:after {
-        top: auto; bottom: -20px;
-    }
-
-    /* --- Activity 1: Syllable Detective --- */
-    [data-testid="stForm"] {
-        background-color: #e3f2fd;
-        border: 3px dashed #003366;
-        padding: 2rem;
-        border-radius: 15px;
-        text-align: center;
-        margin-bottom: 2rem;
-        color: #333;
-    }
-
-    /* --- Activity 2: Word Construction (Updated Design) --- */
-    .blueprint-container {
-        border: 3px solid #003366;
-        background-color: #E3F2FD;
-        border-radius: 15px;
-        padding: 1rem;
-        text-align: center;
-        position: relative;
-        margin-bottom: 2rem;
-        box-shadow: 0 4px 0 rgba(0,0,0,0.1);
-        color: #333;
-    }
-    .blueprint-label {
-        background-color: #003366;
-        color: #FFCC00;
-        padding: 5px 15px;
-        border-radius: 10px;
-        font-weight: bold;
-        text-transform: uppercase;
-        margin-bottom: 10px;
-        display: inline-block;
-    }
-    .thought-bubble {
-        background-color: white;
-        border-radius: 30px;
-        padding: 15px 30px;
-        border: 2px solid #333;
-        display: inline-block;
-        font-family: 'Comic Sans MS', cursive;
-        font-size: 1.5rem;
-        position: relative;
-        margin-left: 20px;
-        color: #333;
-    }
-    .thought-bubble:before {
-        content: "";
-        position: absolute;
-        top: 50%; left: -12px; margin-top: -6px;
-        border-width: 6px 12px 6px 0;
-        border-style: solid;
-        border-color: transparent #333 transparent transparent;
-    }
-    .brick-btn-style button {
-        background-color: #D2691E !important; 
-        color: white !important;
-        border: 2px solid #8B4513 !important;
-        border-radius: 5px !important;
-        font-family: monospace;
-        font-size: 1.5rem !important;
-        box-shadow: 0px 6px 0px #8B4513 !important;
-        margin-bottom: 10px;
-        transition: all 0.1s;
-    }
-    .brick-btn-style button:active {
-        box-shadow: 0px 2px 0px #8B4513 !important;
-        transform: translateY(4px) !important;
-    }
-    .assembling-zone {
-        border: 4px dashed #555;
-        background-color: #f8f9fa;
-        border-radius: 10px;
-        padding: 2rem;
-        text-align: center;
-        margin-top: 2rem;
-        min-height: 120px;
-        color: #333;
-    }
-    .zone-label { color: #555; font-weight: bold; text-transform: uppercase; margin-bottom: 10px; display: block; letter-spacing: 2px; }
-    .built-text { font-family: monospace; font-size: 3rem; color: #003366; letter-spacing: 5px; }
-    .construct-btn-container button {
-        background-color: #8B4513 !important; color: #FFCC00 !important; font-size: 1.5rem !important;
-        border: 3px solid #5A2D0C !important; box-shadow: 0 4px 0 #5A2D0C !important;
-    }
-    .back-btn-container button {
-        background-color: rgba(255,255,255,0.1) !important; color: #fff !important; border: 1px solid #fff !important;
-    }
-
-    /* --- Activity 3: Sentence Master --- */
-    .sentence-display {
-        font-size: 2.5rem !important; font-weight: bold; color: #333; line-height: 1.5; padding: 20px;
-        background: white; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); text-align: center;
-    }
-    .filled-word { color: #28a745; text-decoration: underline; font-weight: 800; }
-    .blank-space { color: #FFCC00; text-decoration: underline; font-weight: 800; }
-    
-    /* --- Activity 4: Antonym Bubbles --- */
-    .antonym-clue { font-size: 3rem; font-weight: bold; color: #FFD700; text-align: center; text-shadow: 2px 2px 0 #000; }
-    .antonym-answer-box {
-        font-size: 3rem; font-weight: bold; color: #28a745; text-align: center; border: 3px solid #28a745;
-        border-radius: 15px; padding: 10px; background-color: white; display: inline-block; min-width: 300px;
-    }
-    .antonym-placeholder {
-        font-size: 3rem; color: #ccc; border-bottom: 3px solid #fff; display: inline-block; min-width: 150px; text-align: center;
-    }
-    
-    /* --- Activity 6: Reading --- */
-    .story-box {
-        background-color: #fff; padding: 2rem; border-radius: 10px; border-left: 10px solid #003366;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1); color: #333;
-    }
-    .quiz-box {
-        background-color: #FFCC00; padding: 2rem; border-radius: 10px; color: #003366;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-    }
-
-</style>
-""", unsafe_allow_html=True)
-
 # --- Gemini Setup ---
 api_key = st.secrets.get("API_KEY") or os.environ.get("API_KEY")
 if api_key:
@@ -363,15 +143,89 @@ if 'story_is_read' not in st.session_state:
 if 'wb_difficulty' not in st.session_state:
     st.session_state.wb_difficulty = 'normal'
 
-# New Activity "Done" States for manual next button
+# New Activity "Done" States
 if 'syl_correct_state' not in st.session_state:
     st.session_state.syl_correct_state = False
 if 'wb_correct_state' not in st.session_state:
     st.session_state.wb_correct_state = False
 
+# --- GLOBAL STYLES (Castle Background & Defaults) ---
+st.markdown("""
+<style>
+    /* GLOBAL: Castle Night Sky Background */
+    [data-testid="stAppViewContainer"] {
+        background: linear-gradient(to bottom, #0b1026, #2b32b2); /* Deep night sky */
+        background-attachment: fixed;
+        color: #fff;
+    }
+    
+    /* Starry Background Overlay */
+    [data-testid="stAppViewContainer"]::before {
+        content: "";
+        position: fixed;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background-image: 
+            radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 4px),
+            radial-gradient(white, rgba(255,255,255,.15) 1px, transparent 3px),
+            radial-gradient(white, rgba(255,255,255,.1) 2px, transparent 4px);
+        background-size: 550px 550px, 350px 350px, 250px 250px; 
+        background-position: 0 0, 40px 60px, 130px 270px;
+        z-index: 0;
+        opacity: 0.6;
+        pointer-events: none;
+    }
+    
+    /* Ensure content sits above stars */
+    [data-testid="block-container"] {
+        z-index: 1;
+        position: relative;
+    }
+
+    .main-header {
+        font-family: 'Comic Sans MS', 'Comic Sans', cursive;
+        color: #FFD700; /* Gold */
+        text-align: center;
+        font-size: 3.5rem;
+        font-weight: bold;
+        margin-bottom: 1rem;
+        text-shadow: 3px 3px 0 #000;
+    }
+    .sub-header {
+        color: #E0E0E0;
+        text-align: center;
+        font-size: 1.3rem;
+        margin-bottom: 2rem;
+        text-shadow: 1px 1px 2px #000;
+    }
+    
+    /* LOGIN SCROLL STYLING */
+    .scroll-container {
+        background-color: #fdfbf7;
+        background-image: url("https://www.transparenttextures.com/patterns/aged-paper.png");
+        border: 10px solid #d4af37;
+        border-radius: 10px 10px 50px 50px;
+        padding: 3rem;
+        text-align: center;
+        color: #333;
+        box-shadow: 0 0 50px rgba(255, 215, 0, 0.5);
+        margin: 2rem auto;
+        max-width: 600px;
+        position: relative;
+    }
+    
+    /* DEFAULT BUTTON (Reset for generic buttons) */
+    .stButton button {
+        background-color: #003366;
+        color: white;
+        border-radius: 20px;
+        border: 2px solid #003366;
+    }
+    
+</style>
+""", unsafe_allow_html=True)
+
 # --- WELCOME SCREEN LOGIC ---
 def login_screen():
-    # Styled like a magical scroll on top of the castle background
     st.markdown("""
     <div class="scroll-container">
         <h1 style='color: #8B4513; font-family: "Comic Sans MS", cursive;'>📜 Welcome, Young Wizard!</h1>
@@ -383,7 +237,7 @@ def login_screen():
     with col2:
         with st.form("login_form"):
             name_input = st.text_input("My name is:", placeholder="Type your name...")
-            # Use a primary button for style
+            # Use primary button for styling
             submit = st.form_submit_button("🏰 Enter the Castle 🏰", use_container_width=True, type="primary")
             
             if submit:
@@ -402,10 +256,7 @@ def go_home():
     st.session_state.current_activity = None
 
 def celebrate_success():
-    """Randomized visual reward system with personalization"""
     name = st.session_state.student_name
-    
-    # Mix of generic and personalized messages
     messages = [
         "Awesome Job! 🎉",
         f"Way to go, {name}! 🌟",
@@ -415,7 +266,6 @@ def celebrate_success():
         f"{name}, you are on fire! 🔥",
         "Correct! 🎯"
     ]
-    
     msg = random.choice(messages)
     effect = random.choice(["balloons", "snow", "magic"])
     
@@ -424,8 +274,7 @@ def celebrate_success():
     elif effect == "snow":
         st.snow()
     else:
-        pass
-        
+        pass  
     st.toast(msg, icon="⭐")
 
 def play_error():
@@ -451,7 +300,6 @@ def reset_progress():
     time.sleep(1)
     st.rerun()
 
-# --- Gemini Functions ---
 def ask_gemini_explanation(word):
     if not api_key:
         return None
@@ -465,106 +313,114 @@ def ask_gemini_explanation(word):
 # --- Activities ---
 
 def activity_menu():
-    # Inject Custom CSS for Door Buttons ONLY on this menu
+    # INJECT DOOR STYLING ONLY HERE
     st.markdown("""
     <style>
-    /* Activity Menu Grid Layout - Door Styling */
-    div.door-container button {
-        background: linear-gradient(to bottom, #8B4513, #5A2D0C) !important;
+    /* Styling for buttons inside columns on the menu page to look like DOORS */
+    div[data-testid="column"] button {
+        background: linear-gradient(to bottom, #8B4513 0%, #5A2D0C 100%) !important;
         color: #FFD700 !important;
         border: 4px solid #FFD700 !important;
-        border-radius: 50% 50% 5px 5px !important; /* Arched top */
-        height: 180px !important;
+        border-radius: 100px 100px 5px 5px !important; /* Arched Door Shape */
+        height: 220px !important;
         width: 100% !important;
-        font-size: 1.5rem !important;
+        font-size: 1.8rem !important;
         font-family: 'Comic Sans MS', cursive !important;
         text-shadow: 2px 2px 4px #000;
-        box-shadow: 0 10px 20px rgba(0,0,0,0.5), inset 0 0 30px rgba(0,0,0,0.5) !important;
-        transition: transform 0.2s !important;
-        white-space: normal !important;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.5), inset 0 0 40px rgba(0,0,0,0.6) !important;
+        white-space: pre-wrap !important; /* Allow multiline text */
         margin-bottom: 20px !important;
+        transition: transform 0.2s !important;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
     }
-    div.door-container button:hover {
+    div[data-testid="column"] button:hover {
         transform: scale(1.05) !important;
-        box-shadow: 0 0 30px #FFD700 !important; /* Glowing effect */
-        border-color: #fff !important;
+        box-shadow: 0 0 40px #FFD700 !important; /* Glowing effect */
+        border-color: #FFF !important;
+        cursor: pointer;
     }
-    div.door-container p {
-        font-size: 1.5rem !important; /* Make button text bigger */
+    div[data-testid="column"] button p {
+        font-size: 1.5rem !important;
     }
     </style>
     """, unsafe_allow_html=True)
 
-    # Personalized Header
     st.markdown(f"<h1 class='main-header'>Welcome, {st.session_state.student_name}! 🧙‍♂️</h1>", unsafe_allow_html=True)
     st.markdown("<p class='sub-header'>Choose a door to begin your adventure!</p>", unsafe_allow_html=True)
 
-    # 2 Rows of 3 Columns
     r1c1, r1c2, r1c3 = st.columns(3)
     r2c1, r2c2, r2c3 = st.columns(3)
     
-    # Row 1
     with r1c1:
-        st.markdown('<div class="door-container">', unsafe_allow_html=True)
         if st.button("✂️\nSyllable\nDetective"):
             st.session_state.current_activity = "SYLLABLES"
             st.rerun()
-        st.markdown('</div>', unsafe_allow_html=True)
-        
     with r1c2:
-        st.markdown('<div class="door-container">', unsafe_allow_html=True)
         if st.button("🔨\nWord\nBuilder"):
             st.session_state.current_activity = "WORD_BUILDER"
             st.rerun()
-        st.markdown('</div>', unsafe_allow_html=True)
-        
     with r1c3:
-        st.markdown('<div class="door-container">', unsafe_allow_html=True)
         if st.button("✍️\nSentence\nMaster"):
             st.session_state.current_activity = "SENTENCE_FILL"
             st.rerun()
-        st.markdown('</div>', unsafe_allow_html=True)
 
-    # Row 2
     with r2c1:
-        st.markdown('<div class="door-container">', unsafe_allow_html=True)
         if st.button("🔄\nOpposites"):
             st.session_state.current_activity = "ANTONYMS"
             st.rerun()
-        st.markdown('</div>', unsafe_allow_html=True)
-        
     with r2c2:
-        st.markdown('<div class="door-container">', unsafe_allow_html=True)
         if st.button("👍\nYes or No?"):
             st.session_state.current_activity = "YES_NO"
             st.rerun()
-        st.markdown('</div>', unsafe_allow_html=True)
-        
     with r2c3:
-        st.markdown('<div class="door-container">', unsafe_allow_html=True)
         if st.button("📖\nReading\nComp"):
             st.session_state.current_activity = "READING"
             st.rerun()
-        st.markdown('</div>', unsafe_allow_html=True)
     
     st.divider()
     if st.button("🗑️ Reset All Progress"):
         reset_progress()
 
 def syllable_splitter():
-    # ... (code for syllable_splitter remains same, just ensuring indent)
-    # Split header into two columns: Title (Left), Next Button (Right)
+    # Inject specific styles for this activity to override defaults/doors
+    st.markdown("""
+    <style>
+    /* Reset Button Style for inner activity */
+    div.stButton > button {
+        background-color: #003366 !important;
+        color: white !important;
+        border-radius: 20px !important;
+        height: auto !important;
+        font-size: 1rem !important;
+        box-shadow: none !important;
+        border: 2px solid #003366 !important;
+    }
+    /* Syllable Container */
+    [data-testid="stForm"] {
+        background-color: #e3f2fd;
+        border: 3px dashed #003366;
+        padding: 2rem;
+        border-radius: 15px;
+        color: #333;
+    }
+    div.stButton > button[kind="primary"] {
+        background-color: #28a745 !important;
+        border-color: #28a745 !important;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
     c_header, c_next = st.columns([3, 1])
-    
     with c_header:
         st.header("✂️ Syllable Detective")
     
-    # Progress
     total = len(SYLLABLE_DATA)
     completed = len(st.session_state.completed_syllables)
     st.progress(completed / total if total > 0 else 0)
     
-    # Get Task
     incomplete = [t for t in SYLLABLE_DATA if t['id'] not in st.session_state.completed_syllables]
     
     if not incomplete:
@@ -576,7 +432,6 @@ def syllable_splitter():
 
     task = incomplete[0]
     
-    # If already correctly answered, show Next button at top
     if st.session_state.syl_correct_state:
         with c_next:
             if st.button("Next Word ➡", type="primary"):
@@ -584,11 +439,8 @@ def syllable_splitter():
                 st.session_state.syl_correct_state = False
                 st.rerun()
     
-    # Layout Separation: Word & Instructions vs Input Box
-    st.markdown(f"<div style='text-align:center; font-size:3rem; color:#003366; font-weight:bold; margin-bottom:1rem; text-shadow:none;'>{task['word']}</div>", unsafe_allow_html=True)
-    st.markdown("<p style='text-align:center; color:#333;'>Break the word into parts below. Keep the suffix (-able/-ible) together!</p>", unsafe_allow_html=True)
-    
-    # Distinct Input Container
+    st.markdown(f"<div style='text-align:center; font-size:3rem; color:#FFD700; font-weight:bold; margin-bottom:1rem; text-shadow:2px 2px #000;'>{task['word']}</div>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align:center; color:#FFF;'>Break the word into parts below. Keep the suffix (-able/-ible) together!</p>", unsafe_allow_html=True)
     
     cols = st.columns(len(task['correctSyllables']))
     user_inputs = []
@@ -605,7 +457,6 @@ def syllable_splitter():
         if user_inputs == task['correctSyllables']:
             celebrate_success()
             st.session_state.syl_correct_state = True
-            
             with st.spinner("Asking the AI Wizard for a tip..."):
                 expl = ask_gemini_explanation(task['word'])
                 if expl:
@@ -619,7 +470,64 @@ def syllable_splitter():
         st.success("Correct! Great job!")
 
 def word_builder():
-    # --- Top Row: Back Button (Left), Title (Center) ---
+    # Inject WB Specific CSS
+    st.markdown("""
+    <style>
+    /* Reset Button Style */
+    div.stButton > button {
+        height: auto !important; box-shadow: none !important; border-radius: 5px !important;
+    }
+    
+    /* Blueprint Section */
+    .blueprint-container {
+        border: 3px solid #003366; background-color: #E3F2FD; border-radius: 15px; padding: 1rem;
+        text-align: center; position: relative; margin-bottom: 2rem; box-shadow: 0 4px 0 rgba(0,0,0,0.1); color: #333;
+    }
+    .blueprint-label {
+        background-color: #003366; color: #FFCC00; padding: 5px 15px; border-radius: 10px;
+        font-weight: bold; text-transform: uppercase; margin-bottom: 10px; display: inline-block;
+    }
+    .thought-bubble {
+        background-color: white; border-radius: 30px; padding: 15px 30px; border: 2px solid #333;
+        display: inline-block; font-family: 'Comic Sans MS', cursive; font-size: 1.5rem; position: relative;
+        margin-left: 20px; color: #333;
+    }
+    .thought-bubble:before {
+        content: ""; position: absolute; top: 50%; left: -12px; margin-top: -6px;
+        border-width: 6px 12px 6px 0; border-style: solid; border-color: transparent #333 transparent transparent;
+    }
+    
+    /* Bricks */
+    .brick-btn-style button {
+        background-color: #D2691E !important; color: white !important;
+        border: 2px solid #8B4513 !important; border-radius: 5px !important;
+        font-family: monospace; font-size: 1.5rem !important;
+        box-shadow: 0px 6px 0px #8B4513 !important; margin-bottom: 10px; transition: all 0.1s;
+    }
+    .brick-btn-style button:active {
+        box-shadow: 0px 2px 0px #8B4513 !important; transform: translateY(4px) !important;
+    }
+    
+    .assembling-zone {
+        border: 4px dashed #555; background-color: #f8f9fa; border-radius: 10px; padding: 2rem;
+        text-align: center; margin-top: 2rem; min-height: 120px; color: #333;
+    }
+    .zone-label { color: #555; font-weight: bold; text-transform: uppercase; margin-bottom: 10px; display: block; letter-spacing: 2px; }
+    .built-text { font-family: monospace; font-size: 3rem; color: #003366; letter-spacing: 5px; }
+    
+    .construct-btn-container button {
+        background-color: #8B4513 !important; color: #FFCC00 !important; font-size: 1.5rem !important;
+        border: 3px solid #5A2D0C !important; box-shadow: 0 4px 0 #5A2D0C !important; height: auto !important;
+    }
+    .back-btn-container button {
+        background-color: rgba(255,255,255,0.1) !important; color: #fff !important; border: 1px solid #fff !important;
+    }
+    div.stButton > button[kind="primary"] {
+        background-color: #28a745 !important;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
     c_back, c_title = st.columns([1, 4])
     with c_back:
         st.markdown('<div class="back-btn-container">', unsafe_allow_html=True)
@@ -652,7 +560,6 @@ def word_builder():
     
     current_word = "".join(st.session_state.wb_current_build)
     
-    # --- BLUEPRINT SECTION ---
     st.markdown(f"""
     <div class="blueprint-container">
         <div class="blueprint-label">BLUEPRINT</div><br>
@@ -661,7 +568,6 @@ def word_builder():
     </div>
     """, unsafe_allow_html=True)
     
-    # --- SCATTERED PARTS (Bricks) ---
     parts = task['parts'].copy()
     if st.session_state.wb_difficulty == 'challenge':
         all_parts = [p for t in WORD_BUILDER_DATA for p in t['parts']]
@@ -678,7 +584,6 @@ def word_builder():
             st.rerun()
     st.markdown('</div>', unsafe_allow_html=True)
 
-    # --- ASSEMBLING ZONE ---
     st.markdown(f"""
     <div class="assembling-zone">
         <span class="zone-label">ASSEMBLING ZONE</span>
@@ -728,6 +633,22 @@ def sentence_fill():
         min-height: 120px;
         width: 100%;
         white-space: normal; word-wrap: break-word;
+        background-color: white !important;
+        color: #333 !important;
+        border-radius: 10px !important;
+    }
+    .sentence-display {
+        font-size: 2.5rem !important; font-weight: bold; color: #333; line-height: 1.5; padding: 20px;
+        background: white; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); text-align: center;
+    }
+    .filled-word { color: #28a745; text-decoration: underline; font-weight: 800; }
+    .blank-space { color: #FFCC00; text-decoration: underline; font-weight: 800; }
+    div.stButton > button[kind="primary"] {
+        background-color: #28a745 !important;
+        color: white !important;
+        min-height: auto !important;
+        padding: 0.5rem !important;
+        font-size: 1.2rem !important;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -797,10 +718,25 @@ def antonym_activity():
     with c_header:
         st.header("🔄 Opposites (Tap to Fill)")
     
+    # Activity Specific CSS
     st.markdown("""
     <style>
     div[data-testid="column"] button {
         font-size: 1.5rem !important; padding: 1rem 2rem !important;
+        background-color: white !important; color: #333 !important; border-radius: 30px !important;
+        border: 2px solid #003366 !important; height: auto !important;
+    }
+    div.stButton > button[kind="primary"] {
+        background-color: #28a745 !important;
+        color: white !important;
+    }
+    .antonym-clue { font-size: 3rem; font-weight: bold; color: #FFD700; text-align: center; text-shadow: 2px 2px 0 #000; }
+    .antonym-answer-box {
+        font-size: 3rem; font-weight: bold; color: #28a745; text-align: center; border: 3px solid #28a745;
+        border-radius: 15px; padding: 10px; background-color: white; display: inline-block; min-width: 300px;
+    }
+    .antonym-placeholder {
+        font-size: 3rem; color: #ccc; border-bottom: 3px solid #fff; display: inline-block; min-width: 150px; text-align: center;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -886,7 +822,7 @@ def yes_no_activity():
                  st.rerun()
     
     st.markdown(f"""
-    <div style="background:white; padding:3rem; border-radius:15px; text-align:center; box-shadow:0 4px 6px rgba(0,0,0,0.1); margin-bottom:2rem;">
+    <div style="background:white; padding:3rem; border-radius:15px; text-align:center; box-shadow:0 4px 6px rgba(0,0,0,0.1); margin-bottom:2rem; color: #333;">
         <h2 style="color:#003366;">{task['question']}</h2>
     </div>
     """, unsafe_allow_html=True)
@@ -899,6 +835,15 @@ def yes_no_activity():
             padding: 2rem !important;
             min-height: 150px;
             margin-top: 20px;
+            background-color: white !important;
+            color: #333 !important;
+            border-radius: 15px !important;
+        }
+        div.stButton > button[kind="primary"] {
+            background-color: #28a745 !important;
+            color: white !important;
+            min-height: auto !important;
+            font-size: 1.2rem !important;
         }
         </style>
         """, unsafe_allow_html=True)
@@ -951,6 +896,15 @@ def yes_no_activity():
             st.error("Oops! That was incorrect.")
 
 def reading_activity():
+    st.markdown("""
+    <style>
+    .story-box { background-color: #fff; padding: 2rem; border-radius: 10px; border-left: 10px solid #003366; box-shadow: 0 2px 5px rgba(0,0,0,0.1); color: #333; }
+    .quiz-box { background-color: #FFCC00; padding: 2rem; border-radius: 10px; color: #003366; box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
+    div.stButton > button { background-color: #003366; color: white; border-radius: 5px; height: auto !important; font-size: 1rem !important; }
+    div.stButton > button[kind="primary"] { background-color: #28a745 !important; }
+    </style>
+    """, unsafe_allow_html=True)
+
     c1, c2 = st.columns([3, 1])
     with c1:
         st.header("📖 Reading Comprehension")
