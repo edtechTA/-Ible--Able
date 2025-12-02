@@ -12,18 +12,13 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# --- USER CUSTOMIZATION ---
-# Updated Castle Background Link
-CASTLE_BACKGROUND_URL = "https://i.ibb.co/JRRCkyZL/game-castle-background.png"
-
 # --- Gemini Setup ---
 api_key = st.secrets.get("API_KEY") or os.environ.get("API_KEY")
 if api_key:
     genai.configure(api_key=api_key)
     model = genai.GenerativeModel('gemini-2.5-flash')
 
-# --- MASTER DATA LISTS (Pool of ~15 words each) ---
-
+# --- MASTER DATA LISTS ---
 MASTER_SYLLABLE_DATA = [
     {"id": 1, "word": "presentable", "correctSyllables": ["pre", "sent", "able"]},
     {"id": 2, "word": "miserable", "correctSyllables": ["mis", "er", "able"]},
@@ -48,7 +43,7 @@ MASTER_WORD_BUILDER_DATA = [
     {"id": 3, "parts": ["in", "cred", "ible"], "meaning": "fantastic / hard to believe", "targetWord": "incredible"},
     {"id": 4, "parts": ["in", "vis", "ible"], "meaning": "not able to be seen", "targetWord": "invisible"},
     {"id": 5, "parts": ["re", "vers", "ible"], "meaning": "able to be turned inside out", "targetWord": "reversible"},
-    {"id": 6, "parts": ["re", "mark", "able"], "meaning": "astonishing / worthy of attention", "targetWord": "remarkable"},
+    {"id": 6, "parts": ["re", "mark", "able"], "meaning": "astonishing", "targetWord": "remarkable"},
     {"id": 7, "parts": ["div", "is", "ible"], "meaning": "able to be divided", "targetWord": "divisible"},
     {"id": 8, "parts": ["com", "fort", "able"], "meaning": "cozy and relaxed", "targetWord": "comfortable"},
     {"id": 9, "parts": ["flex", "ible"], "meaning": "able to bend easily", "targetWord": "flexible"},
@@ -209,35 +204,34 @@ def init_random_data():
 
 init_random_data()
 
-# --- Background CSS Logic ---
-if CASTLE_BACKGROUND_URL:
-    background_style = f"""
-        [data-testid="stAppViewContainer"] {{
-            background-color: #0b1026; /* Dark Blue Sky Color fallback */
-            background-image: url("{CASTLE_BACKGROUND_URL}");
-            background-size: 100% auto; /* Forces image to fit width, natural height */
-            background-repeat: no-repeat;
-            background-position: center bottom; /* Anchor to bottom of screen */
-            background-attachment: fixed;
-            color: #fff;
-        }}
-    """
-else:
-    background_style = """
-        [data-testid="stAppViewContainer"] {
-            background-color: #2c2c2c;
-            color: #fff;
-        }
-    """
-
 # --- GLOBAL STYLES (Castle Background & Defaults) ---
-st.markdown(f"""
+st.markdown("""
 <style>
-    /* GLOBAL: Background */
-    {background_style}
+    /* GLOBAL: Castle Night Sky Background (CSS Gradient - No Image File Issues) */
+    [data-testid="stAppViewContainer"] {
+        background: linear-gradient(to bottom, #0b1026, #2b32b2); /* Deep night sky */
+        background-attachment: fixed;
+        color: #fff;
+    }
     
-    /* Ensure content sits above background */
-    [data-testid="block-container"] {{
+    /* Starry Background Overlay */
+    [data-testid="stAppViewContainer"]::before {
+        content: "";
+        position: fixed;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background-image: 
+            radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 4px),
+            radial-gradient(white, rgba(255,255,255,.15) 1px, transparent 3px),
+            radial-gradient(white, rgba(255,255,255,.1) 2px, transparent 4px);
+        background-size: 550px 550px, 350px 350px, 250px 250px; 
+        background-position: 0 0, 40px 60px, 130px 270px;
+        z-index: 0;
+        opacity: 0.6;
+        pointer-events: none;
+    }
+    
+    /* Ensure content sits above stars */
+    [data-testid="block-container"] {
         z-index: 1;
         position: relative;
         /* Semi-transparent dark background for content readability inside activities */
@@ -245,9 +239,9 @@ st.markdown(f"""
         padding: 3rem;
         border-radius: 20px;
         margin-top: 2rem;
-    }}
+    }
 
-    .main-header {{
+    .main-header {
         font-family: 'Comic Sans MS', 'Comic Sans', cursive;
         color: #FFD700; /* Gold */
         text-align: center;
@@ -255,17 +249,17 @@ st.markdown(f"""
         font-weight: bold;
         margin-bottom: 1rem;
         text-shadow: 3px 3px 0 #000;
-    }}
-    .sub-header {{
+    }
+    .sub-header {
         color: #E0E0E0;
         text-align: center;
         font-size: 1.3rem;
         margin-bottom: 2rem;
         text-shadow: 1px 1px 2px #000;
-    }}
+    }
     
     /* LOGIN SCROLL STYLING */
-    .scroll-container {{
+    .scroll-container {
         background-color: #fdfbf7;
         background-image: url("https://www.transparenttextures.com/patterns/aged-paper.png");
         border: 10px solid #d4af37;
@@ -277,15 +271,15 @@ st.markdown(f"""
         margin: 2rem auto;
         max-width: 600px;
         position: relative;
-    }}
+    }
     
     /* DEFAULT BUTTON (Reset for generic buttons) */
-    .stButton button {{
+    .stButton button {
         background-color: #003366;
         color: white;
         border-radius: 20px;
         border: 2px solid #003366;
-    }}
+    }
     
 </style>
 """, unsafe_allow_html=True)
@@ -381,75 +375,73 @@ def ask_gemini_explanation(word):
 # --- Activities ---
 
 def activity_menu():
-    # Make container transparent to show castle, buttons act as "hit zones" over doors
+    # INJECT DOOR STYLING ONLY HERE - targeting specifically the buttons on this page
     st.markdown("""
     <style>
-    /* Hide the default semi-transparent block container ONLY on the menu */
-    [data-testid="block-container"] {
-        background-color: transparent !important;
-        box-shadow: none !important;
-        border: none !important;
-    }
-    
-    /* Transparent Door Buttons (Hit Boxes) */
-    div.stButton > button {
-        background-color: rgba(255, 255, 255, 0.05) !important; /* Very faint hit box */
-        border: 2px solid transparent !important; 
-        color: transparent !important; /* HIDE TEXT */
-        border-radius: 100px 100px 0 0 !important; /* Arched Door Shape */
-        height: 250px !important; /* Taller to match door height */
+    /* Styling for buttons inside columns on the menu page to look like DOORS */
+    div[data-testid="column"] button {
+        background: linear-gradient(to bottom, #8B4513 0%, #5A2D0C 100%) !important;
+        color: #FFD700 !important;
+        border: 4px solid #FFD700 !important;
+        border-radius: 100px 100px 5px 5px !important; /* Arched Door Shape */
+        height: 220px !important;
         width: 100% !important;
-        box-shadow: none !important;
-        margin-bottom: 0px !important;
-        transition: all 0.2s !important;
+        font-size: 1.8rem !important;
+        font-family: 'Comic Sans MS', cursive !important;
+        text-shadow: 2px 2px 4px #000;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.5), inset 0 0 40px rgba(0,0,0,0.6) !important;
+        white-space: pre-wrap !important; /* Allow multiline text */
+        margin-bottom: 20px !important;
+        transition: transform 0.2s !important;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
     }
-    div.stButton > button:hover {
-        background-color: rgba(255, 215, 0, 0.3) !important; /* Gold glow on hover */
-        border: 2px solid rgba(255, 215, 0, 0.8) !important;
+    div[data-testid="column"] button:hover {
         transform: scale(1.05) !important;
+        box-shadow: 0 0 40px #FFD700 !important; /* Glowing effect */
+        border-color: #FFF !important;
         cursor: pointer;
     }
-    /* Ensure no text shadow or other artifacts */
-    div.stButton > button * {
-        display: none !important;
+    /* Ensure the text inside the button is visible */
+    div[data-testid="column"] button p {
+        font-size: 1.5rem !important;
+        color: #FFD700 !important;
+        font-weight: bold !important;
     }
     </style>
     """, unsafe_allow_html=True)
 
-    # Simplified Header
-    st.markdown(f"<h1 style='text-align:center; color:#FFD700; text-shadow: 3px 3px 5px #000; font-family: \"Comic Sans MS\", cursive;'>Welcome, {st.session_state.student_name}!</h1>", unsafe_allow_html=True)
-    st.markdown("<p style='text-align:center; color:#FFF; text-shadow: 2px 2px 4px #000; font-size: 1.5rem;'>Click a door to begin!</p>", unsafe_allow_html=True)
+    st.markdown(f"<h1 class='main-header'>Welcome, {st.session_state.student_name}! 🧙‍♂️</h1>", unsafe_allow_html=True)
+    st.markdown("<p class='sub-header'>Choose a door to begin your adventure!</p>", unsafe_allow_html=True)
 
-    # PUSH BUTTONS DOWN TO BOTTOM 
-    # Use a large spacer. Adjust '45vh' if needed based on the image aspect ratio
-    st.markdown("<div style='height: 45vh;'></div>", unsafe_allow_html=True)
-
-    # SINGLE ROW OF 6 COLUMNS for the 6 doors
-    c1, c2, c3, c4, c5, c6 = st.columns(6, gap="small")
+    r1c1, r1c2, r1c3 = st.columns(3)
+    r2c1, r2c2, r2c3 = st.columns(3)
     
-    # Pass empty text to button, handled by CSS
-    with c1:
-        if st.button("Syllable", key="btn_syl"):
+    with r1c1:
+        if st.button("✂️\nSyllable\nDetective"):
             st.session_state.current_activity = "SYLLABLES"
             st.rerun()
-    with c2:
-        if st.button("Word", key="btn_wb"):
+    with r1c2:
+        if st.button("🔨\nWord\nBuilder"):
             st.session_state.current_activity = "WORD_BUILDER"
             st.rerun()
-    with c3:
-        if st.button("Sentence", key="btn_sent"):
+    with r1c3:
+        if st.button("✍️\nSentence\nMaster"):
             st.session_state.current_activity = "SENTENCE_FILL"
             st.rerun()
-    with c4:
-        if st.button("Opposites", key="btn_ant"):
+
+    with r2c1:
+        if st.button("🔄\nOpposites"):
             st.session_state.current_activity = "ANTONYMS"
             st.rerun()
-    with c5:
-        if st.button("YesNo", key="btn_yn"):
+    with r2c2:
+        if st.button("👍\nYes or No?"):
             st.session_state.current_activity = "YES_NO"
             st.rerun()
-    with c6:
-        if st.button("Read", key="btn_read"):
+    with r2c3:
+        if st.button("📖\nReading\nComp"):
             st.session_state.current_activity = "READING"
             st.rerun()
     
