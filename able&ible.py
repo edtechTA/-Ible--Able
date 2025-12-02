@@ -233,7 +233,7 @@ st.markdown(f"""
     [data-testid="block-container"] {{
         z-index: 1;
         position: relative;
-        background-color: rgba(0, 0, 0, 0.8); 
+        background-color: rgba(255, 255, 255, 0.95); /* White paper look */
         padding: 3rem;
         border-radius: 20px;
         margin-top: 2rem;
@@ -241,13 +241,14 @@ st.markdown(f"""
         border: 3px solid #555;
     }}
     
-    /* Global Text Colors - High Contrast Light */
-    h1 {{ color: #FFD700 !important; text-shadow: 2px 2px 0 #000; }} /* Gold Headers */
-    h2 {{ color: #7CFC00 !important; text-shadow: 1px 1px 0 #000; }} /* Bright Green Subheaders */
-    h3 {{ color: #00FFFF !important; }} /* Cyan small headers */
+    /* GLOBAL TEXT COLOR OVERRIDE - DARK TEXT ON WHITE BACKGROUND */
+    h1 {{ color: #003366 !important; text-shadow: none !important; }} 
+    h2 {{ color: #28a745 !important; text-shadow: none !important; }} 
+    h3 {{ color: #333 !important; }}
     
+    /* Ensure all standard text is dark for readability */
     p, li, span, div, label {{
-        color: #FFFFFF !important; /* White body text */
+        color: #333333 !important; 
         font-size: 1.1rem;
     }}
     
@@ -259,17 +260,19 @@ st.markdown(f"""
 
     .main-header {{
         font-family: 'Comic Sans MS', 'Comic Sans', cursive;
-        color: #FFD700; 
+        color: #003366 !important; 
         text-align: center;
         font-size: 4rem; 
         font-weight: bold;
         margin-bottom: 0.5rem;
+        text-shadow: none !important; 
     }}
     .sub-header {{
-        color: #ADFF2F; /* GreenYellow */
+        color: #555 !important;
         text-align: center;
         font-size: 1.5rem; 
         margin-bottom: 2rem;
+        text-shadow: none !important;
     }}
     
     /* LOGIN SCROLL STYLING */
@@ -280,14 +283,14 @@ st.markdown(f"""
         border-radius: 10px 10px 50px 50px;
         padding: 3rem;
         text-align: center;
-        color: #333 !important; /* Override white for scroll */
+        color: #333 !important; 
         box-shadow: 0 0 50px rgba(255, 215, 0, 0.5);
         margin: 2rem auto;
         max-width: 600px;
         position: relative;
     }}
     .scroll-container h1, .scroll-container p {{
-        color: #5c3a21 !important; /* Brown text on scroll */
+        color: #5c3a21 !important; 
         text-shadow: none;
     }}
     
@@ -400,7 +403,7 @@ def ask_gemini_explanation(word):
 # --- Activities ---
 
 def activity_menu():
-    # INJECT WOODEN DOOR STYLING - PURE CSS
+    # INJECT WOODEN DOOR STYLING & MENU OVERRIDES
     st.markdown("""
     <style>
     /* Hide the default semi-transparent block container ONLY on the menu so we see the castle */
@@ -410,6 +413,11 @@ def activity_menu():
         border: none !important;
     }
     
+    /* Force MENU text to be Light/Gold for visibility against Dark Castle */
+    h1, p, div, span {
+        color: #FFF !important;
+    }
+
     /* Styling for buttons inside columns on the menu page to look like WOODEN DOORS */
     div[data-testid="column"] button {
         /* Wooden Texture via CSS Gradients */
@@ -455,7 +463,7 @@ def activity_menu():
         cursor: pointer;
     }
     
-    /* Ensure the text inside the button is visible and overrode the white rule */
+    /* Ensure the text inside the button is visible and overrides the white rule */
     div[data-testid="column"] button p {
         font-size: 1.8rem !important;
         color: #FFD700 !important;
@@ -466,7 +474,7 @@ def activity_menu():
         border: 1px solid #FFD700;
     }
     
-    /* Revert headers to gold/white for the menu page only, make them BIGGER */
+    /* Revert headers to gold/white for the menu page only */
     .main-header { color: #FFD700 !important; text-shadow: 3px 3px 5px #000 !important; font-size: 5rem !important; }
     .sub-header { color: #FFF !important; text-shadow: 2px 2px 4px #000 !important; font-size: 2rem !important; }
     </style>
@@ -534,12 +542,13 @@ def syllable_splitter():
         border: 2px solid #003366 !important;
         background-image: none !important;
     }
-    /* Syllable Container - Darker */
+    /* Syllable Container */
     [data-testid="stForm"] {
-        background-color: rgba(0,0,0,0.6);
-        border: 3px dashed #FFD700;
+        background-color: #e3f2fd;
+        border: 3px dashed #003366;
         padding: 2rem;
         border-radius: 15px;
+        color: #333 !important;
     }
     div.stButton > button[kind="primary"] {
         background-color: #28a745 !important;
@@ -576,8 +585,8 @@ def syllable_splitter():
                 st.session_state.syl_correct_state = False
                 st.rerun()
     
-    st.markdown(f"<div style='text-align:center; font-size:3rem; color:#FFD700; font-weight:bold; margin-bottom:1rem;'>{task['word']}</div>", unsafe_allow_html=True)
-    st.markdown("<p style='text-align:center; color:#FFF;'>Break the word into parts below. Keep the suffix (-able/-ible) together!</p>", unsafe_allow_html=True)
+    st.markdown(f"<div style='text-align:center; font-size:3rem; color:#003366; font-weight:bold; margin-bottom:1rem;'>{task['word']}</div>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align:center; color:#333 !important;'>Break the word into parts below. Keep the suffix (-able/-ible) together!</p>", unsafe_allow_html=True)
     
     cols = st.columns(len(task['correctSyllables']))
     user_inputs = []
@@ -657,7 +666,7 @@ def word_builder():
         border: 3px solid #5A2D0C !important; box-shadow: 0 4px 0 #5A2D0C !important; height: auto !important;
     }
     .back-btn-container button {
-        background-color: rgba(0,0,0,0.1) !important; color: #FFF !important; border: 1px solid #ccc !important;
+        background-color: rgba(0,0,0,0.1) !important; color: #333 !important; border: 1px solid #ccc !important;
     }
     div.stButton > button[kind="primary"] {
         background-color: #28a745 !important;
@@ -830,7 +839,7 @@ def sentence_fill():
     </div>
     """, unsafe_allow_html=True)
     
-    st.markdown("<h3 style='text-align:center; margin-top:2rem; color:#FFF;'>Choose the missing word:</h3>", unsafe_allow_html=True)
+    st.markdown("<h3 style='text-align:center; margin-top:2rem; color:#333 !important;'>Choose the missing word:</h3>", unsafe_allow_html=True)
     
     col1, col2 = st.columns(2)
     is_disabled = (st.session_state[answered_key] == "correct")
@@ -874,13 +883,13 @@ def antonym_activity():
         background-color: #28a745 !important;
         color: white !important;
     }
-    .antonym-clue { font-size: 3rem; font-weight: bold; color: #FFD700; text-align: center; }
+    .antonym-clue { font-size: 3rem; font-weight: bold; color: #003366; text-align: center; }
     .antonym-answer-box {
         font-size: 3rem; font-weight: bold; color: #28a745; text-align: center; border: 3px solid #28a745;
         border-radius: 15px; padding: 10px; background-color: white; display: inline-block; min-width: 300px;
     }
     .antonym-placeholder {
-        font-size: 3rem; color: #ccc; border-bottom: 3px solid #FFF; display: inline-block; min-width: 150px; text-align: center;
+        font-size: 3rem; color: #ccc; border-bottom: 3px solid #333; display: inline-block; min-width: 150px; text-align: center;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -920,7 +929,7 @@ def antonym_activity():
 
     st.markdown(f"**Word {st.session_state.ant_index + 1} of {len(data)}**")
     st.markdown(f"<div class='antonym-clue'>{task['clue']}</div>", unsafe_allow_html=True)
-    st.markdown("<div style='text-align:center; font-size: 2.5rem; margin: 10px 0; color:#FFF;'>⇄</div>", unsafe_allow_html=True)
+    st.markdown("<div style='text-align:center; font-size: 2.5rem; margin: 10px 0; color:#333;'>⇄</div>", unsafe_allow_html=True)
     
     answer_html = "<div style='text-align:center; margin-bottom: 2rem;'>"
     if current_state == "correct":
