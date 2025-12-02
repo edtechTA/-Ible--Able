@@ -6,13 +6,13 @@ import os
 
 # --- Configuration & Styles ---
 st.set_page_config(
-    page_title="Trident Academy Word Wizards",
+    page_title="Trident Word Wizards",
     page_icon="🧙‍♂️",
     layout="wide",
     initial_sidebar_state="collapsed"
 )
 
-# Custom CSS for Trident Academy Academy Branding and Activity Specifics
+# Custom CSS for Trident Academy Branding and Activity Specifics
 st.markdown("""
 <style>
     /* Global Styles */
@@ -79,7 +79,7 @@ st.markdown("""
 
     /* Activity 2: Word Builder Zones */
     .wb-workshop {
-        background-color: #003366; /* Trident Academy Blue */
+        background-color: #003366; /* Trident Blue */
         color: white;
         padding: 2rem;
         border-radius: 15px;
@@ -291,6 +291,8 @@ READING_STORIES = [
 ]
 
 # --- State Management ---
+if 'student_name' not in st.session_state:
+    st.session_state.student_name = ""
 if 'current_activity' not in st.session_state:
     st.session_state.current_activity = None
 if 'completed_syllables' not in st.session_state:
@@ -313,21 +315,61 @@ if 'story_is_read' not in st.session_state:
 if 'wb_difficulty' not in st.session_state:
     st.session_state.wb_difficulty = 'normal'
 
+# --- WELCOME SCREEN LOGIC ---
+def login_screen():
+    st.markdown("<div style='text-align: center; margin-top: 50px;'>", unsafe_allow_html=True)
+    st.markdown("<h1 style='color: #003366;'>🧙‍♂️ Welcome to Trident Word Wizards! 🧙‍♂️</h1>", unsafe_allow_html=True)
+    st.markdown("<h2 style='color: #555;'>I am the Word Wizard. What is your name?</h2>", unsafe_allow_html=True)
+    st.markdown("</div>", unsafe_allow_html=True)
+    
+    col1, col2, col3 = st.columns([1, 2, 1])
+    with col2:
+        with st.form("login_form"):
+            name_input = st.text_input("Enter your name here:", placeholder="Type your name...")
+            submit = st.form_submit_button("Start Adventure! 🚀", use_container_width=True)
+            
+            if submit:
+                if name_input.strip():
+                    st.session_state.student_name = name_input.strip()
+                    st.rerun()
+                else:
+                    st.warning("Please tell me your name first!")
+
+if not st.session_state.student_name:
+    login_screen()
+    st.stop()
+
 # --- Helper Functions ---
 def go_home():
     st.session_state.current_activity = None
 
 def celebrate_success():
-    """Randomized visual reward system"""
+    """Randomized visual reward system with personalization"""
+    name = st.session_state.student_name
+    
+    # Mix of generic and personalized messages
+    messages = [
+        "Awesome Job! 🎉",
+        f"Way to go, {name}! 🌟",
+        "You are a Word Wizard! 🧙‍♂️",
+        f"Spectacular work, {name}! ✨",
+        "Brilliant! 💡",
+        f"{name}, you are on fire! 🔥",
+        "Correct! 🎯"
+    ]
+    
+    msg = random.choice(messages)
     effect = random.choice(["balloons", "snow", "magic"])
+    
     if effect == "balloons":
         st.balloons()
     elif effect == "snow":
         st.snow()
     else:
-        st.toast("✨ Magical! Outstanding Work! ✨", icon="🧙‍♂️")
-        time.sleep(0.5)
-        st.toast("🌟 You are a Word Wizard! 🌟", icon="⭐")
+        # Magic is just toast for now, but we could add more
+        pass
+        
+    st.toast(msg, icon="⭐")
 
 def play_error():
     st.toast("Not quite! Try again.", icon="❌")
@@ -364,7 +406,8 @@ def ask_gemini_explanation(word):
 # --- Activities ---
 
 def activity_menu():
-    st.markdown("<h1 class='main-header'>Trident Academy Word Wizards 🧙‍♂️</h1>", unsafe_allow_html=True)
+    # Personalized Header
+    st.markdown(f"<h1 class='main-header'>Welcome, {st.session_state.student_name}! 🧙‍♂️</h1>", unsafe_allow_html=True)
     st.markdown("<p class='sub-header'>Lesson 6: <span style='background:#FFCC00; padding:2px 5px; border-radius:4px'>-able</span> & <span style='background:#FFCC00; padding:2px 5px; border-radius:4px'>-ible</span></p>", unsafe_allow_html=True)
 
     col1, col2, col3 = st.columns(3)
@@ -711,20 +754,11 @@ def antonym_activity():
             st.rerun()
 
 def yes_no_activity():
-    st.header("👍 Yes or No?")
-
-    # Inject specific styles for MASSIVE buttons in this activity
-    # CSS Change: Target columns to affect Yes/No but not Back button
-    st.markdown("""
-    <style>
-    div[data-testid="column"] .stButton button {
-        font-size: 3rem !important;
-        padding: 2rem !important;
-        min-height: 150px;
-        margin-top: 20px;
-    }
-    </style>
-    """, unsafe_allow_html=True)
+    # Split header into two columns: Title (Left), Next Button (Right)
+    c_header, c_next = st.columns([3, 1])
+    
+    with c_header:
+        st.header("👍 Yes or No?")
     
     if st.session_state.yn_index >= len(YES_NO_DATA):
         st.success("You finished the questions! ✅")
@@ -740,11 +774,12 @@ def yes_no_activity():
     if answered_key not in st.session_state:
         st.session_state[answered_key] = None
         
-    # RENDER NEXT BUTTON AT TOP IF ANSWERED
+    # RENDER NEXT BUTTON AT TOP RIGHT IF ANSWERED
     if st.session_state[answered_key] is not None:
-        if st.button("Next Question ➡", key="next_q_top"):
-             st.session_state.yn_index += 1
-             st.rerun()
+        with c_next:
+            if st.button("Next Question ➡", key="next_q_top"):
+                 st.session_state.yn_index += 1
+                 st.rerun()
     
     # Card View
     st.markdown(f"""
@@ -754,6 +789,19 @@ def yes_no_activity():
     """, unsafe_allow_html=True)
 
     if st.session_state[answered_key] is None:
+        # ONLY inject the massive button CSS when we are actually showing the Yes/No buttons
+        # This prevents the "Next" button (when shown later) from inheriting the massive size.
+        st.markdown("""
+        <style>
+        div[data-testid="column"] .stButton button {
+            font-size: 3rem !important;
+            padding: 2rem !important;
+            min-height: 150px;
+            margin-top: 20px;
+        }
+        </style>
+        """, unsafe_allow_html=True)
+
         c1, c2 = st.columns(2)
         if c1.button("YES 👍", use_container_width=True):
             if task['answer'] == True:
@@ -774,16 +822,17 @@ def yes_no_activity():
             st.rerun()
             
     else:
-        # Show Feedback
+        # Show Feedback (Next button is already rendered at top)
         if st.session_state[answered_key] == "correct":
             
-            # --- NEW FUN VISUAL FEEDBACK ---
+            # --- FUN VISUAL FEEDBACK ---
+            name = st.session_state.student_name
             fun_messages = [
                 "🎉 SPECTACULAR! 🎉",
-                "🌟 YOU GOT IT! 🌟",
+                f"🌟 YOU GOT IT, {name.upper()}! 🌟",
                 "🚀 WAY TO GO! 🚀",
                 "🧙‍♂️ PURE MAGIC! 🧙‍♂️",
-                "✨ EXCELLENT! ✨"
+                f"✨ EXCELLENT WORK, {name.upper()}! ✨"
             ]
             msg = random.choice(fun_messages)
             
