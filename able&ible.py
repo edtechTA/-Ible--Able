@@ -67,7 +67,7 @@ st.markdown("""
         box-shadow: 0 0 15px rgba(40, 167, 69, 0.6);
     }
 
-    /* Activity 1: Syllable Detective */
+    /* --- Activity 1: Syllable Detective --- */
     [data-testid="stForm"] {
         background-color: #e3f2fd;
         border: 3px dashed #003366;
@@ -77,44 +77,119 @@ st.markdown("""
         margin-bottom: 2rem;
     }
 
-    /* Activity 2: Word Builder Zones */
-    .wb-workshop {
-        background-color: #003366; /* Trident Blue */
-        color: white;
-        padding: 2rem;
+    /* --- Activity 2: Word Construction (Updated Design) --- */
+    
+    /* Blueprint Section */
+    .blueprint-container {
+        border: 3px solid #003366;
+        background-color: #E3F2FD;
         border-radius: 15px;
+        padding: 1rem;
         text-align: center;
+        position: relative;
         margin-bottom: 2rem;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+        box-shadow: 0 4px 0 rgba(0,0,0,0.1);
     }
-    .wb-parts-bin {
-        background-color: #FFF3CD; /* Light Gold */
-        border: 2px solid #FFCC00;
-        padding: 2rem;
-        border-radius: 15px;
-        margin-bottom: 2rem;
-        text-align: center;
-    }
-    .built-word-display {
-        background-color: white;
-        border: 2px solid #003366;
+    .blueprint-label {
+        background-color: #003366;
+        color: #FFCC00;
+        padding: 5px 15px;
         border-radius: 10px;
-        padding: 1rem;
-        font-size: 2.5rem;
-        font-family: monospace;
-        letter-spacing: 5px;
-        color: #003366;
-        margin-bottom: 2rem;
+        font-weight: bold;
+        text-transform: uppercase;
+        margin-bottom: 10px;
         display: inline-block;
-        min-width: 300px;
     }
-    .wb-controls {
-        padding: 1rem;
-        border-top: 1px solid #ccc;
-        margin-top: 2rem;
+    .thought-bubble {
+        background-color: white;
+        border-radius: 30px;
+        padding: 15px 30px;
+        border: 2px solid #333;
+        display: inline-block;
+        font-family: 'Comic Sans MS', cursive;
+        font-size: 1.5rem;
+        position: relative;
+        margin-left: 20px;
+    }
+    /* Simple CSS triangle for thought bubble */
+    .thought-bubble:before {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: -12px;
+        margin-top: -6px;
+        border-width: 6px 12px 6px 0;
+        border-style: solid;
+        border-color: transparent #333 transparent transparent;
     }
 
-    /* Activity 3: Sentence Master */
+    /* Brick/Block Buttons */
+    /* This targets buttons specifically within the 'parts-area' if we could add classes to streamlit elements directly, 
+       but here we rely on the specific structure used in the function */
+    .brick-btn-style button {
+        background-color: #D2691E !important; /* Chocolate/Orange */
+        color: white !important;
+        border: 2px solid #8B4513 !important;
+        border-radius: 5px !important;
+        font-family: monospace;
+        font-size: 1.5rem !important;
+        box-shadow: 0px 6px 0px #8B4513 !important; /* 3D effect */
+        margin-bottom: 10px;
+        transition: all 0.1s;
+    }
+    .brick-btn-style button:active {
+        box-shadow: 0px 2px 0px #8B4513 !important;
+        transform: translateY(4px) !important;
+    }
+
+    /* Assembling Zone */
+    .assembling-zone {
+        border: 4px dashed #555;
+        background-color: #f8f9fa;
+        border-radius: 10px;
+        padding: 2rem;
+        text-align: center;
+        margin-top: 2rem;
+        min-height: 120px;
+    }
+    .zone-label {
+        color: #555;
+        font-weight: bold;
+        text-transform: uppercase;
+        margin-bottom: 10px;
+        display: block;
+        letter-spacing: 2px;
+    }
+    .built-text {
+        font-family: monospace;
+        font-size: 3rem;
+        color: #003366;
+        letter-spacing: 5px;
+    }
+
+    /* Construct Button Styles */
+    .construct-btn-container button {
+        background-color: #8B4513 !important; /* Wood/Brown color */
+        color: #FFCC00 !important;
+        font-size: 1.5rem !important;
+        border: 3px solid #5A2D0C !important;
+        box-shadow: 0 4px 0 #5A2D0C !important;
+    }
+    
+    /* Back Button Specific */
+    .back-btn-container button {
+        background-color: transparent !important;
+        color: #555 !important;
+        border: 2px solid #ccc !important;
+        padding: 0.2rem 0.5rem !important;
+        font-size: 1rem !important;
+    }
+    .back-btn-container button:hover {
+        background-color: #eee !important;
+        transform: scale(1.0) !important;
+    }
+
+    /* --- Activity 3: Sentence Master --- */
     .sentence-display {
         font-size: 2.5rem !important;
         font-weight: bold;
@@ -137,7 +212,7 @@ st.markdown("""
         font-weight: 800;
     }
     
-    /* Activity 4: Antonym Bubbles */
+    /* --- Activity 4: Antonym Bubbles --- */
     .antonym-clue {
         font-size: 3rem;
         font-weight: bold;
@@ -165,7 +240,7 @@ st.markdown("""
         text-align: center;
     }
     
-    /* Activity 6: Reading */
+    /* --- Activity 6: Reading --- */
     .story-box {
         background-color: #fff;
         padding: 2rem;
@@ -525,22 +600,20 @@ def syllable_splitter():
         st.success("Correct! Great job!")
 
 def word_builder():
-    # Split header into two columns: Title (Left), Next Button (Right)
-    c_header, c_next = st.columns([3, 1])
+    # --- Top Row: Back Button (Left), Title (Center) ---
+    c_back, c_title = st.columns([1, 4])
+    with c_back:
+        # Back button styled smaller/transparent
+        st.markdown('<div class="back-btn-container">', unsafe_allow_html=True)
+        if st.button("⬅ Back", key="wb_back_btn"):
+            st.session_state.current_activity = None
+            st.rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
+    with c_title:
+        st.markdown("<h1 style='text-align:center; color:#003366; margin-top:0;'>WORD CONSTRUCTION</h1>", unsafe_allow_html=True)
     
-    with c_header:
-        st.header("🔨 Word Construction Site")
-    
-    # Difficulty
-    col_d1, col_d2 = st.columns([3,1])
-    with col_d2:
-        diff = st.radio("Mode:", ["normal", "challenge"], index=0 if st.session_state.wb_difficulty == 'normal' else 1, horizontal=True)
-    if diff != st.session_state.wb_difficulty:
-        st.session_state.wb_difficulty = diff
-        st.rerun()
-
+    # Check completion
     incomplete = [t for t in WORD_BUILDER_DATA if t['id'] not in st.session_state.completed_words]
-    
     if not incomplete:
         st.success("All words built! 🏗️")
         if st.button("Reset Construction"):
@@ -550,28 +623,31 @@ def word_builder():
 
     task = incomplete[0]
     
-    # If already correctly answered, show Next button at top
+    # If already correctly answered, show Next button at top right
     if st.session_state.wb_correct_state:
-        with c_next:
-            if st.button("Next Word ➡", type="primary"):
-                st.session_state.completed_words.append(task['id'])
-                st.session_state.wb_correct_state = False
-                st.session_state.wb_current_build = []
-                st.rerun()
-    
-    # ZONE 1: The Workshop (Meaning only)
-    st.markdown("### 1. The Blueprint")
-    st.markdown(f"<div class='wb-workshop'><h3>Meaning: {task['meaning']}</h3></div>", unsafe_allow_html=True)
-    
-    # ZONE 2: Parts Bin AND Build Display
-    st.markdown("### 2. Construction Zone")
+        # We can put a next button right under title or use a column
+        if st.button("Next Word ➡", type="primary", key="wb_next_top"):
+            st.session_state.completed_words.append(task['id'])
+            st.session_state.wb_correct_state = False
+            st.session_state.wb_current_build = []
+            st.rerun()
     
     # State Build
     if 'wb_current_build' not in st.session_state:
         st.session_state.wb_current_build = []
     
-    current_word = "".join(st.session_state.wb_current_build) if st.session_state.wb_current_build else "?"
+    current_word = "".join(st.session_state.wb_current_build)
     
+    # --- BLUEPRINT SECTION ---
+    st.markdown(f"""
+    <div class="blueprint-container">
+        <div class="blueprint-label">BLUEPRINT</div><br>
+        <span style='font-size: 3rem;'>📜</span>
+        <div class="thought-bubble">{task['meaning']}</div>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # --- SCATTERED PARTS (Bricks) ---
     # Shuffle parts
     parts = task['parts'].copy()
     if st.session_state.wb_difficulty == 'challenge':
@@ -581,36 +657,38 @@ def word_builder():
     random.seed(task['id'] + len(parts)) 
     random.shuffle(parts)
 
-    # Start Yellow Box
-    st.markdown('<div class="wb-parts-bin">', unsafe_allow_html=True)
-    
-    # The Word Being Built (Inside Yellow Box)
-    st.markdown(f"<div class='built-word-display'>{current_word}</div>", unsafe_allow_html=True)
-    st.markdown("<p><b>Click parts to add them:</b></p>", unsafe_allow_html=True)
-    
-    # Buttons
+    # Use columns to scatter them
+    # We wrap them in a div for styling
+    st.markdown('<div class="brick-btn-style">', unsafe_allow_html=True)
     b_cols = st.columns(len(parts))
     for i, part in enumerate(parts):
         # Disable buttons if correct
         if b_cols[i].button(part, key=f"btn_{task['id']}_{i}_{len(st.session_state.wb_current_build)}", use_container_width=True, disabled=st.session_state.wb_correct_state):
             st.session_state.wb_current_build.append(part)
             st.rerun()
-            
     st.markdown('</div>', unsafe_allow_html=True)
 
-    # ZONE 3: Control Panel
-    st.markdown('<div class="wb-controls">', unsafe_allow_html=True)
-    c1, c2, c3 = st.columns([1, 1, 1])
+    # --- ASSEMBLING ZONE ---
+    st.markdown(f"""
+    <div class="assembling-zone">
+        <span class="zone-label">ASSEMBLING ZONE</span>
+        <div class="built-text">{current_word}</div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # --- BOTTOM CONTROLS (Reset Left, Construct Right) ---
+    st.markdown("<br>", unsafe_allow_html=True)
+    c_reset, c_spacer, c_construct = st.columns([1, 2, 1])
     
-    with c1:
-        if st.button("↺ Reset Word", use_container_width=True, disabled=st.session_state.wb_correct_state):
+    with c_reset:
+        if st.button("↺ Reset", use_container_width=True, disabled=st.session_state.wb_correct_state):
             st.session_state.wb_current_build = []
             st.rerun()
             
-    with c3:
-        # Green Primary Button for Check Answer
-        # Hide or disable if already correct? Disable is better.
-        if st.button("✅ Check Answer", key="wb_check_btn", type="primary", use_container_width=True, disabled=st.session_state.wb_correct_state):
+    with c_construct:
+        st.markdown('<div class="construct-btn-container">', unsafe_allow_html=True)
+        # Using a distinct key and styling via CSS targeting
+        if st.button("CONSTRUCT!", key="wb_construct_btn", use_container_width=True, disabled=st.session_state.wb_correct_state):
             built_word = "".join(st.session_state.wb_current_build)
             if built_word == task['targetWord']:
                 celebrate_success()
@@ -619,14 +697,13 @@ def word_builder():
             else:
                 play_error()
                 st.error(f"Try again! You built '{built_word}'")
-                time.sleep(2)
+                time.sleep(1)
                 st.session_state.wb_current_build = []
                 st.rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
     
     if st.session_state.wb_correct_state:
         st.success(f"Correct! The word is {task['targetWord']}.")
-    
-    st.markdown('</div>', unsafe_allow_html=True)
 
 def sentence_fill():
     # Split header into two columns: Title (Left), Next Button (Right)
@@ -1015,9 +1092,10 @@ def reading_activity():
 # --- Main App Logic ---
 
 if st.session_state.current_activity:
-    if st.button("← Back to Menu"):
-        go_home()
-        st.rerun()
+    if st.session_state.current_activity != "WORD_BUILDER":
+        if st.button("← Back to Menu"):
+            go_home()
+            st.rerun()
 
 if st.session_state.current_activity == "SYLLABLES":
     syllable_splitter()
