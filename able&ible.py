@@ -15,26 +15,46 @@ st.set_page_config(
 # Custom CSS for Trident Academy Branding and Activity Specifics
 st.markdown("""
 <style>
-    /* Global Styles */
+    /* Global Styles & Castle Background */
     .stApp {
-        background-color: #f8f9fa;
-    }
-    .main-header {
-        font-family: 'Comic Sans MS', 'Comic Sans', cursive;
-        color: #003366;
-        text-align: center;
-        font-size: 3rem;
-        font-weight: bold;
-        margin-bottom: 1rem;
-    }
-    .sub-header {
-        color: #555;
-        text-align: center;
-        font-size: 1.2rem;
-        margin-bottom: 2rem;
+        background: linear-gradient(to bottom, #0b1026, #2b32b2); /* Night Sky */
+        background-attachment: fixed;
+        color: #fff; /* Default text white for contrast */
     }
     
-    /* Button Styling - Default Blue */
+    /* Starry Background Animation (Simple) */
+    .stApp:before {
+        content: "";
+        position: fixed;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background-image: 
+            radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 4px),
+            radial-gradient(white, rgba(255,255,255,.15) 1px, transparent 3px),
+            radial-gradient(white, rgba(255,255,255,.1) 2px, transparent 4px);
+        background-size: 550px 550px, 350px 350px, 250px 250px; 
+        background-position: 0 0, 40px 60px, 130px 270px;
+        z-index: -1;
+        opacity: 0.6;
+    }
+
+    .main-header {
+        font-family: 'Comic Sans MS', 'Comic Sans', cursive;
+        color: #FFD700; /* Gold */
+        text-align: center;
+        font-size: 3.5rem;
+        font-weight: bold;
+        margin-bottom: 1rem;
+        text-shadow: 3px 3px 0 #000;
+    }
+    .sub-header {
+        color: #E0E0E0;
+        text-align: center;
+        font-size: 1.3rem;
+        margin-bottom: 2rem;
+        text-shadow: 1px 1px 2px #000;
+    }
+    
+    /* Default Button Styling (Reset for inner activities) */
     .stButton button {
         background-color: #003366;
         color: white;
@@ -67,6 +87,32 @@ st.markdown("""
         box-shadow: 0 0 15px rgba(40, 167, 69, 0.6);
     }
 
+    /* --- LOGIN SCROLL STYLING --- */
+    .scroll-container {
+        background-color: #fdfbf7;
+        background-image: url("https://www.transparenttextures.com/patterns/aged-paper.png");
+        border: 10px solid #d4af37;
+        border-radius: 10px 10px 50px 50px; /* Scroll shape approx */
+        padding: 3rem;
+        text-align: center;
+        color: #333;
+        box-shadow: 0 0 50px rgba(255, 215, 0, 0.3);
+        margin: 2rem auto;
+        max-width: 600px;
+        position: relative;
+    }
+    .scroll-container:before, .scroll-container:after {
+        content: "";
+        position: absolute;
+        top: -20px; height: 20px; width: 110%; left: -5%;
+        background: #d4af37;
+        border-radius: 10px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    }
+    .scroll-container:after {
+        top: auto; bottom: -20px;
+    }
+
     /* --- Activity 1: Syllable Detective --- */
     [data-testid="stForm"] {
         background-color: #e3f2fd;
@@ -75,11 +121,10 @@ st.markdown("""
         border-radius: 15px;
         text-align: center;
         margin-bottom: 2rem;
+        color: #333;
     }
 
     /* --- Activity 2: Word Construction (Updated Design) --- */
-    
-    /* Blueprint Section */
     .blueprint-container {
         border: 3px solid #003366;
         background-color: #E3F2FD;
@@ -89,6 +134,7 @@ st.markdown("""
         position: relative;
         margin-bottom: 2rem;
         box-shadow: 0 4px 0 rgba(0,0,0,0.1);
+        color: #333;
     }
     .blueprint-label {
         background-color: #003366;
@@ -110,30 +156,24 @@ st.markdown("""
         font-size: 1.5rem;
         position: relative;
         margin-left: 20px;
+        color: #333;
     }
-    /* Simple CSS triangle for thought bubble */
     .thought-bubble:before {
         content: "";
         position: absolute;
-        top: 50%;
-        left: -12px;
-        margin-top: -6px;
+        top: 50%; left: -12px; margin-top: -6px;
         border-width: 6px 12px 6px 0;
         border-style: solid;
         border-color: transparent #333 transparent transparent;
     }
-
-    /* Brick/Block Buttons */
-    /* This targets buttons specifically within the 'parts-area' if we could add classes to streamlit elements directly, 
-       but here we rely on the specific structure used in the function */
     .brick-btn-style button {
-        background-color: #D2691E !important; /* Chocolate/Orange */
+        background-color: #D2691E !important; 
         color: white !important;
         border: 2px solid #8B4513 !important;
         border-radius: 5px !important;
         font-family: monospace;
         font-size: 1.5rem !important;
-        box-shadow: 0px 6px 0px #8B4513 !important; /* 3D effect */
+        box-shadow: 0px 6px 0px #8B4513 !important;
         margin-bottom: 10px;
         transition: all 0.1s;
     }
@@ -141,8 +181,6 @@ st.markdown("""
         box-shadow: 0px 2px 0px #8B4513 !important;
         transform: translateY(4px) !important;
     }
-
-    /* Assembling Zone */
     .assembling-zone {
         border: 4px dashed #555;
         background-color: #f8f9fa;
@@ -151,108 +189,43 @@ st.markdown("""
         text-align: center;
         margin-top: 2rem;
         min-height: 120px;
+        color: #333;
     }
-    .zone-label {
-        color: #555;
-        font-weight: bold;
-        text-transform: uppercase;
-        margin-bottom: 10px;
-        display: block;
-        letter-spacing: 2px;
-    }
-    .built-text {
-        font-family: monospace;
-        font-size: 3rem;
-        color: #003366;
-        letter-spacing: 5px;
-    }
-
-    /* Construct Button Styles */
+    .zone-label { color: #555; font-weight: bold; text-transform: uppercase; margin-bottom: 10px; display: block; letter-spacing: 2px; }
+    .built-text { font-family: monospace; font-size: 3rem; color: #003366; letter-spacing: 5px; }
     .construct-btn-container button {
-        background-color: #8B4513 !important; /* Wood/Brown color */
-        color: #FFCC00 !important;
-        font-size: 1.5rem !important;
-        border: 3px solid #5A2D0C !important;
-        box-shadow: 0 4px 0 #5A2D0C !important;
+        background-color: #8B4513 !important; color: #FFCC00 !important; font-size: 1.5rem !important;
+        border: 3px solid #5A2D0C !important; box-shadow: 0 4px 0 #5A2D0C !important;
     }
-    
-    /* Back Button Specific */
     .back-btn-container button {
-        background-color: transparent !important;
-        color: #555 !important;
-        border: 2px solid #ccc !important;
-        padding: 0.2rem 0.5rem !important;
-        font-size: 1rem !important;
-    }
-    .back-btn-container button:hover {
-        background-color: #eee !important;
-        transform: scale(1.0) !important;
+        background-color: rgba(255,255,255,0.1) !important; color: #fff !important; border: 1px solid #fff !important;
     }
 
     /* --- Activity 3: Sentence Master --- */
     .sentence-display {
-        font-size: 2.5rem !important;
-        font-weight: bold;
-        color: #333;
-        line-height: 1.5;
-        padding: 20px;
-        background: white;
-        border-radius: 10px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        text-align: center;
+        font-size: 2.5rem !important; font-weight: bold; color: #333; line-height: 1.5; padding: 20px;
+        background: white; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); text-align: center;
     }
-    .filled-word {
-        color: #28a745;
-        text-decoration: underline;
-        font-weight: 800;
-    }
-    .blank-space {
-        color: #FFCC00;
-        text-decoration: underline;
-        font-weight: 800;
-    }
+    .filled-word { color: #28a745; text-decoration: underline; font-weight: 800; }
+    .blank-space { color: #FFCC00; text-decoration: underline; font-weight: 800; }
     
     /* --- Activity 4: Antonym Bubbles --- */
-    .antonym-clue {
-        font-size: 3rem;
-        font-weight: bold;
-        color: #003366;
-        text-align: center;
-    }
+    .antonym-clue { font-size: 3rem; font-weight: bold; color: #FFD700; text-align: center; text-shadow: 2px 2px 0 #000; }
     .antonym-answer-box {
-        font-size: 3rem; 
-        font-weight: bold; 
-        color: #28a745; /* Green for correct */
-        text-align: center;
-        border: 3px solid #28a745;
-        border-radius: 15px;
-        padding: 10px;
-        background-color: white;
-        display: inline-block;
-        min-width: 300px;
+        font-size: 3rem; font-weight: bold; color: #28a745; text-align: center; border: 3px solid #28a745;
+        border-radius: 15px; padding: 10px; background-color: white; display: inline-block; min-width: 300px;
     }
     .antonym-placeholder {
-        font-size: 3rem;
-        color: #ccc;
-        border-bottom: 3px solid #003366;
-        display: inline-block;
-        min-width: 150px;
-        text-align: center;
+        font-size: 3rem; color: #ccc; border-bottom: 3px solid #fff; display: inline-block; min-width: 150px; text-align: center;
     }
     
     /* --- Activity 6: Reading --- */
     .story-box {
-        background-color: #fff;
-        padding: 2rem;
-        border-radius: 10px;
-        border-left: 10px solid #003366;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        background-color: #fff; padding: 2rem; border-radius: 10px; border-left: 10px solid #003366;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1); color: #333;
     }
     .quiz-box {
-        background-color: #FFCC00;
-        padding: 2rem;
-        border-radius: 10px;
-        color: #003366;
+        background-color: #FFCC00; padding: 2rem; border-radius: 10px; color: #003366;
         box-shadow: 0 4px 8px rgba(0,0,0,0.2);
     }
 
@@ -374,7 +347,7 @@ if 'completed_syllables' not in st.session_state:
     st.session_state.completed_syllables = []
 if 'completed_words' not in st.session_state:
     st.session_state.completed_words = []
-# Index trackers for one-at-a-time activities
+# Index trackers
 if 'sent_index' not in st.session_state:
     st.session_state.sent_index = 0
 if 'ant_index' not in st.session_state:
@@ -398,23 +371,27 @@ if 'wb_correct_state' not in st.session_state:
 
 # --- WELCOME SCREEN LOGIC ---
 def login_screen():
-    st.markdown("<div style='text-align: center; margin-top: 50px;'>", unsafe_allow_html=True)
-    st.markdown("<h1 style='color: #003366;'>🧙‍♂️ Welcome to Trident Word Wizards! 🧙‍♂️</h1>", unsafe_allow_html=True)
-    st.markdown("<h2 style='color: #555;'>I am the Word Wizard. What is your name?</h2>", unsafe_allow_html=True)
-    st.markdown("</div>", unsafe_allow_html=True)
+    # Styled like a magical scroll on top of the castle background
+    st.markdown("""
+    <div class="scroll-container">
+        <h1 style='color: #8B4513; font-family: "Comic Sans MS", cursive;'>📜 Welcome, Young Wizard!</h1>
+        <p style='font-size: 1.2rem; color: #555;'>I am the Guardian of the Words.<br>Please declare your name to enter the castle.</p>
+    </div>
+    """, unsafe_allow_html=True)
     
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
         with st.form("login_form"):
-            name_input = st.text_input("Enter your name here:", placeholder="Type your name...")
-            submit = st.form_submit_button("Start Adventure! 🚀", use_container_width=True)
+            name_input = st.text_input("My name is:", placeholder="Type your name...")
+            # Use a primary button for style
+            submit = st.form_submit_button("🏰 Enter the Castle 🏰", use_container_width=True, type="primary")
             
             if submit:
                 if name_input.strip():
                     st.session_state.student_name = name_input.strip()
                     st.rerun()
                 else:
-                    st.warning("Please tell me your name first!")
+                    st.warning("The castle gates remain closed. Please tell me your name!")
 
 if not st.session_state.student_name:
     login_screen()
@@ -447,7 +424,6 @@ def celebrate_success():
     elif effect == "snow":
         st.snow()
     else:
-        # Magic is just toast for now, but we could add more
         pass
         
     st.toast(msg, icon="⭐")
@@ -464,7 +440,6 @@ def reset_progress():
     st.session_state.reading_quiz_index = 0
     st.session_state.story_is_read = False
     
-    # Reset activity specific session states
     keys_to_remove = [k for k in st.session_state.keys() if k.startswith("antonym_") or k.startswith("yn_answered_") or k.startswith("sent_answered_") or k.startswith("read_answered_") or k.endswith("_correct_state")]
     for k in keys_to_remove:
         del st.session_state[k]
@@ -490,41 +465,94 @@ def ask_gemini_explanation(word):
 # --- Activities ---
 
 def activity_menu():
+    # Inject Custom CSS for Door Buttons ONLY on this menu
+    st.markdown("""
+    <style>
+    /* Activity Menu Grid Layout - Door Styling */
+    div.door-container button {
+        background: linear-gradient(to bottom, #8B4513, #5A2D0C) !important;
+        color: #FFD700 !important;
+        border: 4px solid #FFD700 !important;
+        border-radius: 50% 50% 5px 5px !important; /* Arched top */
+        height: 180px !important;
+        width: 100% !important;
+        font-size: 1.5rem !important;
+        font-family: 'Comic Sans MS', cursive !important;
+        text-shadow: 2px 2px 4px #000;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.5), inset 0 0 30px rgba(0,0,0,0.5) !important;
+        transition: transform 0.2s !important;
+        white-space: normal !important;
+        margin-bottom: 20px !important;
+    }
+    div.door-container button:hover {
+        transform: scale(1.05) !important;
+        box-shadow: 0 0 30px #FFD700 !important; /* Glowing effect */
+        border-color: #fff !important;
+    }
+    div.door-container p {
+        font-size: 1.5rem !important; /* Make button text bigger */
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
     # Personalized Header
     st.markdown(f"<h1 class='main-header'>Welcome, {st.session_state.student_name}! 🧙‍♂️</h1>", unsafe_allow_html=True)
-    st.markdown("<p class='sub-header'>Lesson 6: <span style='background:#FFCC00; padding:2px 5px; border-radius:4px'>-able</span> & <span style='background:#FFCC00; padding:2px 5px; border-radius:4px'>-ible</span></p>", unsafe_allow_html=True)
+    st.markdown("<p class='sub-header'>Choose a door to begin your adventure!</p>", unsafe_allow_html=True)
 
-    col1, col2, col3 = st.columns(3)
+    # 2 Rows of 3 Columns
+    r1c1, r1c2, r1c3 = st.columns(3)
+    r2c1, r2c2, r2c3 = st.columns(3)
     
-    with col1:
-        if st.button("✂️ Syllable Split", use_container_width=True):
+    # Row 1
+    with r1c1:
+        st.markdown('<div class="door-container">', unsafe_allow_html=True)
+        if st.button("✂️\nSyllable\nDetective"):
             st.session_state.current_activity = "SYLLABLES"
             st.rerun()
-        if st.button("🔄 Opposites", use_container_width=True):
-            st.session_state.current_activity = "ANTONYMS"
-            st.rerun()
-
-    with col2:
-        if st.button("🔨 Word Builder", use_container_width=True):
+        st.markdown('</div>', unsafe_allow_html=True)
+        
+    with r1c2:
+        st.markdown('<div class="door-container">', unsafe_allow_html=True)
+        if st.button("🔨\nWord\nBuilder"):
             st.session_state.current_activity = "WORD_BUILDER"
             st.rerun()
-        if st.button("👍 Yes or No?", use_container_width=True):
-            st.session_state.current_activity = "YES_NO"
-            st.rerun()
-
-    with col3:
-        if st.button("✍️ Sentence Master", use_container_width=True):
+        st.markdown('</div>', unsafe_allow_html=True)
+        
+    with r1c3:
+        st.markdown('<div class="door-container">', unsafe_allow_html=True)
+        if st.button("✍️\nSentence\nMaster"):
             st.session_state.current_activity = "SENTENCE_FILL"
             st.rerun()
-        if st.button("📖 Reading Comp", use_container_width=True):
+        st.markdown('</div>', unsafe_allow_html=True)
+
+    # Row 2
+    with r2c1:
+        st.markdown('<div class="door-container">', unsafe_allow_html=True)
+        if st.button("🔄\nOpposites"):
+            st.session_state.current_activity = "ANTONYMS"
+            st.rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
+        
+    with r2c2:
+        st.markdown('<div class="door-container">', unsafe_allow_html=True)
+        if st.button("👍\nYes or No?"):
+            st.session_state.current_activity = "YES_NO"
+            st.rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
+        
+    with r2c3:
+        st.markdown('<div class="door-container">', unsafe_allow_html=True)
+        if st.button("📖\nReading\nComp"):
             st.session_state.current_activity = "READING"
             st.rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
     
     st.divider()
     if st.button("🗑️ Reset All Progress"):
         reset_progress()
 
 def syllable_splitter():
+    # ... (code for syllable_splitter remains same, just ensuring indent)
     # Split header into two columns: Title (Left), Next Button (Right)
     c_header, c_next = st.columns([3, 1])
     
@@ -557,8 +585,8 @@ def syllable_splitter():
                 st.rerun()
     
     # Layout Separation: Word & Instructions vs Input Box
-    st.markdown(f"<div style='text-align:center; font-size:3rem; color:#003366; font-weight:bold; margin-bottom:1rem;'>{task['word']}</div>", unsafe_allow_html=True)
-    st.markdown("<p style='text-align:center;'>Break the word into parts below. Keep the suffix (-able/-ible) together!</p>", unsafe_allow_html=True)
+    st.markdown(f"<div style='text-align:center; font-size:3rem; color:#003366; font-weight:bold; margin-bottom:1rem; text-shadow:none;'>{task['word']}</div>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align:center; color:#333;'>Break the word into parts below. Keep the suffix (-able/-ible) together!</p>", unsafe_allow_html=True)
     
     # Distinct Input Container
     
@@ -567,35 +595,26 @@ def syllable_splitter():
     
     with st.form(key=f"syllable_form_{task['id']}"):
         for i, col in enumerate(cols):
-            # Using label_visibility="collapsed" to make it cleaner, visual instructions above
             val = col.text_input(f"Syllable {i+1}", key=f"syl_{task['id']}_{i}", label_visibility="visible").strip().lower()
             user_inputs.append(val)
         
         st.markdown("<br>", unsafe_allow_html=True)
-        # Only enable submit if not already correct state? Or let them re-submit?
-        # Better to let them re-submit or just hide the button if correct?
-        # We'll leave it but maybe show success message persistently
         submitted = st.form_submit_button("Check Answer")
 
     if submitted:
         if user_inputs == task['correctSyllables']:
             celebrate_success()
-            # Set state to true, do NOT append to completed yet
             st.session_state.syl_correct_state = True
             
-            # AI Explanation
             with st.spinner("Asking the AI Wizard for a tip..."):
                 expl = ask_gemini_explanation(task['word'])
                 if expl:
                     st.success(f"Wizard says: {expl}")
-            
-            # Rerun to show the Next button
             st.rerun()
         else:
             play_error()
             st.error("Not quite! Check your splits. Is the suffix in one box?")
             
-    # Persist success message if in correct state
     if st.session_state.syl_correct_state:
         st.success("Correct! Great job!")
 
@@ -603,16 +622,14 @@ def word_builder():
     # --- Top Row: Back Button (Left), Title (Center) ---
     c_back, c_title = st.columns([1, 4])
     with c_back:
-        # Back button styled smaller/transparent
         st.markdown('<div class="back-btn-container">', unsafe_allow_html=True)
         if st.button("⬅ Back", key="wb_back_btn"):
             st.session_state.current_activity = None
             st.rerun()
         st.markdown('</div>', unsafe_allow_html=True)
     with c_title:
-        st.markdown("<h1 style='text-align:center; color:#003366; margin-top:0;'>WORD CONSTRUCTION</h1>", unsafe_allow_html=True)
+        st.markdown("<h1 style='text-align:center; color:#FFD700; margin-top:0; text-shadow: 2px 2px #000;'>WORD CONSTRUCTION</h1>", unsafe_allow_html=True)
     
-    # Check completion
     incomplete = [t for t in WORD_BUILDER_DATA if t['id'] not in st.session_state.completed_words]
     if not incomplete:
         st.success("All words built! 🏗️")
@@ -623,16 +640,13 @@ def word_builder():
 
     task = incomplete[0]
     
-    # If already correctly answered, show Next button at top right
     if st.session_state.wb_correct_state:
-        # We can put a next button right under title or use a column
         if st.button("Next Word ➡", type="primary", key="wb_next_top"):
             st.session_state.completed_words.append(task['id'])
             st.session_state.wb_correct_state = False
             st.session_state.wb_current_build = []
             st.rerun()
     
-    # State Build
     if 'wb_current_build' not in st.session_state:
         st.session_state.wb_current_build = []
     
@@ -648,7 +662,6 @@ def word_builder():
     """, unsafe_allow_html=True)
     
     # --- SCATTERED PARTS (Bricks) ---
-    # Shuffle parts
     parts = task['parts'].copy()
     if st.session_state.wb_difficulty == 'challenge':
         all_parts = [p for t in WORD_BUILDER_DATA for p in t['parts']]
@@ -657,12 +670,9 @@ def word_builder():
     random.seed(task['id'] + len(parts)) 
     random.shuffle(parts)
 
-    # Use columns to scatter them
-    # We wrap them in a div for styling
     st.markdown('<div class="brick-btn-style">', unsafe_allow_html=True)
     b_cols = st.columns(len(parts))
     for i, part in enumerate(parts):
-        # Disable buttons if correct
         if b_cols[i].button(part, key=f"btn_{task['id']}_{i}_{len(st.session_state.wb_current_build)}", use_container_width=True, disabled=st.session_state.wb_correct_state):
             st.session_state.wb_current_build.append(part)
             st.rerun()
@@ -676,7 +686,6 @@ def word_builder():
     </div>
     """, unsafe_allow_html=True)
 
-    # --- BOTTOM CONTROLS (Reset Left, Construct Right) ---
     st.markdown("<br>", unsafe_allow_html=True)
     c_reset, c_spacer, c_construct = st.columns([1, 2, 1])
     
@@ -687,7 +696,6 @@ def word_builder():
             
     with c_construct:
         st.markdown('<div class="construct-btn-container">', unsafe_allow_html=True)
-        # Using a distinct key and styling via CSS targeting
         if st.button("CONSTRUCT!", key="wb_construct_btn", use_container_width=True, disabled=st.session_state.wb_correct_state):
             built_word = "".join(st.session_state.wb_current_build)
             if built_word == task['targetWord']:
@@ -706,14 +714,10 @@ def word_builder():
         st.success(f"Correct! The word is {task['targetWord']}.")
 
 def sentence_fill():
-    # Split header into two columns: Title (Left), Next Button (Right)
     c_header, c_next = st.columns([3, 1])
-    
     with c_header:
         st.header("✍️ Sentence Master")
     
-    # Temporary styles to make THESE specific buttons huge and fill text
-    # Ensure font size matches the sentence-display class (2.5rem) and weight matches
     st.markdown("""
     <style>
     div.stButton > button {
@@ -723,8 +727,7 @@ def sentence_fill():
         padding: 1.5rem !important;
         min-height: 120px;
         width: 100%;
-        white-space: normal; /* Allow word wrap if needed */
-        word-wrap: break-word;
+        white-space: normal; word-wrap: break-word;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -736,29 +739,23 @@ def sentence_fill():
             st.rerun()
         return
 
-    # One sentence at a time
     task = SENTENCE_DATA[st.session_state.sent_index]
-    
     st.markdown(f"**Sentence {st.session_state.sent_index + 1} of {len(SENTENCE_DATA)}**")
     
-    # Check state
     answered_key = f"sent_answered_{task['id']}"
     if answered_key not in st.session_state:
         st.session_state[answered_key] = None
         
-    # RENDER NEXT BUTTON AT TOP RIGHT IF ANSWERED
     if st.session_state[answered_key] == "correct":
         with c_next:
             if st.button("Next Sentence ➡", key="next_sent_top", type="primary"):
                  st.session_state.sent_index += 1
                  st.rerun()
     
-    # Determine what to display in blank
     blank_content = f"<span class='blank-space'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>"
     display_style = ""
     
     if st.session_state[answered_key] == "correct":
-        # If correct, show the answer
         blank_content = f"<span class='filled-word'>{task['correctOption']}</span>"
         display_style = "border: 3px solid #28a745;"
     
@@ -771,11 +768,8 @@ def sentence_fill():
     st.markdown("<h3 style='text-align:center; margin-top:2rem;'>Choose the missing word:</h3>", unsafe_allow_html=True)
     
     col1, col2 = st.columns(2)
-    
-    # Only enable buttons if not yet answered correctly
     is_disabled = (st.session_state[answered_key] == "correct")
     
-    # Left Option
     with col1:
         opt1 = task['options'][0]
         if st.button(opt1, key=f"btn_opt1_{task['id']}", use_container_width=True, disabled=is_disabled):
@@ -787,7 +781,6 @@ def sentence_fill():
                 play_error()
                 st.toast(f"'{opt1}' is not correct. Try the other one!", icon="❌")
 
-    # Right Option
     with col2:
         opt2 = task['options'][1]
         if st.button(opt2, key=f"btn_opt2_{task['id']}", use_container_width=True, disabled=is_disabled):
@@ -800,18 +793,14 @@ def sentence_fill():
                 st.toast(f"'{opt2}' is not correct. Try the other one!", icon="❌")
 
 def antonym_activity():
-    # Split header into two columns: Title (Left), Next Button (Right)
     c_header, c_next = st.columns([3, 1])
-    
     with c_header:
         st.header("🔄 Opposites (Tap to Fill)")
     
-    # CSS for larger buttons specific to this activity
     st.markdown("""
     <style>
     div[data-testid="column"] button {
-        font-size: 1.5rem !important; 
-        padding: 1rem 2rem !important;
+        font-size: 1.5rem !important; padding: 1rem 2rem !important;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -824,14 +813,10 @@ def antonym_activity():
         return
 
     task = ANTONYM_DATA[st.session_state.ant_index]
-    
-    # State Key for randomness stability
     options_key = f"antonym_options_{task['id']}"
-    state_key = f"antonym_state_{task['id']}" # 'unanswered', 'correct'
+    state_key = f"antonym_state_{task['id']}"
     
-    # Initialize State
     if options_key not in st.session_state:
-        # Bubble Bank Generation (Stable per question)
         options = [task['answer']]
         others = [t['answer'] for t in ANTONYM_DATA if t['answer'] != task['answer']]
         options.extend(random.sample(others, min(3, len(others))))
@@ -844,7 +829,6 @@ def antonym_activity():
     options = st.session_state[options_key]
     current_state = st.session_state[state_key]
     
-    # RENDER NEXT BUTTON AT TOP RIGHT IF ANSWERED
     if current_state == "correct":
         with c_next:
             if st.button("Next Word ➡", type="primary", key="ant_next_top"):
@@ -852,17 +836,9 @@ def antonym_activity():
                 st.rerun()
 
     st.markdown(f"**Word {st.session_state.ant_index + 1} of {len(ANTONYM_DATA)}**")
-    
-    # -- UI LAYOUT --
-    
-    # 1. Clue Word (Top)
     st.markdown(f"<div class='antonym-clue'>{task['clue']}</div>", unsafe_allow_html=True)
-    
-    # 2. Swap Icon (Middle)
     st.markdown("<div style='text-align:center; font-size: 2.5rem; margin: 10px 0;'>⇄</div>", unsafe_allow_html=True)
     
-    # 3. Answer/Placeholder Area (Bottom)
-    # Construct HTML first to ensure proper nesting for centering
     answer_html = "<div style='text-align:center; margin-bottom: 2rem;'>"
     if current_state == "correct":
          answer_html += f"<div class='antonym-answer-box'>{task['answer']}</div>"
@@ -872,13 +848,10 @@ def antonym_activity():
     
     st.markdown(answer_html, unsafe_allow_html=True)
     
-    # -- LOGIC & BUTTONS --
-    
     if current_state == "unanswered":
         st.info("Tap the bubble that means the opposite!")
         cols = st.columns(len(options))
         for i, opt in enumerate(options):
-            # Key uses index 'i' but options list is now STABLE in session state
             if cols[i].button(opt, key=f"ant_btn_{task['id']}_{i}", use_container_width=True):
                 if opt == task['answer']:
                     celebrate_success()
@@ -887,13 +860,10 @@ def antonym_activity():
                 else:
                     play_error()
     else:
-        # State is correct, buttons hidden, message shown
         st.success("Correct!")
 
 def yes_no_activity():
-    # Split header into two columns: Title (Left), Next Button (Right)
     c_header, c_next = st.columns([3, 1])
-    
     with c_header:
         st.header("👍 Yes or No?")
     
@@ -905,20 +875,16 @@ def yes_no_activity():
         return
 
     task = YES_NO_DATA[st.session_state.yn_index]
-    
-    # Check state
     answered_key = f"yn_answered_{task['id']}"
     if answered_key not in st.session_state:
         st.session_state[answered_key] = None
         
-    # RENDER NEXT BUTTON AT TOP RIGHT IF ANSWERED
     if st.session_state[answered_key] is not None:
         with c_next:
             if st.button("Next Question ➡", key="next_q_top", type="primary"):
                  st.session_state.yn_index += 1
                  st.rerun()
     
-    # Card View
     st.markdown(f"""
     <div style="background:white; padding:3rem; border-radius:15px; text-align:center; box-shadow:0 4px 6px rgba(0,0,0,0.1); margin-bottom:2rem;">
         <h2 style="color:#003366;">{task['question']}</h2>
@@ -926,8 +892,6 @@ def yes_no_activity():
     """, unsafe_allow_html=True)
 
     if st.session_state[answered_key] is None:
-        # ONLY inject the massive button CSS when we are actually showing the Yes/No buttons
-        # This prevents the "Next" button (when shown later) from inheriting the massive size.
         st.markdown("""
         <style>
         div[data-testid="column"] .stButton button {
@@ -957,12 +921,8 @@ def yes_no_activity():
                 play_error()
                 st.session_state[answered_key] = "wrong"
             st.rerun()
-            
     else:
-        # Show Feedback (Next button is already rendered at top)
         if st.session_state[answered_key] == "correct":
-            
-            # --- FUN VISUAL FEEDBACK ---
             name = st.session_state.student_name
             fun_messages = [
                 "🎉 SPECTACULAR! 🎉",
@@ -972,17 +932,10 @@ def yes_no_activity():
                 f"✨ EXCELLENT WORK, {name.upper()}! ✨"
             ]
             msg = random.choice(fun_messages)
-            
             st.markdown(f"""
             <div style="
-                background-color: #d4edda; 
-                padding: 3rem; 
-                border-radius: 20px; 
-                border: 5px solid #28a745; 
-                text-align: center; 
-                margin-bottom: 2rem;
-                animation: pulse 2s infinite;
-                box-shadow: 0 10px 20px rgba(0,0,0,0.1);">
+                background-color: #d4edda; padding: 3rem; border-radius: 20px; border: 5px solid #28a745; 
+                text-align: center; margin-bottom: 2rem; animation: pulse 2s infinite; box-shadow: 0 10px 20px rgba(0,0,0,0.1);">
                 <h1 style="color: #155724; font-size: 4rem; margin:0; font-family: 'Comic Sans MS', cursive;">{msg}</h1>
                 <p style="font-size: 2rem; color: #155724; margin-top: 1rem;">That answer was correct!</p>
             </div>
@@ -994,8 +947,6 @@ def yes_no_activity():
             }}
             </style>
             """, unsafe_allow_html=True)
-            # -------------------------------
-
         else:
             st.error("Oops! That was incorrect.")
 
@@ -1011,27 +962,19 @@ def reading_activity():
             st.rerun()
     
     story = READING_STORIES[st.session_state.reading_story_index]
-    
-    # Font Size Slider
     font_size = st.slider("Adjust Text Size:", min_value=16, max_value=32, value=20)
-    
     col_story, col_quiz = st.columns([2, 1])
     
     with col_story:
-        # Construct the HTML content manually so the style wrapper applies to all text
         story_html = f"""
         <div class='story-box' style='font-size:{font_size}px; line-height: 1.6;'>
             <h3 style='color:#003366; margin-bottom:1rem;'>{story['title']}</h3>
         """
-        
         for p in story['paragraphs']:
             story_html += f"<p style='margin-bottom:1rem;'>{p}</p>"
-            
         story_html += "</div>"
         
         st.markdown(story_html, unsafe_allow_html=True)
-        
-        # Read Confirmation
         if not st.session_state.story_is_read:
             st.write("---")
             if st.button("✅ I have read the story"):
@@ -1044,26 +987,20 @@ def reading_activity():
         else:
             st.markdown("<div class='quiz-box'>", unsafe_allow_html=True)
             st.markdown("### Quiz Time!")
-            
             q_idx = st.session_state.reading_quiz_index
             
             if q_idx < len(story['questions']):
                 q = story['questions'][q_idx]
-                
-                # Check answered state
                 read_answered_key = f"read_answered_{story['id']}_{q_idx}"
                 if read_answered_key not in st.session_state:
                     st.session_state[read_answered_key] = False
                 
-                # Show Next Question button if answered correctly
                 if st.session_state[read_answered_key]:
                     if st.button("Next Question ➡", key="read_next_q", type="primary"):
                         st.session_state.reading_quiz_index += 1
                         st.rerun()
                 
                 st.write(f"**Q{q_idx+1}: {q['question']}**")
-                
-                # Use a placeholder for the answer key to reset on new questions
                 ans_key = f"read_q_{story['id']}_{q_idx}"
                 ans = st.radio("Choose:", q['options'], key=ans_key, disabled=st.session_state[read_answered_key])
                 
@@ -1086,7 +1023,6 @@ def reading_activity():
                     st.session_state.reading_quiz_index = 0
                     st.session_state.story_is_read = False
                     st.rerun()
-                    
             st.markdown("</div>", unsafe_allow_html=True)
 
 # --- Main App Logic ---
