@@ -209,10 +209,9 @@ def init_random_data():
 init_random_data()
 
 # --- Background CSS Logic ---
-# Always use CSS pattern (Removed external image logic for reliability)
 background_style = """
     [data-testid="stAppViewContainer"] {
-        background-color: #444; /* Lighter dark gray base */
+        background-color: #2a2a2a;
         background-image: 
             linear-gradient(335deg, rgba(0,0,0,0.3) 23px, transparent 23px),
             linear-gradient(155deg, rgba(0,0,0,0.3) 23px, transparent 23px),
@@ -230,43 +229,47 @@ st.markdown(f"""
     /* GLOBAL: Background */
     {background_style}
     
-    /* Ensure content sits above background - WITH WHITE OVERLAY */
+    /* Main Container - Dark Transparent Overlay for Readability */
     [data-testid="block-container"] {{
         z-index: 1;
         position: relative;
-        /* White semi-transparent overlay for readability */
-        background-color: rgba(255, 255, 255, 0.95); 
+        background-color: rgba(0, 0, 0, 0.8); /* Dark background */
         padding: 3rem;
         border-radius: 20px;
         margin-top: 2rem;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-        border: 5px solid #444;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.8);
+        border: 3px solid #555;
     }}
     
-    /* Default text color inside the container should now be dark */
-    [data-testid="block-container"] p, 
-    [data-testid="block-container"] li, 
-    [data-testid="block-container"] h1, 
-    [data-testid="block-container"] h2, 
-    [data-testid="block-container"] h3 {{
-        color: #333;
+    /* Global Text Colors - High Contrast Light */
+    h1 {{ color: #FFD700 !important; text-shadow: 2px 2px 0 #000; }} /* Gold Headers */
+    h2 {{ color: #7CFC00 !important; text-shadow: 1px 1px 0 #000; }} /* Bright Green Subheaders */
+    h3 {{ color: #00FFFF !important; }} /* Cyan small headers */
+    
+    p, li, span, div, label {{
+        color: #FFFFFF !important; /* White body text */
+        font-size: 1.1rem;
+    }}
+    
+    /* Input Fields - Make them white on inside */
+    .stTextInput input {{
+        background-color: #FFF !important;
+        color: #000 !important;
     }}
 
     .main-header {{
         font-family: 'Comic Sans MS', 'Comic Sans', cursive;
-        color: #003366; /* Changed to dark blue for contrast on white */
+        color: #FFD700; 
         text-align: center;
-        font-size: 4rem; /* Bigger Header */
+        font-size: 4rem; 
         font-weight: bold;
         margin-bottom: 0.5rem;
-        text-shadow: none; 
     }}
     .sub-header {{
-        color: #555; /* Dark grey for contrast */
+        color: #ADFF2F; /* GreenYellow */
         text-align: center;
-        font-size: 1.5rem; /* Bigger sub-header */
+        font-size: 1.5rem; 
         margin-bottom: 2rem;
-        text-shadow: none;
     }}
     
     /* LOGIN SCROLL STYLING */
@@ -277,17 +280,21 @@ st.markdown(f"""
         border-radius: 10px 10px 50px 50px;
         padding: 3rem;
         text-align: center;
-        color: #333;
+        color: #333 !important; /* Override white for scroll */
         box-shadow: 0 0 50px rgba(255, 215, 0, 0.5);
         margin: 2rem auto;
         max-width: 600px;
         position: relative;
     }}
+    .scroll-container h1, .scroll-container p {{
+        color: #5c3a21 !important; /* Brown text on scroll */
+        text-shadow: none;
+    }}
     
     /* DEFAULT BUTTON (Reset for generic buttons) */
     .stButton button {{
         background-color: #003366;
-        color: white;
+        color: white !important;
         border-radius: 20px;
         border: 2px solid #003366;
     }}
@@ -299,8 +306,8 @@ st.markdown(f"""
 def login_screen():
     st.markdown("""
     <div class="scroll-container">
-        <h1 style='color: #8B4513; font-family: "Comic Sans MS", cursive;'>📜 Welcome, Young Wizard!</h1>
-        <p style='font-size: 1.2rem; color: #555;'>I am the Guardian of the Words.<br>Please declare your name to enter the castle.</p>
+        <h1>📜 Welcome, Young Wizard!</h1>
+        <p>I am the Guardian of the Words.<br>Please declare your name to enter the castle.</p>
     </div>
     """, unsafe_allow_html=True)
     
@@ -308,7 +315,7 @@ def login_screen():
     with col2:
         # Custom styled label to make "My name is" visible
         st.markdown("""
-        <div style='background-color: #d4af37; padding: 10px; border-radius: 10px; text-align: center; margin-bottom: 10px; border: 2px solid #8B4513; color: #fff; font-weight: bold; font-size: 1.5rem; text-shadow: 1px 1px 2px #000;'>
+        <div style='background-color: #d4af37; padding: 10px; border-radius: 10px; text-align: center; margin-bottom: 10px; border: 2px solid #8B4513; color: #fff !important; font-weight: bold; font-size: 1.5rem; text-shadow: 1px 1px 2px #000;'>
             My Name Is:
         </div>
         """, unsafe_allow_html=True)
@@ -403,11 +410,6 @@ def activity_menu():
         border: none !important;
     }
     
-    /* Ensure generic text on this page is light */
-    p, h1, h2, h3, h4, span, div {
-        color: #FFF !important;
-    }
-
     /* Styling for buttons inside columns on the menu page to look like WOODEN DOORS */
     div[data-testid="column"] button {
         /* Wooden Texture via CSS Gradients */
@@ -516,7 +518,6 @@ def activity_menu():
     if st.button("🗑️ Reset All Progress"):
         reset_progress()
 
-# ... (rest of the activities code remains exactly the same)
 def syllable_splitter():
     # Inject specific styles for this activity to override defaults/doors
     st.markdown("""
@@ -532,13 +533,12 @@ def syllable_splitter():
         border: 2px solid #003366 !important;
         background-image: none !important;
     }
-    /* Syllable Container */
+    /* Syllable Container - Darker */
     [data-testid="stForm"] {
-        background-color: #e3f2fd;
-        border: 3px dashed #003366;
+        background-color: rgba(0,0,0,0.6);
+        border: 3px dashed #FFD700;
         padding: 2rem;
         border-radius: 15px;
-        color: #333;
     }
     div.stButton > button[kind="primary"] {
         background-color: #28a745 !important;
@@ -575,8 +575,8 @@ def syllable_splitter():
                 st.session_state.syl_correct_state = False
                 st.rerun()
     
-    st.markdown(f"<div style='text-align:center; font-size:3rem; color:#003366; font-weight:bold; margin-bottom:1rem;'>{task['word']}</div>", unsafe_allow_html=True)
-    st.markdown("<p style='text-align:center; color:#333;'>Break the word into parts below. Keep the suffix (-able/-ible) together!</p>", unsafe_allow_html=True)
+    st.markdown(f"<div style='text-align:center; font-size:3rem; color:#FFD700; font-weight:bold; margin-bottom:1rem;'>{task['word']}</div>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align:center; color:#FFF;'>Break the word into parts below. Keep the suffix (-able/-ible) together!</p>", unsafe_allow_html=True)
     
     cols = st.columns(len(task['correctSyllables']))
     user_inputs = []
@@ -616,21 +616,21 @@ def word_builder():
     
     /* Blueprint Section */
     .blueprint-container {
-        border: 3px solid #003366; background-color: #E3F2FD; border-radius: 15px; padding: 1rem;
-        text-align: center; position: relative; margin-bottom: 2rem; box-shadow: 0 4px 0 rgba(0,0,0,0.1); color: #333;
+        border: 3px solid #FFD700; background-color: #333; border-radius: 15px; padding: 1rem;
+        text-align: center; position: relative; margin-bottom: 2rem; box-shadow: 0 4px 0 rgba(0,0,0,0.5); color: #FFF;
     }
     .blueprint-label {
         background-color: #003366; color: #FFCC00; padding: 5px 15px; border-radius: 10px;
         font-weight: bold; text-transform: uppercase; margin-bottom: 10px; display: inline-block;
     }
     .thought-bubble {
-        background-color: white; border-radius: 30px; padding: 15px 30px; border: 2px solid #333;
+        background-color: #eee; border-radius: 30px; padding: 15px 30px; border: 2px solid #333;
         display: inline-block; font-family: 'Comic Sans MS', cursive; font-size: 1.5rem; position: relative;
-        margin-left: 20px; color: #333;
+        margin-left: 20px; color: #333 !important; /* Keep this dark for reading bubble */
     }
     .thought-bubble:before {
         content: ""; position: absolute; top: 50%; left: -12px; margin-top: -6px;
-        border-width: 6px 12px 6px 0; border-style: solid; border-color: transparent #333 transparent transparent;
+        border-width: 6px 12px 6px 0; border-style: solid; border-color: transparent #eee transparent transparent;
     }
     
     /* Bricks */
@@ -645,18 +645,18 @@ def word_builder():
     }
     
     .assembling-zone {
-        border: 4px dashed #555; background-color: #f8f9fa; border-radius: 10px; padding: 2rem;
-        text-align: center; margin-top: 2rem; min-height: 120px; color: #333;
+        border: 4px dashed #FFD700; background-color: rgba(0,0,0,0.5); border-radius: 10px; padding: 2rem;
+        text-align: center; margin-top: 2rem; min-height: 120px; color: #fff;
     }
-    .zone-label { color: #555; font-weight: bold; text-transform: uppercase; margin-bottom: 10px; display: block; letter-spacing: 2px; }
-    .built-text { font-family: monospace; font-size: 3rem; color: #003366; letter-spacing: 5px; }
+    .zone-label { color: #CCC; font-weight: bold; text-transform: uppercase; margin-bottom: 10px; display: block; letter-spacing: 2px; }
+    .built-text { font-family: monospace; font-size: 3rem; color: #FFD700; letter-spacing: 5px; }
     
     .construct-btn-container button {
         background-color: #8B4513 !important; color: #FFCC00 !important; font-size: 1.5rem !important;
         border: 3px solid #5A2D0C !important; box-shadow: 0 4px 0 #5A2D0C !important; height: auto !important;
     }
     .back-btn-container button {
-        background-color: rgba(0,0,0,0.1) !important; color: #333 !important; border: 1px solid #ccc !important;
+        background-color: rgba(0,0,0,0.1) !important; color: #FFF !important; border: 1px solid #ccc !important;
     }
     div.stButton > button[kind="primary"] {
         background-color: #28a745 !important;
@@ -672,7 +672,7 @@ def word_builder():
             st.rerun()
         st.markdown('</div>', unsafe_allow_html=True)
     with c_title:
-        st.markdown("<h1 style='text-align:center; color:#003366; margin-top:0;'>WORD CONSTRUCTION</h1>", unsafe_allow_html=True)
+        st.markdown("<h1 style='text-align:center; color:#FFD700; margin-top:0;'>WORD CONSTRUCTION</h1>", unsafe_allow_html=True)
     
     # USE SESSION DATA
     data = st.session_state.session_word_builder
@@ -778,11 +778,12 @@ def sentence_fill():
         background-image: none !important;
     }
     .sentence-display {
-        font-size: 2.5rem !important; font-weight: bold; color: #333; line-height: 1.5; padding: 20px;
+        font-size: 2.5rem !important; font-weight: bold; color: #333 !important; line-height: 1.5; padding: 20px;
         background: white; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); text-align: center;
     }
-    .filled-word { color: #28a745; text-decoration: underline; font-weight: 800; }
-    .blank-space { color: #FFCC00; text-decoration: underline; font-weight: 800; }
+    .sentence-display span { color: #333 !important; } /* Force dark text inside box */
+    .filled-word { color: #28a745 !important; text-decoration: underline; font-weight: 800; }
+    .blank-space { color: #FFCC00 !important; text-decoration: underline; font-weight: 800; }
     div.stButton > button[kind="primary"] {
         background-color: #28a745 !important;
         color: white !important;
@@ -824,11 +825,11 @@ def sentence_fill():
     
     st.markdown(f"""
     <div class="sentence-display" style="{display_style}">
-        {task['sentencePart1']} {blank_content} {task['sentencePart2']}
+        <span>{task['sentencePart1']}</span> {blank_content} <span>{task['sentencePart2']}</span>
     </div>
     """, unsafe_allow_html=True)
     
-    st.markdown("<h3 style='text-align:center; margin-top:2rem; color:#333;'>Choose the missing word:</h3>", unsafe_allow_html=True)
+    st.markdown("<h3 style='text-align:center; margin-top:2rem; color:#FFF;'>Choose the missing word:</h3>", unsafe_allow_html=True)
     
     col1, col2 = st.columns(2)
     is_disabled = (st.session_state[answered_key] == "correct")
@@ -872,13 +873,13 @@ def antonym_activity():
         background-color: #28a745 !important;
         color: white !important;
     }
-    .antonym-clue { font-size: 3rem; font-weight: bold; color: #003366; text-align: center; }
+    .antonym-clue { font-size: 3rem; font-weight: bold; color: #FFD700; text-align: center; }
     .antonym-answer-box {
         font-size: 3rem; font-weight: bold; color: #28a745; text-align: center; border: 3px solid #28a745;
         border-radius: 15px; padding: 10px; background-color: white; display: inline-block; min-width: 300px;
     }
     .antonym-placeholder {
-        font-size: 3rem; color: #ccc; border-bottom: 3px solid #333; display: inline-block; min-width: 150px; text-align: center;
+        font-size: 3rem; color: #ccc; border-bottom: 3px solid #FFF; display: inline-block; min-width: 150px; text-align: center;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -918,7 +919,7 @@ def antonym_activity():
 
     st.markdown(f"**Word {st.session_state.ant_index + 1} of {len(data)}**")
     st.markdown(f"<div class='antonym-clue'>{task['clue']}</div>", unsafe_allow_html=True)
-    st.markdown("<div style='text-align:center; font-size: 2.5rem; margin: 10px 0; color:#333;'>⇄</div>", unsafe_allow_html=True)
+    st.markdown("<div style='text-align:center; font-size: 2.5rem; margin: 10px 0; color:#FFF;'>⇄</div>", unsafe_allow_html=True)
     
     answer_html = "<div style='text-align:center; margin-bottom: 2rem;'>"
     if current_state == "correct":
@@ -1073,7 +1074,7 @@ def reading_activity():
             <h3 style='color:#003366; margin-bottom:1rem;'>{story['title']}</h3>
         """
         for p in story['paragraphs']:
-            story_html += f"<p style='margin-bottom:1rem;'>{p}</p>"
+            story_html += f"<p style='margin-bottom:1rem; color: #333 !important;'>{p}</p>"
         story_html += "</div>"
         
         st.markdown(story_html, unsafe_allow_html=True)
