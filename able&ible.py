@@ -213,11 +213,12 @@ init_random_data()
 if CASTLE_BACKGROUND_URL:
     background_style = f"""
         [data-testid="stAppViewContainer"] {{
+            background-color: #0b1026; /* Dark Blue Sky Color fallback */
             background-image: url("{CASTLE_BACKGROUND_URL}");
-            background-size: cover;
+            background-size: 100% auto; /* Forces image to fit width, natural height */
             background-repeat: no-repeat;
+            background-position: center bottom; /* Anchor to bottom of screen */
             background-attachment: fixed;
-            background-position: center;
             color: #fff;
         }}
     """
@@ -390,69 +391,68 @@ def activity_menu():
         border: none !important;
     }
     
-    /* Transparent Door Buttons */
-    div[data-testid="column"] button {
-        background-color: rgba(255, 255, 255, 0.15) !important; /* Slight glass effect to see hit zone */
-        border: 2px solid rgba(255, 215, 0, 0.5) !important; /* Golden glowing border */
+    /* Transparent Door Buttons (Hit Boxes) */
+    div.stButton > button {
+        background-color: rgba(255, 255, 255, 0.05) !important; /* Very faint hit box */
+        border: 2px solid transparent !important; 
         color: transparent !important; /* HIDE TEXT */
-        border-radius: 100px 100px 5px 5px !important; /* Arched Door Shape */
-        height: 250px !important; /* Increased height for bigger hit box */
+        border-radius: 100px 100px 0 0 !important; /* Arched Door Shape */
+        height: 250px !important; /* Taller to match door height */
         width: 100% !important;
-        box-shadow: 0 0 15px rgba(255, 215, 0, 0.3) !important;
-        margin-bottom: 20px !important;
-        transition: all 0.3s !important;
+        box-shadow: none !important;
+        margin-bottom: 0px !important;
+        transition: all 0.2s !important;
     }
-    div[data-testid="column"] button:hover {
-        background-color: rgba(255, 255, 255, 0.3) !important;
-        box-shadow: 0 0 40px rgba(255, 215, 0, 0.8) !important;
+    div.stButton > button:hover {
+        background-color: rgba(255, 215, 0, 0.3) !important; /* Gold glow on hover */
+        border: 2px solid rgba(255, 215, 0, 0.8) !important;
         transform: scale(1.05) !important;
         cursor: pointer;
     }
-    /* Hide the paragraph text inside the button too just in case */
-    div[data-testid="column"] button p {
+    /* Ensure no text shadow or other artifacts */
+    div.stButton > button * {
         display: none !important;
     }
     </style>
     """, unsafe_allow_html=True)
 
-    # Simplified Header to not distract from image
+    # Simplified Header
     st.markdown(f"<h1 style='text-align:center; color:#FFD700; text-shadow: 3px 3px 5px #000; font-family: \"Comic Sans MS\", cursive;'>Welcome, {st.session_state.student_name}!</h1>", unsafe_allow_html=True)
     st.markdown("<p style='text-align:center; color:#FFF; text-shadow: 2px 2px 4px #000; font-size: 1.5rem;'>Click a door to begin!</p>", unsafe_allow_html=True)
 
-    # PUSH BUTTONS DOWN TO ALIGN WITH DOORS IN IMAGE
-    # The image has doors at the bottom. We need a spacer.
-    st.markdown("<div style='height: 40vh;'></div>", unsafe_allow_html=True)
+    # PUSH BUTTONS DOWN TO BOTTOM 
+    # Use a large spacer. Adjust '45vh' if needed based on the image aspect ratio
+    st.markdown("<div style='height: 45vh;'></div>", unsafe_allow_html=True)
 
-    # SINGLE ROW OF 6 COLUMNS
+    # SINGLE ROW OF 6 COLUMNS for the 6 doors
     c1, c2, c3, c4, c5, c6 = st.columns(6, gap="small")
     
-    # We pass text for accessibility/debugging, but CSS hides it visually
+    # Pass empty text to button, handled by CSS
     with c1:
-        if st.button("Syllable Split"):
+        if st.button("Syllable", key="btn_syl"):
             st.session_state.current_activity = "SYLLABLES"
             st.rerun()
     with c2:
-        if st.button("Word Builder"):
+        if st.button("Word", key="btn_wb"):
             st.session_state.current_activity = "WORD_BUILDER"
             st.rerun()
     with c3:
-        if st.button("Sentence Master"):
+        if st.button("Sentence", key="btn_sent"):
             st.session_state.current_activity = "SENTENCE_FILL"
             st.rerun()
     with c4:
-        if st.button("Opposites"):
+        if st.button("Opposites", key="btn_ant"):
             st.session_state.current_activity = "ANTONYMS"
             st.rerun()
     with c5:
-        if st.button("Yes or No"):
+        if st.button("YesNo", key="btn_yn"):
             st.session_state.current_activity = "YES_NO"
             st.rerun()
     with c6:
-        if st.button("Reading Comp"):
+        if st.button("Read", key="btn_read"):
             st.session_state.current_activity = "READING"
             st.rerun()
     
-    # Reset button at very bottom
     st.divider()
     if st.button("🗑️ Reset All Progress"):
         reset_progress()
